@@ -270,6 +270,12 @@
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
+  pointer-events: none;
+}
+
+.mito-top-toolbar-center .mode-switcher-container,
+.mito-top-toolbar-center .mode-switcher-container * {
+  pointer-events: auto;
 }
 
 .mito-top-toolbar-right {

@@ -405,6 +405,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
 
     const bindToolbarToPanel = (panel: NotebookPanel | null): void => {
       toolbarWidget.setActivePanel(panel);
+      toolbarWidget.prepareNotebookExtensionToolbarForRebind();
       if (!panel) {
         toolbarWidget.notebookExtensionsToolbar.hide();
         return;
@@ -416,6 +417,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
         notebookToolbarFactory,
         toolbarWidget.notebookExtensionsToolbar
       );
+      toolbarWidget.syncNotebookExtensionToolbar(panel);
       toolbarWidget.setMode(manager.getMode());
     };
 

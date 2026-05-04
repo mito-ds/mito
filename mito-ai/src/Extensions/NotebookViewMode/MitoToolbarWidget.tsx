@@ -734,6 +734,21 @@ class AppActionsWidget extends ReactWidget {
 }
 
 export class MitoToolbarWidget extends Widget {
+  private static readonly _DEFAULT_NOTEBOOK_ITEM_NAMES = new Set([
+    'insert',
+    'cut',
+    'copy',
+    'paste',
+    'run',
+    'run-all',
+    'restart',
+    'interrupt',
+    'restart-and-run',
+    'cellType',
+    'kernelName',
+    'debugger-icon'
+  ]);
+
   private readonly _leftCluster: TabDropdownWidget;
   private readonly _centerWidget: ModeSwitcherWidget;
   private readonly _rightCluster = new Panel();
@@ -742,6 +757,8 @@ export class MitoToolbarWidget extends Widget {
   private readonly _rightDivider = new Widget();
   private readonly _notebookHero = new NotebookHeroWidget();
   private readonly _appActions: AppActionsWidget;
+  private _transferredNotebookItems: Array<{ name: string; widget: Widget }> = [];
+  private _sourcePanelForTransferredItems: NotebookPanel | null = null;
 
   constructor(
     viewMode: INotebookViewMode,
@@ -790,6 +807,53 @@ export class MitoToolbarWidget extends Widget {
 
   get notebookExtensionsToolbar(): Toolbar {
     return this._notebookExtensions;
+  }
+
+  prepareNotebookExtensionToolbarForRebind(): void {
+    if (!this._sourcePanelForTransferredItems) {
+      this._transferredNotebookItems = [];
+      return;
+    }
+
+    const sourceToolbar = this._sourcePanelForTransferredItems.toolbar as unknown as {
+      addItem?: (name: string, widget: Widget) => void;
+    };
+    if (!sourceToolbar.addItem) {
+      this._sourcePanelForTransferredItems = null;
+      this._transferredNotebookItems = [];
+      return;
+    }
+
+    this._transferredNotebookItems.forEach(({ name, widget }) => {
+      sourceToolbar.addItem?.(name, widget);
+    });
+    this._sourcePanelForTransferredItems = null;
+    this._transferredNotebookItems = [];
+  }
+
+  syncNotebookExtensionToolbar(panel: NotebookPanel | null): void {
+    if (!panel) {
+      return;
+    }
+
+    const sourceToolbar = panel.toolbar as unknown as {
+      names?: () => Iterable<string>;
+      removeItem?: (name: string) => Widget | undefined;
+      children?: () => Iterable<Widget>;
+      node?: HTMLElement;
+    };
+    const transferableItems = this._getTransferableNotebookItems(sourceToolbar);
+    if (transferableItems.length === 0) {
+      return;
+    }
+
+    this._sourcePanelForTransferredItems = panel;
+    this._transferredNotebookItems = [];
+
+    transferableItems.forEach(({ name, widget }) => {
+      this._notebookExtensions.addItem(this._getTransferredItemName(name), widget);
+      this._transferredNotebookItems.push({ name, widget });
+    });
   }
 
   toggleTabDropdown(): void {
@@ -849,5 +913,56 @@ export class MitoToolbarWidget extends Widget {
         this.toolbarRegistry.createWidget('Notebook', panel, item)
       );
     });
+  }
+
+  private _getTransferredItemName(itemName: string): string {
+    return `third-party:${itemName}`;
+  }
+
+  private _getTransferableNotebookItems(sourceToolbar: {
+    names?: () => Iterable<string>;
+    removeItem?: (name: string) => Widget | undefined;
+    children?: () => Iterable<Widget>;
+    node?: HTMLElement;
+  }): Array<{ name: string; widget: Widget }> {
+    const transferableItems: Array<{ name: string; widget: Widget }> = [];
+
+    if (sourceToolbar.names && sourceToolbar.removeItem) {
+      Array.from(sourceToolbar.names()).forEach(itemName => {
+        if (MitoToolbarWidget._DEFAULT_NOTEBOOK_ITEM_NAMES.has(itemName)) {
+          return;
+        }
+        const widget = sourceToolbar.removeItem?.(itemName);
+        if (!widget) {
+          return;
+        }
+        transferableItems.push({ name: itemName, widget });
+      });
+      return transferableItems;
+    }
+
+    if (!sourceToolbar.children || !sourceToolbar.node) {
+      return transferableItems;
+    }
+
+    const names = Array.from(
+      sourceToolbar.node.querySelectorAll<HTMLElement>('[data-jp-item-name]')
+    )
+      .map(node => node.getAttribute('data-jp-item-name'))
+      .filter((name): name is string => Boolean(name));
+    const widgets = Array.from(sourceToolbar.children());
+    const pairCount = Math.min(names.length, widgets.length);
+    for (let index = 0; index < pairCount; index += 1) {
+      const name = names[index];
+      const widget = widgets[index];
+      if (!name || !widget) {
+        continue;
+      }
+      if (MitoToolbarWidget._DEFAULT_NOTEBOOK_ITEM_NAMES.has(name)) {
+        continue;
+      }
+      transferableItems.push({ name, widget });
+    }
+    return transferableItems;
   }
 }

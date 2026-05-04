@@ -22,7 +22,7 @@ const createMockNotebookPanel = (
   path: string,
   dirty = false
 ): NotebookPanel =>
-  ({
+  (({
     id,
     title: {
       label: path
@@ -38,7 +38,7 @@ const createMockNotebookPanel = (
     },
     disposed: createMockSignal(),
     close: jest.fn()
-  }) as unknown as NotebookPanel;
+  } as unknown as NotebookPanel) as any);
 
 const createMockNotebookTracker = (
   panels: NotebookPanel[]
@@ -172,5 +172,41 @@ describe('MitoToolbarWidget', () => {
     expect(css).toContain('.mito-tab-dropdown-trigger-content');
     expect(css).toContain('border-radius: 7px;');
     expect(css).toContain('box-shadow 0.15s ease;');
+  });
+
+  it('transfers third-party notebook toolbar widgets and restores them on rebind', () => {
+    const kernelSpyWidget = new Widget();
+    const toolbarItems = new Map<string, Widget>([
+      ['insert', new Widget()],
+      ['kernelspy-new', kernelSpyWidget]
+    ]);
+    const panel = createMockNotebookPanel('kernelspy-panel', 'kernelspy.ipynb');
+    const mockToolbar = {
+      names: jest.fn(() => toolbarItems.keys()),
+      removeItem: jest.fn((name: string) => {
+        const item = toolbarItems.get(name);
+        if (item) {
+          toolbarItems.delete(name);
+        }
+        return item;
+      }),
+      addItem: jest.fn((name: string, widget: Widget) => {
+        toolbarItems.set(name, widget);
+      })
+    };
+    (panel as any).toolbar = mockToolbar;
+
+    const widget = createMockToolbarWidget([panel], panel);
+    const addItemSpy = jest.spyOn(widget.notebookExtensionsToolbar, 'addItem');
+
+    widget.syncNotebookExtensionToolbar(panel);
+
+    expect(mockToolbar.removeItem).toHaveBeenCalledWith('kernelspy-new');
+    expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('insert');
+    expect(addItemSpy).toHaveBeenCalledWith('third-party:kernelspy-new', kernelSpyWidget);
+
+    widget.prepareNotebookExtensionToolbarForRebind();
+
+    expect(mockToolbar.addItem).toHaveBeenCalledWith('kernelspy-new', kernelSpyWidget);
   });
 });
