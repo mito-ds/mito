@@ -48,7 +48,11 @@ function mapIndicesToColumnIds(sheetData: SheetData, indices: number[]): ColumnI
         if (i < 0 || i >= sheetData.data.length) {
             return undefined;
         }
-        ids.push(sheetData.data[i].columnID);
+        const column = sheetData.data[i];
+        if (column === undefined) {
+            return undefined;
+        }
+        ids.push(column.columnID);
     }
     return ids;
 }
