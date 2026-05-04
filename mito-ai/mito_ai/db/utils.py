@@ -164,7 +164,7 @@ def install_db_drivers(db_type: str) -> dict:
     Returns:
         dict: A dictionary containing success status and error message if any
     """
-    from mito_ai.utils.utils import get_installed_packages, install_packages
+    from mito_ai_core.utils.utils import get_installed_packages, install_packages
 
     installed_packages = get_installed_packages()
     required_packages = SUPPORTED_DATABASES[db_type].get("drivers", [])

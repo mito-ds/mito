@@ -5,14 +5,13 @@ from typing import List
 import pytest
 import os
 from unittest.mock import patch, AsyncMock, MagicMock
-from traitlets.config import Config
 from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     generate_new_streamlit_code,
     correct_error_in_generation,
     streamlit_handler
 )
 from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
-from mito_ai.provider_manager import ProviderManager
+from mito_ai_core.provider_manager import ProviderManager
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -26,10 +25,7 @@ class TestGenerateStreamlitCode:
         """Test successful streamlit code generation"""
         mock_response = "Here's your code:\n```python\nimport streamlit\nst.title('Hello')\n```"
 
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
         
         with patch.object(provider, 'request_completions', new_callable=AsyncMock, return_value=mock_response):
             notebook_data: List[dict] = [{"cells": []}]
@@ -52,10 +48,7 @@ st.title('Test')
 st.title('Fixed')
 <<<<<<< REPLACE
 ```"""
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
 
         with patch.object(provider, 'request_completions', new_callable=AsyncMock, return_value=mock_response):
             result = await correct_error_in_generation("ImportError: No module named 'pandas'", "import streamlit\nst.title('Test')\n", provider)
@@ -66,10 +59,7 @@ st.title('Fixed')
     @pytest.mark.asyncio
     async def test_correct_error_in_generation_exception(self):
         """Test exception handling in error correction"""
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
         
         with patch.object(provider, 'request_completions', new_callable=AsyncMock, side_effect=Exception("API Error")):
             with pytest.raises(Exception, match="API Error"):
@@ -105,10 +95,7 @@ class TestStreamlitHandler:
         app_directory = get_absolute_notebook_dir_path(notebook_path)
         expected_app_path = get_absolute_app_path(app_directory, app_file_name)
         
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
         
         await streamlit_handler(True, notebook_path, app_file_name, '', provider)
         
@@ -137,10 +124,7 @@ class TestStreamlitHandler:
         # Mock validation (always errors) - validate_app returns List[str]
         mock_validator.return_value = ["Persistent error"]
     
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
     
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
@@ -170,10 +154,7 @@ class TestStreamlitHandler:
         # Mock file creation failure - now it should raise an exception
         mock_create_file.side_effect = Exception("Permission denied")
         
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
         
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
@@ -186,10 +167,7 @@ class TestStreamlitHandler:
         
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
             await streamlit_handler(True, AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '', provider)
@@ -206,10 +184,7 @@ class TestStreamlitHandler:
         # Mock code generation failure
         mock_generate_code.side_effect = Exception("Generation failed")
         
-        provider_config = Config()
-        provider_config.ProviderManager = Config()
-        provider_config.OpenAIClient = Config()
-        provider = ProviderManager(config=provider_config)
+        provider = ProviderManager()
         
         with pytest.raises(Exception, match="Generation failed"):
             await streamlit_handler(True, AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '', provider)

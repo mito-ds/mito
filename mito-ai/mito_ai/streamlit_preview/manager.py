@@ -11,7 +11,7 @@ from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from mito_ai.logger import get_logger
 from mito_ai.path_utils import AbsoluteNotebookDirPath, AppFileName
-from mito_ai.utils.error_classes import StreamlitPreviewError
+from mito_ai_core.utils.error_classes import StreamlitPreviewError
 
 
 @dataclass

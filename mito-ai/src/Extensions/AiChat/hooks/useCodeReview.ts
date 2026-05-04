@@ -15,7 +15,7 @@ import {
     getCellCodeByID,
     getActiveCellID,
     setActiveCellByID,
-    writeCodeToCellByID,
+    writeContentToCellByID,
     highlightCodeCell,
     scrollToCell,
 } from '../../../utils/notebook';
@@ -91,7 +91,7 @@ export const useCodeReview = ({
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, updateCellID);
+        writeContentToCellByID(notebookTracker, unifiedCodeString, updateCellID, 'code');
         updateCodeCellsExtensions(unifiedDiffs);
 
         // Briefly highlight the code cell to draw the user's attention to it
@@ -127,7 +127,7 @@ export const useCodeReview = ({
         cellStateBeforeDiff.current = undefined;
 
         if (codeCellID !== undefined) {
-            writeCodeToCellByID(notebookTracker, code, codeCellID);
+            writeContentToCellByID(notebookTracker, code, codeCellID, 'code');
             updateCellToolbarButtons();
         }
     };

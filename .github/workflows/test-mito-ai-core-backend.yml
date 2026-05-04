@@ -1,0 +1,44 @@
+name: Test - Mito AI Core Backend
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-ai-core/**'
+  pull_request:
+    paths:
+      - 'mito-ai-core/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-mito-ai-core-backend:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: mito-ai-core/pyproject.toml
+    - name: Install dependencies
+      run: |
+        cd mito-ai-core
+        pip install -e ".[test]"
+    - name: Run tests
+      run: |
+        cd mito-ai-core
+        pytest mito_ai_core/tests/ -v
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

@@ -54,3 +54,29 @@ export const isInDash = (): boolean => {
 export const isInDashboard = (): boolean => {
     return isInStreamlit() || isInDash()
 }
+
+/** VS Code notebook outputs: body/html get vscode-* theme classes and --vscode-* CSS variables. */
+export const isInVSCodeNotebookOutput = (): boolean => {
+    if (typeof document === 'undefined') {
+        return false
+    }
+    const { body, documentElement } = document
+    if (!body || !documentElement) {
+        return false
+    }
+    const vscodeThemeClasses = [
+        'vscode-dark',
+        'vscode-light',
+        'vscode-high-contrast',
+        'vscode-high-contrast-light',
+    ]
+    if (
+        vscodeThemeClasses.some(
+            (c) => body.classList.contains(c) || documentElement.classList.contains(c)
+        )
+    ) {
+        return true
+    }
+    // Fallback: workbench injects --vscode-* on the root even when classes differ
+    return getComputedStyle(documentElement).getPropertyValue('--vscode-editor-background').trim() !== ''
+}

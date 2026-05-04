@@ -22,3 +22,6 @@ Use `@pytest.mark.parametrize` when you have multiple test cases that:
 - Have the same expected output structure
 - Follow the same test logic pattern
 - Would otherwise require repetitive test code
+
+### MyPy Typing
+We support Python 3.9 and above. That means instead of using | for union types, you should use Union[type1, type2].

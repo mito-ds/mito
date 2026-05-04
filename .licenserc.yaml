@@ -37,5 +37,6 @@ header:
     - 'yarn.lock'
     - 'mitosheet/mitosheet/tests/updates/conftest'
     - 'trymito.io/public/favicons/site.webmanifest'
+    - '**/py.typed'
 
   comment: on-failure

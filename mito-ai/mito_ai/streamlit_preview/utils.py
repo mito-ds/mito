@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import Tuple, Optional
-from mito_ai.utils.error_classes import StreamlitPreviewError
+from mito_ai_core.utils.error_classes import StreamlitPreviewError
 
 
 def validate_request_body(body: Optional[dict]) -> Tuple[str, str, bool, str]:

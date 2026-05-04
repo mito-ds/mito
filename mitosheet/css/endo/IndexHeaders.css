@@ -32,6 +32,18 @@
 }
 
 
+.index-header-container.mito-index-row-exit {
+    pointer-events: none;
+    animation: mito-row-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .index-header-container.mito-index-row-exit {
+        animation: none;
+        opacity: 0;
+    }
+}
+
 .index-header-container:hover {
     background-color: var(--mito-highlight-light);
 }

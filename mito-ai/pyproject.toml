@@ -31,6 +31,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+    "mito-ai-core",
     "jinja2>=3.0.3",
     "jupyterlab>=4.1.0,<5",
     "analytics-python",
@@ -48,6 +49,7 @@ dependencies = [
     "google-genai",
     "anthropic>=0.6.81",
     "litellm",
+    "sseclient-py>=1.8.0",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
@@ -55,6 +57,7 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 test = [
     "pytest==8.3.4",
     "pytest-asyncio==0.25.3",
+    "pytest-timeout",
     "mypy>=1.8.0",
     "types-tornado>=5.1.1",
     "types-requests>=2.25.0",
@@ -112,3 +115,4 @@ ignore = ["W002"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
+timeout = 30

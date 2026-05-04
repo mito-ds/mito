@@ -5,7 +5,7 @@ import json
 import os
 from typing import Any, Final, Callable
 from functools import wraps
-from mito_ai.utils.schema import MITO_FOLDER
+from mito_ai_core.utils.schema import MITO_FOLDER
 
 SETTINGS_PATH: Final[str] = os.path.join(MITO_FOLDER, "settings.json")
 

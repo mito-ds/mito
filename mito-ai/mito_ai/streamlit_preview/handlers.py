@@ -7,11 +7,11 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_preview.manager import StreamlitPreviewManager
 from mito_ai.path_utils import get_absolute_notebook_dir_path, get_absolute_notebook_path, get_absolute_app_path, does_app_path_exist, get_app_file_name
-from mito_ai.utils.telemetry_utils import log_streamlit_app_conversion_error, log_streamlit_app_preview_failure, log_streamlit_app_preview_success
+from mito_ai_core.utils.telemetry_utils import log_streamlit_app_conversion_error, log_streamlit_app_preview_failure, log_streamlit_app_preview_success
 from mito_ai.completions.models import MessageType
-from mito_ai.utils.error_classes import StreamlitConversionError, StreamlitPreviewError
+from mito_ai_core.utils.error_classes import StreamlitConversionError, StreamlitPreviewError
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
-from mito_ai.provider_manager import ProviderManager
+from mito_ai_core.provider_manager import ProviderManager
 import traceback
 
 

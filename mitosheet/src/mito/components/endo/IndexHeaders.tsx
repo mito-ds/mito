@@ -55,7 +55,21 @@ const IndexHeaders = (props: {
                                 rowIndex,
                                 -1
                             );
-                            const className = classNames('index-header-container', 'text-overflow-hide', 'text-unselectable', {'index-header-selected': selected});
+                            const exitAnim = props.uiState.gridRowExitAnimation;
+                            const isRowExiting =
+                                exitAnim !== undefined &&
+                                exitAnim.sheetIndex === props.sheetIndex &&
+                                exitAnim.rowIndices.includes(rowIndex);
+
+                            const className = classNames(
+                                'index-header-container',
+                                'text-overflow-hide',
+                                'text-unselectable',
+                                {
+                                    'index-header-selected': selected,
+                                    'mito-index-row-exit': isRowExiting,
+                                }
+                            );
                             const indexHeader = rowIndex >= props.sheetData.numRows ? '' : props.sheetData.index[rowIndex];
 
                             return (

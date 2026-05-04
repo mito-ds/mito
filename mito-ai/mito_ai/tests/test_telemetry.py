@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.utils.telemetry_utils import PRINT_LOGS
+from mito_ai_core.utils.telemetry_utils import PRINT_LOGS
 
 def test_print_logs_is_false():
     """

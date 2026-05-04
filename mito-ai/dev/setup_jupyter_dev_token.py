@@ -53,7 +53,7 @@ This file is gitignored and should not be committed to the repository.
 """
 
 try:
-    from mito_ai.utils.telemetry_utils import is_dev_mode
+    from mito_ai_core.utils.telemetry_utils import is_dev_mode
     
     # Only set the token if we're in development mode
     if is_dev_mode():

@@ -4,7 +4,7 @@
 from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders
-from mito_ai.provider_manager import ProviderManager
+from mito_ai_core.provider_manager import ProviderManager
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
@@ -13,8 +13,8 @@ from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.streamlit_conversion.search_replace_utils import extract_search_replace_blocks, apply_search_replace
 from mito_ai.completions.models import MessageType
-from mito_ai.utils.error_classes import StreamlitConversionError
-from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
+from mito_ai_core.utils.error_classes import StreamlitConversionError
+from mito_ai_core.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_notebook_dir_path, get_absolute_app_path, get_app_file_name
 from mito_ai.streamlit_conversion.prompts.streamlit_system_prompt import streamlit_system_prompt
 

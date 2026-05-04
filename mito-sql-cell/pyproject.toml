@@ -42,11 +42,15 @@ test = [
     "coverage",
     "Faker",
     "pytest",
+    "pytest-timeout",
     "pytest-asyncio",
     "pytest-cov",
     "pytest-jupyter[server]>=0.6.0",
     "mito_sql_cell[optional_features]",
 ]
+
+[tool.pytest.ini_options]
+timeout = 30
 
 [tool.hatch.version]
 source = "nodejs"

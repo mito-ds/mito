@@ -5,7 +5,7 @@ import re
 import json
 from typing import Dict, List, Optional, Any
 from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath
-from mito_ai.utils.error_classes import StreamlitConversionError
+from mito_ai_core.utils.error_classes import StreamlitConversionError
 
 
 def extract_code_blocks(message_content: str) -> str:

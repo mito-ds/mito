@@ -3,7 +3,7 @@
 
 import os
 from typing import Final
-from mito_ai.utils.schema import MITO_FOLDER
+from mito_ai_core.utils.schema import MITO_FOLDER
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")

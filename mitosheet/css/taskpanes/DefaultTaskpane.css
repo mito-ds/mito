@@ -4,7 +4,8 @@
  */
 
 .default-taskpane-div {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -30,10 +31,11 @@
 
 .default-taskpane-header-div {
     width: 100%;
-    height: 25px;
+    min-height: 32px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 }
 
 .default-taskpane-header-and-back-button {
@@ -59,8 +61,10 @@
     display: flex;
     flex-direction: column;
 
-    height: 100%;
-    overflow-y: scroll;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 
     margin-top: 15px;
 }

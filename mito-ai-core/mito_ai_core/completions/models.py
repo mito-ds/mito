@@ -1,0 +1,428 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+import traceback
+from dataclasses import dataclass, field
+from typing import List, Literal, Optional, NewType, Dict, Any
+from openai.types.chat import ChatCompletionMessageParam
+from enum import Enum
+from pydantic import BaseModel
+
+# The ThreadID is the unique identifier for the chat thread.
+ThreadID = NewType('ThreadID', str)
+  
+########################################################
+# Agent Response formats
+########################################################
+    
+class CellUpdate(BaseModel):
+    type: Literal['modification', 'new']
+    # Defaults so omitted keys validate (LLMs often omit id for new cells, etc.).
+    after_cell_id: Optional[str] = None
+    id: Optional[str] = None
+    code: str
+    code_summary: str = "Updating cell"
+    cell_type: Optional[Literal['code', 'markdown']] = None
+
+
+# Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
+# so instead we just combine all of the possible response types into a single class 
+# for now and rely on the AI to respond with the correct types, following the format
+# that we show it in the system prompt.
+class AgentResponse(BaseModel):
+    type: Literal[
+        'cell_update', 
+        'get_cell_output', 
+        'run_all_cells', 
+        'finished_task', 
+        'create_streamlit_app', 
+        'edit_streamlit_app', 
+        'ask_user_question', 
+        'scratchpad',
+    ]
+    message: str
+    cell_update: Optional[CellUpdate]
+    get_cell_output_cell_id: Optional[str]
+    next_steps: Optional[List[str]]
+    analysis_assumptions: Optional[List[str]]
+    streamlit_app_prompt: Optional[str]
+    question: Optional[str]
+    answers: Optional[List[str]]
+    scratchpad_code: Optional[str]
+    scratchpad_summary: Optional[str]
+    
+    
+@dataclass(frozen=True)
+class ResponseFormatInfo():
+    name: str
+    # Use the type because we are actually just providing the type format, not an actual instance of the format
+    format: type[AgentResponse]
+
+########################################################
+# Message Types and Metadata
+########################################################
+
+class MessageType(Enum):
+    """
+    This is all of the different types of messages that we support through the on_message handler.
+    """
+    CHAT = "chat"
+    SMART_DEBUG = "smartDebug"
+    CODE_EXPLAIN = "codeExplain"
+    AGENT_EXECUTION = "agent:execution"
+    INLINE_COMPLETION = "inline_completion"
+    CHAT_NAME_GENERATION = "chat_name_generation"
+    START_NEW_CHAT = "start_new_chat"
+    FETCH_HISTORY = "fetch_history"
+    GET_THREADS = "get_threads"
+    DELETE_THREAD = "delete_thread"
+    UPDATE_MODEL_CONFIG = "update_model_config"
+    STREAMLIT_CONVERSION = "streamlit_conversion"
+    STOP_AGENT = "stop_agent"
+    DEPLOY_APP = "deploy_app"
+    REQUEST_TOOL_EXECUTION = "request_tool_execution"
+    TOOL_RESULT = "tool_result"
+
+    
+@dataclass(frozen=True)
+class AIOptimizedCell():
+  cell_type: str
+  id: str
+  code: str
+
+
+@dataclass(frozen=True)
+class KernelVariable():
+    """Kernel global as reported by the Jupyter front-end (matches TS ``Variable``)."""
+    variable_name: str
+    type: str
+    value: Any = None
+
+
+@dataclass(frozen=True)
+class ChatMessageMetadata():
+    promptType: Literal['chat']
+    threadId: ThreadID
+    input: str
+    activeCellCode: str
+    activeCellId: str
+    variables: Optional[List[KernelVariable]] = None
+    files: Optional[List[str]] = None
+    aiOptimizedCells: Optional[List[AIOptimizedCell]] = None
+    base64EncodedActiveCellOutput: Optional[str] = None
+    index: Optional[int] = None
+    stream: bool = False
+    additionalContext: Optional[List[Dict[str, str]]] = None
+    
+    
+@dataclass(frozen=True)
+class AgentExecutionMetadata():
+    promptType: Literal['agent:execution']
+    threadId: ThreadID
+    input: str
+    aiOptimizedCells: List[AIOptimizedCell]
+    activeCellId: str
+    isChromeBrowser: bool
+    notebookPath: str
+    notebookID: str
+    variables: Optional[List[KernelVariable]] = None
+    files: Optional[List[str]] = None
+    index: Optional[int] = None
+    additionalContext: Optional[List[Dict[str, str]]] = None
+    
+@dataclass(frozen=True)
+class SmartDebugMetadata():
+    promptType: Literal['smartDebug']
+    threadId: ThreadID
+    errorMessage: str
+    activeCellCode: str 
+    activeCellId: str
+    variables: Optional[List[KernelVariable]] = None
+    files: Optional[List[str]] = None
+    
+@dataclass(frozen=True)
+class CodeExplainMetadata():    
+    promptType: Literal['codeExplain']
+    threadId: ThreadID
+    variables: Optional[List[KernelVariable]] = None
+    activeCellCode: Optional[str] = None
+    
+@dataclass(frozen=True)
+class InlineCompleterMetadata():    
+    promptType: Literal['inline_completion']
+    prefix: str 
+    suffix: str
+    variables: Optional[List[KernelVariable]] = None
+    files: Optional[List[str]] = None
+
+@dataclass(frozen=True)
+class CompletionRequest:
+    """
+    Message send by the client to request an AI chat response.
+    """
+
+    # Message type.
+    type: MessageType
+
+    # Message UID generated by the client.
+    message_id: str
+
+    # Chat messages.
+    messages: List[ChatCompletionMessageParam] = field(default_factory=list)
+
+    # Whether to stream the response (if supported by the model).
+    stream: bool = False
+    
+    # Environment information from the client
+    environment: Optional[Dict[str, Any]] = None
+    
+    
+@dataclass(frozen=True)
+class AICapabilities:
+    """
+    AI provider capabilities
+    """
+
+    # Configuration schema.
+    configuration: dict
+
+    # AI provider name.
+    provider: str
+
+    # Message type.
+    type: str = "ai_capabilities"
+
+
+@dataclass(frozen=True)
+class GithubCopilotLoginStatusMessage:
+    """Pushed over the completion WebSocket when GitHub Copilot auth state changes."""
+
+    status: str
+    type: Literal["github_copilot_login_status"] = "github_copilot_login_status"
+    verification_uri: Optional[str] = None
+    user_code: Optional[str] = None
+    # From GET {api}/models after sign-in; Copilot API ids (no copilot/ prefix).
+    available_chat_models: Optional[List[str]] = None
+
+
+@dataclass(frozen=True)
+class CompletionItemError:
+    """
+    Completion item error information.
+    """
+
+    # Error message.
+    message: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class CompletionItem:
+    """
+    A completion suggestion.
+    """
+
+    # The completion.
+    content: str
+
+    # Whether the completion is incomplete or not.
+    isIncomplete: Optional[bool] = None
+    
+    # Unique token identifying the completion request in the frontend.
+    token: Optional[str] = None
+
+    # Error information for the completion item.
+    error: Optional[CompletionItemError] = None
+
+
+@dataclass(frozen=True)
+class CompletionError:
+    """
+    Completion error description.
+    """
+
+    # Error type.
+    error_type: str
+
+    # Error title.
+    title: str
+
+    # Error traceback.
+    traceback: str
+
+    # Hint to resolve the error.
+    hint: str = ""
+
+    @staticmethod
+    def from_exception(exception: BaseException, hint: str = "") -> "CompletionError":
+        """
+        Create a completion error from an exception.
+        
+        Note: OpenAI exceptions can include a 'body' attribute with detailed error information.
+        While mypy doesn't know about this attribute on BaseException, we need to handle it
+        to properly extract error messages from OpenAI API responses.
+        """
+        # Duck-type Mito provider errors (mito_ai_core and mito_ai define separate
+        # ProviderCompletionException classes with the same shape).
+        if hasattr(exception, "user_friendly_title") and hasattr(
+            exception, "user_friendly_hint"
+        ):
+            return CompletionError(
+                error_type="LLM Provider Error",
+                title=getattr(exception, "user_friendly_title"),
+                traceback=traceback.format_exc(),
+                hint=getattr(exception, "user_friendly_hint"),
+            )
+        
+        # Handle all other exceptions as before
+        error_type = type(exception)
+        error_module = getattr(error_type, "__module__", "")
+        
+        # Handle OpenAI exceptions that have a 'body' attribute
+        title = ""
+        body = getattr(exception, "body", None)
+        if body and hasattr(body, "get"):
+            title = body.get("message", "")
+        
+        if not title and exception.args:
+            title = exception.args[0]
+        
+        if not title:
+            title = "Exception"
+            
+        return CompletionError(
+            error_type=f"{error_module}.{error_type.__name__}"
+            if error_module
+            else error_type.__name__,
+            title=title,
+            traceback=traceback.format_exc(),
+            hint=hint,
+        )
+
+@dataclass(frozen=True)
+class ErrorMessage(CompletionError):
+    """
+    Error message.
+    """
+
+    # Message type.
+    type: Literal["error"] = "error"
+
+
+
+@dataclass(frozen=True)
+class CompletionReply:
+    """
+    Message sent from model to client with the completion suggestions.
+    """
+
+    # List of completion items.
+    items: List[CompletionItem]
+
+    # Parent message UID.
+    parent_id: str
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+    # Completion error.
+    error: Optional[CompletionError] = None
+
+
+@dataclass(frozen=True)
+class CompletionStreamChunk:
+    """
+    Message sent from model to client with the infill suggestions
+    """
+
+    chunk: CompletionItem
+
+    # Parent message UID.
+    parent_id: str
+
+    # Whether the completion is done or not.
+    done: bool
+
+    # Message type.
+    type: Literal["chunk"] = "chunk"
+
+    # Completion error.
+    error: Optional[CompletionError] = None
+    """Completion error."""
+
+@dataclass(frozen=True)
+class FetchHistoryReply:
+    """
+    Message sent from model to client with the chat history.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # List of chat messages.
+    items: List[ChatCompletionMessageParam]
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class ChatThreadMetadata:
+    """
+    Chat thread item.
+    """
+
+    thread_id: ThreadID
+
+    name: str
+
+    creation_ts: float
+
+    last_interaction_ts: float
+
+@dataclass(frozen=True)
+class StartNewChatReply:
+    """
+    Message sent from model to client after starting a new chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # Chat thread item.
+    thread_id: ThreadID
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class FetchThreadsReply:
+    """
+    Message sent from model to client with the chat threads.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    # List of chat threads.
+    threads: List[ChatThreadMetadata]
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class DeleteThreadReply:
+    """
+    Message sent from model to client after deleting a chat thread.
+    """
+
+    # Message UID.
+    parent_id: str
+
+    #Success message
+    success: bool
+
+    # Message type.
+    type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class UpdateModelConfigMetadata:
+    model: str

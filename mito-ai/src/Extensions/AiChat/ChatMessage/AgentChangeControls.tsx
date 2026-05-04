@@ -18,7 +18,6 @@ interface IAgentChangeControlsProps {
     notebookTracker: INotebookTracker;
     setHasCheckpoint: (value: boolean) => void;
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
-    setShowRevertQuestionnaire: (value: boolean) => void;
     chatTaskpaneMessagesRef: React.RefObject<HTMLDivElement>;
     acceptAllAICode: () => void;
     rejectAllAICode: () => void;
@@ -33,7 +32,6 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     notebookTracker,
     setHasCheckpoint,
     setDisplayedNextStepsIfAvailable,
-    setShowRevertQuestionnaire,
     chatTaskpaneMessagesRef,
     acceptAllAICode,
     rejectAllAICode,
@@ -102,7 +100,6 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         setDisplayedNextStepsIfAvailable(false);
         setHasCheckpoint(false);
         setAgentReviewStatus('post-agent-code-review');
-        setShowRevertQuestionnaire(true);
         scrollToDiv(chatTaskpaneMessagesRef);
     }
 

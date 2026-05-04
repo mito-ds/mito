@@ -1,13 +1,15 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import asyncio
 import json
 import logging
 import time
 import uuid
 from dataclasses import asdict
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
+from pydantic import BaseModel
 import tornado
 import tornado.ioloop
 import tornado.web
@@ -15,10 +17,9 @@ from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
-    AgentSmartDebugMetadata,
     CompletionError,
     CompletionItem,
     CompletionReply,
@@ -34,30 +35,43 @@ from mito_ai.completions.models import (
     CodeExplainMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
-    ScratchpadResultMetadata,
-    MessageType
+    ToolResultMetadata,
+    MessageType,
+    GithubCopilotLoginStatusMessage,
 )
-from mito_ai.provider_manager import ProviderManager
-from mito_ai.utils.create import initialize_user
-from mito_ai.utils.version_utils import is_pro
-from mito_ai.utils.model_utils import get_available_models
+from mito_ai_core.provider_manager import ProviderManager
+from mito_ai_core.utils.create import initialize_user
+from mito_ai_core.utils.version_utils import is_pro
+from mito_ai_core.utils.model_utils import get_available_models
 from mito_ai.completions.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
 from mito_ai.completions.completion_handlers.smart_debug_handler import get_smart_debug_completion, stream_smart_debug_completion
 from mito_ai.completions.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
 from mito_ai.completions.completion_handlers.inline_completer_handler import get_inline_completion
-from mito_ai.completions.completion_handlers.agent_execution_handler import get_agent_execution_completion
-from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
-from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
-from mito_ai.utils.telemetry_utils import identify
+from mito_ai.completions.agent_loop import start_agent_loop
+from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
+from mito_ai_core.utils.telemetry_utils import identify
+from mito_ai_core.utils.version_utils import is_github_copilot_helper_installed
+from mito_ai.copilot import ws_notifier as copilot_ws_notifier
+from mito_ai_core.agent import ToolResult
+from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell, ThreadID
+from mito_ai.completions.metadata_validation_utils import validate_metadata_types
 
-# The GlobalMessageHistory is now created in __init__.py and passed to handlers
-# to ensure there's only one instance managing the .mito/ai-chats directory locks
 
 # This handler is responsible for the mito_ai/completions endpoint.
 # It takes a message from the user, sends it to the OpenAI API, and returns the response.
 # Important: Because this is a server extension, print statements are sent to the
 # jupyter server terminal by default (ie: the terminal you ran `jupyter lab`)
 class CompletionHandler(JupyterHandler, WebSocketHandler):
+    def _to_json_safe(self, value: Any) -> Any:
+        """Recursively convert pydantic models to JSON-safe data."""
+        if isinstance(value, BaseModel):
+            return value.model_dump(mode="json")
+        if isinstance(value, dict):
+            return {k: self._to_json_safe(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [self._to_json_safe(v) for v in value]
+        return value
+
     """Completion websocket handler."""
 
     def initialize(self, llm: ProviderManager, message_history: GlobalMessageHistory) -> None:
@@ -67,6 +81,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._message_history = message_history
         self.is_pro = is_pro()
         self.is_electron = False
+        # Active JupyterLabToolExecutor for the current agent session
+        self._active_tool_executor: Optional[JupyterLabToolExecutor] = None
         identify(llm.key_type)
         
     @property
@@ -113,8 +129,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         # Stop observing the provider error
         self._llm.unobserve(self._send_error, "last_error")
-    
-        
+        if is_github_copilot_helper_installed():
+            copilot_ws_notifier.unregister_completion_handler(self)
+
     async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
 
@@ -128,6 +145,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
             metadata_dict = parsed_message.get('metadata', {})
             type: MessageType = MessageType(parsed_message.get('type'))
+            metadata_dict = validate_metadata_types(metadata_dict)
             
             # Extract environment information from the message
             environment = parsed_message.get('environment', {})
@@ -186,8 +204,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == MessageType.FETCH_HISTORY:
             
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
-            thread_id = metadata_dict.get('thread_id')
-            display_history = self._message_history.get_display_history(thread_id)
+            thread_id_for_history = ThreadID(str(metadata_dict.get('thread_id', '')))
+            display_history = self._message_history.get_display_history(thread_id_for_history)
             
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
@@ -244,7 +262,15 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             thread_id_to_stop = metadata_dict.get('threadId')
             if thread_id_to_stop:
                 self.log.info(f"Stopping agent, thread ID: {thread_id_to_stop}")
-                
+
+                # If there is an active tool executor, reject its pending future
+                # so the agent loop exits cleanly
+                if self._active_tool_executor is not None:
+                    self._active_tool_executor.reject_tool_result(
+                        Exception("Agent stopped by user")
+                    )
+                    self._active_tool_executor = None
+
                 ai_optimized_message: ChatCompletionMessageParam = {
                     "role": "assistant",
                     "content": "The user made the following request: Stop processing my last request. I want to change it. Please answer my future requests without going back and finising my previous request."
@@ -253,7 +279,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     "role": "assistant",
                     "content": "Agent interupted by user "
                 }
-                
+
                 await self._message_history.append_message(
                     ai_optimized_message=ai_optimized_message,
                     display_message=display_optimized_message,
@@ -262,6 +288,30 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 )
             else:
                 self.log.info("Trying to stop agent, but no thread ID available")
+            return
+
+        # Handle tool_result messages from the frontend
+        if type == MessageType.TOOL_RESULT:
+            tool_result_metadata = ToolResultMetadata(**metadata_dict)
+            if self._active_tool_executor is not None:
+                cells = None
+                if tool_result_metadata.cells is not None:
+                    cells = [
+                        CoreAIOptimizedCell(**c) if isinstance(c, dict) else
+                        CoreAIOptimizedCell(cell_type=c.cell_type, id=c.id, code=c.code)
+                        for c in tool_result_metadata.cells
+                    ]
+                result = ToolResult(
+                    success=tool_result_metadata.success,
+                    tool_name=tool_result_metadata.toolType,
+                    error_message=tool_result_metadata.errorMessage,
+                    cells=cells,
+                    variables=tool_result_metadata.variables,
+                    output=tool_result_metadata.output,
+                )
+                self._active_tool_executor.resolve_tool_result(result)
+            else:
+                self.log.warning("Received tool_result but no active tool executor")
             return
 
         try:
@@ -321,14 +371,23 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     # Regular non-streaming completion
                     completion = await get_code_explain_completion(code_explain_metadata, self._llm, self._message_history)
             elif type == MessageType.AGENT_EXECUTION:
-                agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
-                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, self._message_history)
-            elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
-                agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
-                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, self._message_history)
-            elif type == MessageType.AGENT_SCRATCHPAD_RESULT:
-                scratchpad_result_metadata = ScratchpadResultMetadata(**metadata_dict)
-                completion = await get_scratchpad_result_completion(scratchpad_result_metadata, self._llm, self._message_history)
+                md = dict(metadata_dict)
+                # Legacy clients may still send this; cell images come from get_cell_output only.
+                md.pop("base64EncodedActiveCellOutput", None)
+
+                agent_execution_metadata = AgentExecutionMetadata(**md)
+                self.log.info(
+                    "Starting agent execution (background), thread_id=%s",
+                    agent_execution_metadata.threadId,
+                )
+                # Tornado does not process the next WebSocket message until this
+                # on_message coroutine finishes. The agent loop must receive
+                # tool_result messages from the client, so we must not await the
+                # full loop here — that would deadlock after the first tool call.
+                asyncio.create_task(
+                    self._run_agent_execution_background(agent_execution_metadata)
+                )
+                return
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history)
@@ -355,6 +414,36 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             )
             self.reply(reply)
 
+    async def _run_agent_execution_background(
+        self, metadata: AgentExecutionMetadata
+    ) -> None:
+        """Run the agent loop; errors outside :func:`start_agent_loop`'s own try
+        (e.g. history setup) are reported on the WebSocket."""
+        try:
+            await self._start_agent_loop(metadata)
+        except Exception as e:
+            self.log.error("Agent execution failed", exc_info=True)
+            error = CompletionError.from_exception(e)
+            self._send_error({"new": error})
+
+    async def _start_agent_loop(self, metadata: AgentExecutionMetadata) -> None:
+        """Launch the mito-ai-core AgentRunner.
+
+        The heavy lifting lives in :func:`agent_loop.start_agent_loop`;
+        this thin wrapper just wires it up to ``self``.
+        """
+        await start_agent_loop(
+            metadata=metadata,
+            llm=self._llm,
+            message_history=self._message_history,
+            reply_fn=self.reply,
+            send_error_fn=self._send_error,
+            register_tool_executor=self._register_tool_executor,
+        )
+
+    def _register_tool_executor(self, executor: Optional[JupyterLabToolExecutor]) -> None:
+        self._active_tool_executor = executor
+
     def open(self, *args: str, **kwargs: str) -> None:
         """Invoked when a new WebSocket is opened.
 
@@ -371,7 +460,19 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._llm.observe(self._send_error, "last_error")
         # Send the server capabilities to the client.
         self.reply(self._llm.capabilities)
-        
+        if is_github_copilot_helper_installed():
+            copilot_ws_notifier.register_completion_handler(self)
+            from mito_ai.copilot import service as copilot_service
+
+            st = copilot_service.get_login_status()
+            self.reply(
+                GithubCopilotLoginStatusMessage(
+                    status=st["status"],
+                    verification_uri=st.get("verification_uri"),
+                    user_code=st.get("user_code"),
+                    available_chat_models=st.get("available_chat_models"),
+                )
+            )
 
     async def handle_exception(self, e: Exception, request: CompletionRequest) -> None:
         """
@@ -387,6 +488,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             hint = "You've reached the free tier limit for Mito AI. Upgrade to Pro for unlimited uses or supply your own OpenAI API key."
         elif "openai" in self._llm.capabilities.provider.lower():
             hint = "There was an error communicating with OpenAI. This might be due to a temporary OpenAI outage, a problem with your internet connection, or an incorrect API key. Please try again."
+        elif "copilot" in self._llm.capabilities.provider.lower():
+            hint = (
+                "There was an error communicating with GitHub Copilot. "
+                "Sign in under Mito AI settings, check your network, or try again later."
+            )
         else:
             hint = "There was an error communicating with Mito server. This might be due to a temporary server outage or a problem with your internet connection. Please try again."
         
@@ -416,7 +522,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             reply: The completion reply object.
                 It must be a dataclass instance.
         """
-        message = asdict(reply)
+        message = self._to_json_safe(asdict(reply))
         super().write_message(message)
 
     def _send_error(self, change: Dict[str, Any]) -> None:

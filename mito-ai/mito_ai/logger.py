@@ -2,9 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import logging
-
 from traitlets.config import Application
-
 
 _LOGGER = None  # type: logging.Logger | None
 

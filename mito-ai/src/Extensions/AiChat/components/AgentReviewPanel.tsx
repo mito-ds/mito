@@ -8,8 +8,6 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import AgentChangeControls from '../ChatMessage/AgentChangeControls';
 import AgentChangeSummary from '../ChatMessage/AgentChangeSummary';
-import RevertQuestionnaire from '../ChatMessage/RevertQuestionnaire';
-import { ChatHistoryManager } from '../ChatHistoryManager';
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { AgentReviewChangeCounts } from '../hooks/useAgentReview';
 
@@ -18,7 +16,6 @@ interface AgentReviewPanelProps {
     hasCheckpoint: boolean;
     agentModeEnabled: boolean;
     agentExecutionStatus: 'working' | 'stopping' | 'idle';
-    showRevertQuestionnaire: boolean;
     agentReviewStatus: AgentReviewStatus;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
 
@@ -31,9 +28,6 @@ interface AgentReviewPanelProps {
     hasChanges: () => boolean;
     setHasCheckpoint: (value: boolean) => void;
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
-    setShowRevertQuestionnaire: (value: boolean) => void;
-    getDuplicateChatHistoryManager: () => ChatHistoryManager;
-    setChatHistoryManager: (manager: ChatHistoryManager) => void;
 
     // Required props
     app: JupyterFrontEnd;
@@ -47,7 +41,6 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     hasCheckpoint,
     agentModeEnabled,
     agentExecutionStatus,
-    showRevertQuestionnaire,
     reviewAgentChanges,
     acceptAllAICode,
     rejectAllAICode,
@@ -56,9 +49,6 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     hasChanges,
     setHasCheckpoint,
     setDisplayedNextStepsIfAvailable,
-    setShowRevertQuestionnaire,
-    getDuplicateChatHistoryManager,
-    setChatHistoryManager,
     app,
     notebookTracker,
     chatTaskpaneMessagesRef
@@ -85,21 +75,12 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
                     notebookTracker={notebookTracker}
                     setHasCheckpoint={setHasCheckpoint}
                     setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
                     chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
                     acceptAllAICode={acceptAllAICode}
                     rejectAllAICode={rejectAllAICode}
                     getReviewProgress={getReviewProgress}
                     agentReviewStatus={agentReviewStatus}
                     setAgentReviewStatus={setAgentReviewStatus}
-                />
-            )}
-            {/* Revert questionnaire - shows when user clicks revert button */}
-            {showRevertQuestionnaire && (
-                <RevertQuestionnaire
-                    onDestroy={() => setShowRevertQuestionnaire(false)}
-                    getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
-                    setChatHistoryManager={setChatHistoryManager}
                 />
             )}
         </>

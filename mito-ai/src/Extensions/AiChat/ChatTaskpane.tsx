@@ -5,7 +5,7 @@
 
 // External libraries
 import { Compartment } from '@codemirror/state';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -52,8 +52,7 @@ import { OperatingSystem } from '../../utils/user';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
-import { getBase64EncodedCellOutputInNotebook } from './utils';
-import { logEvent } from '../../restAPI/RestAPI';
+import { fetchGithubCopilotLoginStatus, logEvent } from '../../restAPI/RestAPI';
 import { playCompletionSound } from '../../utils/sound';
 
 // Internal imports - Websockets
@@ -65,9 +64,7 @@ import {
     ICodeExplainCompletionRequest,
     IChatCompletionRequest,
     ISmartDebugCompletionRequest,
-    IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
-    IAgentScratchpadResultCompletionRequest,
     AgentResponse,
     ICompletionStreamChunk
 } from '../../websockets/completions/CompletionModels';
@@ -79,6 +76,7 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 
 // Internal imports - Chat components
 import AgentReviewPanel from './components/AgentReviewPanel';
+import { GithubCopilotSignInHero } from './components/GithubCopilotSignInHero';
 import CTACarousel from './CTACarousel';
 import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
@@ -92,6 +90,7 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import { useAgentReview } from './hooks/useAgentReview';
 import { useAgentExecution } from './hooks/useAgentExecution';
 import { useUserSignup } from './hooks/useUserSignup';
+import { useGithubCopilotLogin } from './hooks/useGithubCopilotLogin';
 import { useChatScroll } from './hooks/useChatScroll';
 import { useModelConfig } from './hooks/useModelConfig';
 import { useAgentMode } from './hooks/useAgentMode';
@@ -133,6 +132,7 @@ export type { CodeReviewStatus, AgentReviewStatus, LoadingStatus } from './hooks
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 export interface ChangedCell {
     cellId: string;
+    cellType: string;
     originalCode: string;
     currentCode: string;
     reviewed: boolean;
@@ -153,6 +153,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // User signup state
     const { isSignedUp, refreshUserSignupState } = useUserSignup();
+
+    const ghCopilot = useGithubCopilotLogin(websocketClient);
+    const copilotBlocksChatRef = useRef(false);
+    useLayoutEffect(() => {
+        copilotBlocksChatRef.current = ghCopilot.copilotBlocksChat;
+    }, [ghCopilot.copilotBlocksChat]);
 
     // Core chat state management
     const {
@@ -180,6 +186,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
 
+    /** Brief border glow on the taskpane when context arrives from the DataFrame viewer */
+    const [attentionGlowActive, setAttentionGlowActive] = useState(false);
+
+    const handleDataframeViewerContextAdded = React.useCallback(() => {
+        setAttentionGlowActive(false);
+        requestAnimationFrame(() => {
+            setAttentionGlowActive(true);
+        });
+    }, []);
+
+    // Clear glow if animationend does not fire (e.g. reduced motion) or as a safety net
+    useEffect(() => {
+        if (!attentionGlowActive) {
+            return;
+        }
+        const t = window.setTimeout(() => setAttentionGlowActive(false), 1500);
+        return () => clearTimeout(t);
+    }, [attentionGlowActive]);
+
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
 
@@ -206,8 +231,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentModeEnabled,
         hasCheckpoint,
         setHasCheckpoint,
-        showRevertQuestionnaire,
-        setShowRevertQuestionnaire,
     } = useAgentMode();
 
     // Create a shared ref for the agent target notebook panel
@@ -269,7 +292,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager,
         setAgentModeEnabled,
         setNextSteps,
-        setShowRevertQuestionnaire,
         setHasCheckpoint,
         setAutoScrollFollowMode,
         agentReview,
@@ -293,6 +315,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
         // Check if user is in agent mode and switch to chat mode if needed
         if (agentModeEnabledRef.current) {
             await startNewChat();
@@ -324,38 +349,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
 
-    const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        if (agentTargetNotebookPanelRef.current === null) {
-            return
-        }
-
-        // Step 0: reset the state for a new message
-        resetForNewMessage()
-
-        // Enable follow mode when sending agent debug message (same behavior as other modes)
-        setAutoScrollFollowMode(true);
-
-        // Step 1: Create message metadata
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(
-            activeThreadIdRef.current, 
-            errorMessage,
-            agentTargetNotebookPanelRef.current
-        )
-        setChatHistoryManager(newChatHistoryManager);
-        setLoadingStatus('thinking');
-
-        // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
-            type: 'agent:autoErrorFixup',
-            message_id: UUID.uuid4(),
-            metadata: agentSmartDebugMessage,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
-    }
-
     const sendExplainCodeMessage = async (): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -385,9 +382,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendAgentExecutionMessage = async (
         input: string,
         messageIndex?: number,
-        sendCellIDOutput: string | undefined = undefined,
         additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
 
         // Step 0: reset the state for a new message
         resetForNewMessage()
@@ -410,53 +409,29 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
-
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');
 
-        // Step 2: Send the message to the AI
+        // Step 2: Send the message to the backend to start the agent loop.
+        // Use sendOneWay because the backend runs the full agent loop and
+        // communicates via request_tool_execution/agent_finished messages instead of
+        // a traditional reply.
         const completionRequest: IAgentExecutionCompletionRequest = {
             type: 'agent:execution',
             message_id: UUID.uuid4(),
             metadata: agentExecutionMetadata,
             stream: false
         }
-        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
-    }
-
-    const sendScratchpadResultMessage = async (
-        scratchpadResult: string
-    ): Promise<void> => {
-
-        // Step 0: reset the state for a new message
-        resetForNewMessage()
-
-        // Step 1: Add the scratchpad result message to the chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-
-        const scratchpadResultMetadata = newChatHistoryManager.addScratchpadResultMessage(
-            activeThreadIdRef.current, 
-            scratchpadResult
-        )
-
-        setChatHistoryManager(newChatHistoryManager)
-        setLoadingStatus('thinking');
-
-        // Step 2: Send the message to the AI
-        const completionRequest: IAgentScratchpadResultCompletionRequest = {
-            type: 'agent:scratchpad-result',
-            message_id: UUID.uuid4(),
-            metadata: scratchpadResultMetadata,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
+        websocketClient.sendOneWay(completionRequest)
     }
 
     /* 
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -489,9 +464,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // so we don't get stuck behind the slow getActiveCellOutput function.
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        // Add the active cell output to the metadata afterwards setting the chatHistoryManager so that 
-        // we don't have to wait on turning the output into a base64 image before we can add the user's message
-        // to the chat.
+        // Add the active cell output to the metadata after setting chat history so UI updates immediately.
         const activeCellOutput = await getActiveCellOutput(notebookTracker)
         if (activeCellOutput !== undefined) {
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
@@ -513,6 +486,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         messageIndex?: number, // The index of the message to replace. Undefined if adding a new message instead of editing existing message.
         additionalContext?: ContextItemAIOptimized[]
     ): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
@@ -660,8 +636,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     const content = aiResponse.items[0]?.content ?? '';
 
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:scratchpad-result' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
-                        // Agent:Execution and Agent:ScratchpadResult prompts return a CellUpdate object that we need to parse
+                    if (completionRequest.metadata.promptType === 'agent:execution') {
+                        // Agent:Execution prompts return a structured AgentResponse that we need to parse
                         const agentResponse: AgentResponse = JSON.parse(content)
                         newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                     } else {
@@ -729,8 +705,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(chatHistoryManager)
     }
 
+    const addAgentToolFailureUserMessageAndUpdateState = (
+        toolErrorDetail: string,
+        chatHistoryManager: ChatHistoryManager
+    ): void => {
+        chatHistoryManager.addAgentToolFailureUserMessage(toolErrorDetail)
+        setChatHistoryManager(chatHistoryManager)
+    }
+
     // Initialize agent execution hook
     const agentExecution = useAgentExecution({
+        contextManager,
         notebookTracker,
         app,
         streamlitPreviewManager,
@@ -740,13 +725,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         activeThreadIdRef,
         activeRequestControllerRef,
         setLoadingStatus,
+        setChatHistoryManager,
         setAutoScrollFollowMode,
         setHasCheckpoint,
         addAIMessageFromResponseAndUpdateState,
+        addAgentToolFailureUserMessageAndUpdateState,
         getDuplicateChatHistoryManager,
         sendAgentExecutionMessage,
-        sendScratchpadResultMessage,
-        sendAgentSmartDebugMessage,
         agentReview,
         agentTargetNotebookPanelRef,
         setAgentReviewStatus,
@@ -776,9 +761,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 const firstMessage = getFirstMessage();
                 if (firstMessage) {
-                    await waitForNotebookReady(notebookTracker);
-                    await startNewChat();
-                    await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
+                    const copilotProbe = await fetchGithubCopilotLoginStatus();
+                    const blockAutoAgent =
+                        copilotProbe !== null && copilotProbe.status !== 'LOGGED_IN';
+                    if (!blockAutoAgent) {
+                        await waitForNotebookReady(notebookTracker);
+                        await startNewChat();
+                        await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
+                    }
                 }
 
             } catch (error: unknown) {
@@ -824,6 +814,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [websocketClient]);
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
+    const showCopilotSignInOnly = ghCopilot.copilotBlocksChat;
 
     const resetForNewMessage = (): void => {
         /* 
@@ -833,7 +824,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         rejectAICode()
         setNextSteps([])
-        setShowRevertQuestionnaire(false);
     }
 
     useEffect(() => {
@@ -867,6 +857,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, {
             execute: async (args?: ReadonlyPartialJSONObject) => {
+                if (copilotBlocksChatRef.current) {
+                    return;
+                }
                 if (args?.input) {
                     await sendSmartDebugMessage(args.input.toString())
                 }
@@ -875,12 +868,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         app.commands.addCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, {
             execute: async () => {
+                if (copilotBlocksChatRef.current) {
+                    return;
+                }
                 await sendExplainCodeMessage()
             }
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_SEND_AGENT_MESSAGE, {
             execute: async (args?: ReadonlyPartialJSONObject) => {
+                if (copilotBlocksChatRef.current) {
+                    return;
+                }
                 if (args?.input) {
                     // If its not already in agent mode, start a new chat in agent mode
                     if (!agentModeEnabledRef.current) {
@@ -1012,12 +1011,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         // We disable the chat taskpane if the user is not signed up AND there are no chat history items
-        <div className={classNames('chat-taskpane', { 'disabled': !(isSignedUp || displayOptimizedChatHistory.length > 0) })}>
+        <div
+            className={classNames('chat-taskpane', {
+                disabled: !(isSignedUp || displayOptimizedChatHistory.length > 0),
+            })}
+        >
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
                         icon={<settingsIcon.react />}
                         title="Mito AI Settings"
+                        className="icon-button-hover"
                         onClick={() => {
                             void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
@@ -1028,11 +1032,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <IconButton
                         icon={<addIcon.react />}
                         title={`Start New Chat (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}K)`}
+                        className="icon-button-hover"
                         onClick={async () => { await startNewChat() }}
                     />
                     <DropdownMenu
                         trigger={
-                            <button className="icon-button" title="Chat Threads" onClick={fetchChatThreads}>
+                            <button className="icon-button icon-button-hover" title="Chat Threads" onClick={fetchChatThreads}>
                                 <historyIcon.react />
                             </button>
                         }
@@ -1060,15 +1065,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 </div>
             </div>
             <div className="chat-messages" ref={chatTaskpaneMessagesRef}>
-                {displayOptimizedChatHistory.length === 0 &&
+                {showCopilotSignInOnly ? (
+                    <GithubCopilotSignInHero
+                        variant="full"
+                        status={ghCopilot.status}
+                        verification_uri={ghCopilot.verification_uri}
+                        user_code={ghCopilot.user_code}
+                        loading={ghCopilot.loading}
+                        loginError={ghCopilot.loginError}
+                        onSignIn={ghCopilot.onSignIn}
+                    />
+                ) : null}
+                {!showCopilotSignInOnly && displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
-                        {isSignedUp === false 
-                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} /> 
+                        {isSignedUp === false
+                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} />
                             : <CTACarousel app={app} />
                         }
                     </div>
                 }
-                {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
+                {!showCopilotSignInOnly && processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     if (isGroupedErrorMessages(displayOptimizedChat)) {
                         return (
                             <GroupedErrorsAndFixes
@@ -1100,10 +1116,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 rejectAICode={rejectAICode}
                                 handleSubmitUserMessage={handleSubmitUserMessage}
                                 contextManager={contextManager}
+                                canSendMessages={!ghCopilot.copilotBlocksChat}
                                 codeReviewStatus={codeReviewStatus}
                                 setNextSteps={setNextSteps}
                                 agentModeEnabled={agentModeEnabled}
-                                additionalContext={displayOptimizedChat.additionalContext}
                                 scratchpadResult={displayOptimizedChat.scratchpadResult}
                             />
                         )
@@ -1119,12 +1135,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Running code <LoadingDots />
                     </div>
                 }
-                {/* Agent review panel - handles all agent review UI */}
                 <AgentReviewPanel
                     hasCheckpoint={hasCheckpoint}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecution.agentExecutionStatus}
-                    showRevertQuestionnaire={showRevertQuestionnaire}
                     reviewAgentChanges={agentReview.reviewAgentChanges}
                     acceptAllAICode={agentReview.acceptAllAICode}
                     rejectAllAICode={agentReview.rejectAllAICode}
@@ -1133,9 +1147,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     hasChanges={agentReview.hasChanges}
                     setHasCheckpoint={setHasCheckpoint}
                     setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                    getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
-                    setChatHistoryManager={setChatHistoryManager}
                     app={app}
                     notebookTracker={notebookTracker}
                     chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
@@ -1143,7 +1154,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     setAgentReviewStatus={setAgentReviewStatus}
                 />
             </div>
-            {displayOptimizedChatHistory.length === 0 && (
+            {displayOptimizedChatHistory.length === 0 && !ghCopilot.copilotBlocksChat && (
                 <div className="suggestions-container">
                     <ScrollableSuggestions
                         onSelectSuggestion={(prompt) => {
@@ -1160,7 +1171,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {nextSteps.length > 0 && (
                     <NextStepsPills
                         nextSteps={nextSteps}
-                        onSelectNextStep={agentExecution.startAgentExecution}
+                        onSelectNextStep={(nextStep, setStatus) => {
+                            if (ghCopilot.copilotBlocksChat) {
+                                return;
+                            }
+                            void agentExecution.startAgentExecution(nextStep, setStatus);
+                        }}
                         displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
                         setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                         setAgentReviewStatus={setAgentReviewStatus}
@@ -1180,6 +1196,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                     agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
                     isSignedUp={isSignedUp}
+                    canSendMessages={!ghCopilot.copilotBlocksChat}
+                    onDataframeViewerContextAdded={handleDataframeViewerContextAdded}
+                    attentionGlowActive={attentionGlowActive}
+                    onAttentionGlowAnimationEnd={() => setAttentionGlowActive(false)}
                 />
             </div>
             {agentExecution.agentExecutionStatus !== 'working' && agentExecution.agentExecutionStatus !== 'stopping' && (
@@ -1196,7 +1216,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 setAgentModeEnabled(!isLeftSelected);
                                 // Clear agent checkpoint when switching modes
                                 setHasCheckpoint(false);
-                                setShowRevertQuestionnaire(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {
@@ -1211,7 +1230,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                     <button
                         className="button-base submit-button"
+                        disabled={ghCopilot.copilotBlocksChat}
                         onClick={() => {
+                            if (ghCopilot.copilotBlocksChat) {
+                                return;
+                            }
                             const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                             if (chatInput && chatInput.value) {
                                 // Simulate an Enter keypress

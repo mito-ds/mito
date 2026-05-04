@@ -1,0 +1,57 @@
+name: Deploy - Mito AI Helper GitHub Copilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Where to publish the package"
+        required: true
+        default: "pypi"
+        type: choice
+        options:
+          - pypi
+          - testpypi
+
+jobs:
+  deploy-helper:
+    name: Deploy mito-ai-helper-github-copilot
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+
+      - name: Build package
+        run: |
+          cd mitosheet-helpers/mito_ai_helper_github_copilot
+          rm -rf dist
+          python -m build
+
+      - name: Publish to TestPyPI
+        if: ${{ github.event.inputs.target == 'testpypi' }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          cd mitosheet-helpers/mito_ai_helper_github_copilot
+          python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+      - name: Publish to PyPI
+        if: ${{ github.event.inputs.target == 'pypi' }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          cd mitosheet-helpers/mito_ai_helper_github_copilot
+          python -m twine upload dist/*

@@ -11,7 +11,7 @@ import requests  # type: ignore
 
 from mitosheet.ai.prompt import PROMPT_VERSION, get_prompt
 from mitosheet.types import Selection, StepsManagerType
-from mitosheet.user.db import get_user_field, set_user_field
+from mitosheet.user.db import get_user_field, increment_user_field
 from mitosheet.user.schemas import (UJ_AI_MITO_API_NUM_USAGES,
                                     UJ_STATIC_USER_ID, UJ_USER_EMAIL)
 from mitosheet.user.utils import is_pro
@@ -33,29 +33,21 @@ def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
 
 __user_email = None
 __user_id = None
-__num_usages = None
 
 def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
-        global __user_email, __user_id, __num_usages
+        global __user_email, __user_id
 
         if __user_email is None:
                 __user_email = get_user_field(UJ_USER_EMAIL)
         if __user_id is None:
                 __user_id = get_user_field(UJ_STATIC_USER_ID)
-        if __num_usages is None:
-                __num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
 
+        num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES) or 0
 
-        if __num_usages is None:
-                __num_usages = 0
-
-        pro = is_pro()
-
-        if not pro and __num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
+        if not is_pro() and num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
                 return {
                         'error': f'You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times.'
                 }
-                
 
         data = {
                 'email': __user_email,
@@ -74,18 +66,16 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
                 return {
                         'error': f'There was an error accessing the Mito AI API. This is likely due to internet connectivity problems or a firewall.'
                 }
-        
 
         if res.status_code == 200:
-                __num_usages = __num_usages + 1
-                set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages + 1)
+                increment_user_field(UJ_AI_MITO_API_NUM_USAGES)
                 return {
                         'user_input': user_input,
                         'prompt_version': PROMPT_VERSION,
                         'prompt': prompt,
                         'completion': res.json()['completion'],
                 }
-        
+
         return {
                 'error': f'There was an error accessing the MitoAI API. {res.json()["error"]}'
         }

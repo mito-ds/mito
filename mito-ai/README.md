@@ -59,6 +59,10 @@ The `jlpm` command is JupyterLab's pinned version of
 # Clone the repo to your local environment
 # Change directory to the mito-ai directory
 
+# Install mito-ai-core in editable mode first when developing from the monorepo
+# (skip if you only use the PyPI release of mito-ai-core)
+pip install -e ../mito-ai-core
+
 # Required to deal with Yarn 3 workspace rules
 touch yarn.lock
 

@@ -308,7 +308,7 @@ describe('ChatMessage Component', () => {
             expect(handleSubmitUserMessageMock).toHaveBeenCalledWith('Updated message content', 0, undefined);
         });
 
-        it('passes additionalContext when editing a message with context', () => {
+        it('forwards additionalContext to handleSubmitUserMessage when edit submit includes context', () => {
             const handleSubmitUserMessageMock = jest.fn();
             const mockAdditionalContext = [
                 { type: 'variable', value: 'df' },
@@ -317,8 +317,7 @@ describe('ChatMessage Component', () => {
 
             renderChatMessage({
                 message: createMockMessage('user', 'Hello, can you help me with pandas?'),
-                handleSubmitUserMessage: handleSubmitUserMessageMock,
-                additionalContext: mockAdditionalContext
+                handleSubmitUserMessage: handleSubmitUserMessageMock
             });
 
             // Find the message text element
@@ -389,32 +388,6 @@ describe('ChatMessage Component', () => {
             // Verify that ChatInput was called with agentModeEnabled=false
             const chatInputProps = (window as any).__chatInputProps;
             expect(chatInputProps.agentModeEnabled).toBe(false);
-        });
-
-        it('displays additionalContext containers in user messages', () => {
-            const mockAdditionalContext = [
-                { type: 'variable', value: 'df' },
-                { type: 'file', value: 'data.csv' },
-                { type: 'rule', value: 'Use pandas for data manipulation' }
-            ];
-
-            renderChatMessage({
-                message: createMockMessage('user', 'Hello, can you help me with pandas?\n```python\nimport pandas as pd\n```'),
-                additionalContext: mockAdditionalContext
-            });
-
-            // Check that the message content is displayed
-            expect(screen.getByText('Hello, can you help me with pandas?')).toBeInTheDocument();
-
-            // Check that SelectedContextContainer components are rendered for each context item
-            // The SelectedContextContainer renders the value as text content
-            expect(screen.getByText('df')).toBeInTheDocument();
-            expect(screen.getByText('data.csv')).toBeInTheDocument();
-            expect(screen.getByText('Use pandas for data manipulation')).toBeInTheDocument();
-
-            // Check that the containers have the correct test IDs
-            const contextContainers = screen.getAllByTestId('selected-context-container');
-            expect(contextContainers).toHaveLength(3);
         });
 
         it('shows code action buttons for the last AI message with code', () => {

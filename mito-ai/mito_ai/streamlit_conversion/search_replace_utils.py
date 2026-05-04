@@ -4,8 +4,8 @@
 import re
 from typing import List, Tuple
 
-from mito_ai.utils.error_classes import StreamlitConversionError
-from mito_ai.utils.telemetry_utils import log
+from mito_ai_core.utils.error_classes import StreamlitConversionError
+from mito_ai_core.utils.telemetry_utils import log
 
 
 def extract_search_replace_blocks(message_content: str) -> List[Tuple[str, str]]:

@@ -6,7 +6,7 @@ import tempfile
 import tornado
 from typing import Dict, Any
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.telemetry_utils import (
+from mito_ai_core.utils.telemetry_utils import (
     log_file_upload_attempt,
     log_file_upload_failure,
 )

@@ -3,11 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-/* Position the button container in the upper right */
+/* Position the button container in the upper right, offset to leave room for the comment button */
 .chart-wizard-button-container {
     position: absolute;
     top: 8px;
-    right: 8px;
+    right: 118px;
     z-index: 10;
     opacity: 0;
     transition: opacity 0.2s ease-in-out;

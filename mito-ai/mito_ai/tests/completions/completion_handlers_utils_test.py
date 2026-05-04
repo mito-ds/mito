@@ -9,9 +9,11 @@ from contextlib import contextmanager
 
 import pytest
 
-from mito_ai.completions.completion_handlers.utils import (
+from mito_ai_core.completions.ai_optimized_message import (
     create_ai_optimized_message,
     extract_and_encode_images_from_additional_context,
+)
+from mito_ai.completions.completion_handlers.utils import (
     normalize_agent_response_completion,
 )
 
@@ -87,6 +89,21 @@ def test_message_with_active_cell_output():
     assert isinstance(result["content"], list)
     assert result["content"][0]["type"] == "text"
     assert result["content"][1]["type"] == "image_url"
+
+
+def test_message_copilot_mode_preserves_images_at_message_creation():
+    """Copilot sanitization now happens in copilot_client, not at message creation."""
+    with temporary_image_file() as temp_file_path:
+        result = create_ai_optimized_message(
+            text="Analyze this",
+            additional_context=[{"type": "image/png", "value": temp_file_path}],
+            base64EncodedActiveCellOutput="cell_output_data",
+        )
+    assert result["role"] == "user"
+    assert isinstance(result["content"], list)
+    assert result["content"][0]["type"] == "text"
+    assert result["content"][1]["type"] == "image_url"
+    assert result["content"][2]["type"] == "image_url"
 
 
 def test_message_with_uploaded_image_and_active_cell_output():

@@ -4,7 +4,7 @@
 from typing import List, Tuple, Any
 from jupyter_server.utils import url_path_join
 from mito_ai.chart_wizard.handlers import ConvertChartHandler, AddFieldHandler
-from mito_ai.provider_manager import ProviderManager
+from mito_ai_core.provider_manager import ProviderManager
 
 
 def get_chart_wizard_urls(

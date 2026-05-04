@@ -184,6 +184,57 @@ export const stopStreamlitPreview = async (previewId: string): Promise<void> => 
 
 /************************************
 
+GITHUB COPILOT (only when mito-ai-helper-github-copilot is installed on the server)
+
+************************************/
+
+export interface GithubCopilotLoginStatusPayload {
+  status: string;
+  verification_uri?: string;
+  user_code?: string;
+  available_chat_models?: string[];
+}
+
+/**
+ * Returns null if the GitHub Copilot REST routes are not available (helper not installed or error).
+ */
+export const fetchGithubCopilotLoginStatus =
+  async (): Promise<GithubCopilotLoginStatusPayload | null> => {
+    const resp = await requestAPI<GithubCopilotLoginStatusPayload>(
+      'github-copilot/login-status',
+      { method: 'GET' }
+    );
+    if (resp.error) {
+      return null;
+    }
+    return resp.data ?? null;
+  };
+
+export const startGithubCopilotDeviceLogin = async (): Promise<
+  GithubCopilotLoginStatusPayload | { error: string } | null
+> => {
+  const resp = await requestAPI<GithubCopilotLoginStatusPayload | { error: string }>(
+    'github-copilot/login',
+    { method: 'POST' }
+  );
+  if (resp.error) {
+    return { error: resp.error.message };
+  }
+  return resp.data ?? null;
+};
+
+export const logoutGithubCopilot = async (): Promise<GithubCopilotLoginStatusPayload | null> => {
+  const resp = await requestAPI<GithubCopilotLoginStatusPayload>('github-copilot/logout', {
+    method: 'GET'
+  });
+  if (resp.error) {
+    return null;
+  }
+  return resp.data ?? null;
+};
+
+/************************************
+
 USER ENDPOINTS
 
 ************************************/

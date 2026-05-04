@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getUserKey } from '../../restAPI/RestAPI';
+import { fetchGithubCopilotLoginStatus, getUserKey } from '../../restAPI/RestAPI';
 import '../../../style/UsageBadge.css';
 import { COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION } from '../SettingsManager/SettingsManagerPlugin';
 
@@ -25,6 +25,7 @@ export interface UsageBadgeRef {
 const UsageBadge = forwardRef<UsageBadgeRef, UsageBadgeProps>(({ app }, ref) => {
     const [isPro, setIsPro] = useState<boolean>(false);
     const [usageCount, setUsageCount] = useState<number>(0);
+    const [isGithubCopilotServer, setIsGithubCopilotServer] = useState<boolean>(false);
 
     const getAiMitoApiNumUsages = async (): Promise<number> => {
         const usageCount = await getUserKey('ai_mito_api_num_usages');
@@ -51,6 +52,10 @@ const UsageBadge = forwardRef<UsageBadgeRef, UsageBadgeProps>(({ app }, ref) => 
     useEffect(() => {
         void fetchIsPro();
         void fetchUsageCount();
+        void (async () => {
+            const copilot = await fetchGithubCopilotLoginStatus();
+            setIsGithubCopilotServer(copilot !== null);
+        })();
     }, []);
 
     // Calculate progress
@@ -67,6 +72,10 @@ const UsageBadge = forwardRef<UsageBadgeRef, UsageBadgeProps>(({ app }, ref) => 
 
     if (isPro) {
         // If the user is pro, don't show the usage badge
+        return null;
+    }
+
+    if (isGithubCopilotServer) {
         return null;
     }
 
