@@ -735,6 +735,7 @@ class AppActionsWidget extends ReactWidget {
 
 export class MitoToolbarWidget extends Widget {
   private static readonly _DEFAULT_NOTEBOOK_ITEM_NAMES = new Set([
+    'save',
     'insert',
     'cut',
     'copy',
@@ -746,6 +747,7 @@ export class MitoToolbarWidget extends Widget {
     'restart-and-run',
     'cellType',
     'kernelName',
+    'executionProgress',
     'debugger-icon'
   ]);
 

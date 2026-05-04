@@ -177,7 +177,9 @@ describe('MitoToolbarWidget', () => {
   it('transfers third-party notebook toolbar widgets and restores them on rebind', () => {
     const kernelSpyWidget = new Widget();
     const toolbarItems = new Map<string, Widget>([
+      ['save', new Widget()],
       ['insert', new Widget()],
+      ['executionProgress', new Widget()],
       ['kernelspy-new', kernelSpyWidget]
     ]);
     const panel = createMockNotebookPanel('kernelspy-panel', 'kernelspy.ipynb');
@@ -202,8 +204,15 @@ describe('MitoToolbarWidget', () => {
     widget.syncNotebookExtensionToolbar(panel);
 
     expect(mockToolbar.removeItem).toHaveBeenCalledWith('kernelspy-new');
+    expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('save');
     expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('insert');
+    expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('executionProgress');
     expect(addItemSpy).toHaveBeenCalledWith('third-party:kernelspy-new', kernelSpyWidget);
+    expect(addItemSpy).not.toHaveBeenCalledWith('third-party:save', expect.anything());
+    expect(addItemSpy).not.toHaveBeenCalledWith(
+      'third-party:executionProgress',
+      expect.anything()
+    );
 
     widget.prepareNotebookExtensionToolbarForRebind();
 
