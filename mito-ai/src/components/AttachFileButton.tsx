@@ -73,6 +73,8 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
                 className='icon-button-hover'
                 disabled={isUploading}
                 style={{
+                    height: 'var(--chat-context-button-height)',
+                    width: 'var(--chat-context-button-height)',
                     ...(isUploading && { opacity: 0.5 }),
                     cursor: isUploading ? 'not-allowed' : 'pointer'
                 }}

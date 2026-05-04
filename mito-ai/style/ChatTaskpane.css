@@ -74,6 +74,34 @@
   gap: 8px;
 }
 
+/* Render the header icon-buttons as a fixed square so the icon is
+   horizontally and vertically centered within the hover background.
+   Without explicit dimensions the browser's default asymmetric
+   <button> padding leaves the icon visibly off-center. */
+.chat-taskpane-header .icon-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 3px;
+}
+
+/* The JupyterLab LabIcon component wraps its <svg> in a <div>. The svg
+   renders inline by default, so the wrapping div inherits a line-box
+   with descender space — pushing the icon above the button's true
+   vertical center. Force the svg (and its wrapper) to be a flex box so
+   the glyph ends up dead-center. */
+.chat-taskpane-header .icon-button > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.chat-taskpane-header .icon-button svg {
+  display: block;
+}
+
 .chat-taskpane-header-title {
   font-size: 14px;
   font-weight: bold;
