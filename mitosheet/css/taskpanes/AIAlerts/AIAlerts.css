@@ -168,7 +168,7 @@
     flex-shrink: 0;
     border: 1px solid var(--mito-highlight);
     background: var(--mito-highlight);
-    color: var(--mito-background-light);
+    color: #ffffff;
     border-radius: 4px;
     padding: 4px 10px;
     font-size: 12px;
