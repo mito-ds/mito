@@ -6,7 +6,8 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { ContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
-import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { fetchVariablesAndUpdateState, Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { KernelMessage } from '@jupyterlab/services';
 
 // Mock data for testing
 const MOCK_VARIABLES: Variable[] = [
@@ -18,6 +19,10 @@ jest.mock('../../Extensions/ContextManager/FileInspector', () => ({
     getFiles: jest.fn().mockResolvedValue([])
 }));
 
+jest.mock('../../Extensions/ContextManager/VariableInspector', () => ({
+    fetchVariablesAndUpdateState: jest.fn()
+}));
+
 describe('ContextManager', () => {
     let contextManager: ContextManager;
     let mockApp: JupyterFrontEnd;
@@ -25,13 +30,20 @@ describe('ContextManager', () => {
     let mockSessionContext: any;
     let currentChangedCallback: any;
     const mockNotebookId = '/test/notebook.ipynb';
+    const flushPromises = async (): Promise<void> => {
+        await Promise.resolve();
+        await Promise.resolve();
+    };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         // Create mock session context with session ID
         mockSessionContext = {
             statusChanged: {
                 connect: jest.fn()
             },
+            iopubMessage: {
+                connect: jest.fn()
+            }
         };
 
         // Create mock notebook panel
@@ -65,6 +77,11 @@ describe('ContextManager', () => {
 
         // Trigger the currentChanged event to set up the kernel listener
         currentChangedCallback(mockNotebookTracker, mockNotebookPanel);
+        await flushPromises();
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     describe('Kernel Refresh', () => {
@@ -126,6 +143,41 @@ describe('ContextManager', () => {
             // Verify that variables were not cleared
             const context = contextManager.getNotebookContext(mockNotebookId);
             expect(context?.variables).toEqual(MOCK_VARIABLES);
+        });
+    });
+
+    describe('Kernel Listener Registration', () => {
+        it('only registers one set of listeners for the same notebook panel', async () => {
+            expect(mockSessionContext.statusChanged.connect).toHaveBeenCalledTimes(1);
+            expect(mockSessionContext.iopubMessage.connect).toHaveBeenCalledTimes(1);
+
+            const mockNotebookPanel = mockNotebookTracker.currentWidget;
+            currentChangedCallback(mockNotebookTracker, mockNotebookPanel);
+            await flushPromises();
+
+            expect(mockSessionContext.statusChanged.connect).toHaveBeenCalledTimes(1);
+            expect(mockSessionContext.iopubMessage.connect).toHaveBeenCalledTimes(1);
+        });
+
+        it('fetches variables once for an execute_input message even after re-activating the same notebook', async () => {
+            const mockNotebookPanel = mockNotebookTracker.currentWidget;
+            currentChangedCallback(mockNotebookTracker, mockNotebookPanel);
+            await flushPromises();
+
+            const iopubMessageCallback = mockSessionContext.iopubMessage.connect.mock.calls[0][0];
+            const executeInputMessage = {
+                header: {
+                    msg_type: 'execute_input'
+                }
+            } as KernelMessage.IMessage;
+
+            iopubMessageCallback({}, executeInputMessage);
+
+            expect(fetchVariablesAndUpdateState).toHaveBeenCalledTimes(1);
+            expect(fetchVariablesAndUpdateState).toHaveBeenCalledWith(
+                mockNotebookPanel,
+                expect.any(Function)
+            );
         });
     });
 
