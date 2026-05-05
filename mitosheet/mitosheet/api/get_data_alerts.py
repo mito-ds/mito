@@ -19,6 +19,7 @@ from mitosheet.api.suggestions_api_utils import (
     get_suggestions_from_mito_server,
     get_suggestions_from_open_ai_compatible,
     get_suggestions_from_openai_key,
+    salvage_truncated_json,
     strip_json_fences,
 )
 from mitosheet.types import StepsManagerType
@@ -180,7 +181,15 @@ def _build_data_alerts_prompt(df_name: str, profile: Dict[str, Any]) -> str:
 
 def _parse_alerts_json(completion: str) -> Any:
     text = strip_json_fences(completion)
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        salvaged = salvage_truncated_json(text)
+        if salvaged is None:
+            raise
+        # Validation drops any alert missing required fields, so a partially
+        # recovered response surfaces the alerts that did make it through.
+        return json.loads(salvaged)
 
 
 def _validate_fixes(raw: Any, df_name: str) -> List[Dict[str, Any]]:
