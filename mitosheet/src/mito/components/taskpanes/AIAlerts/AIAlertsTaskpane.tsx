@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { MitoAPI } from '../../../api/api';
+import { getRandomId, MitoAPI } from '../../../api/api';
 import { GridState, SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../layout/Row';
 import AIPrivacyPolicy from '../AITransformation/AIPrivacyPolicy';
@@ -22,12 +22,20 @@ interface AIAlertsTaskpaneProps {
     setGridState: React.Dispatch<React.SetStateAction<GridState>>;
 }
 
+type AlertFix = {
+    fix_id: string;
+    title: string;
+    description: string;
+    code: string;
+};
+
 type AlertRow = {
     issue_type: string;
     severity: 'high' | 'medium' | 'low';
     title: string;
     description: string;
     column_indices: number[];
+    fixes?: AlertFix[];
 };
 
 type LoadState =
@@ -44,10 +52,18 @@ type LoadState =
           };
       };
 
+// Tracks the per-fix application state so a click shows a spinner / success / error
+// without re-fetching the alerts list.
+type FixState =
+    | { status: 'applying' }
+    | { status: 'applied' }
+    | { status: 'error'; message: string };
+
 const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
     const aiPrivacyPolicyAccepted = props.userProfile.aiPrivacyPolicy;
     const [loadState, setLoadState] = useState<LoadState>({ status: 'loading' });
     const [loadingColumnIndex, setLoadingColumnIndex] = useState(0);
+    const [fixStates, setFixStates] = useState<Record<string, FixState>>({});
 
     const sheetIndex = props.uiState.selectedSheetIndex;
     const sheetData = props.sheetDataArray[sheetIndex];
@@ -61,6 +77,7 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
 
         const run = async (): Promise<void> => {
             setLoadState({ status: 'loading' });
+            setFixStates({});
             const res = await props.mitoAPI.getDataAlerts(sheetIndex);
             if (cancelled) {
                 return;
@@ -146,6 +163,35 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
         }));
     };
 
+    const getFixKey = (alertIdx: number, fixId: string): string => `${alertIdx}:${fixId}`;
+
+    const applyFix = async (alertIdx: number, alert: AlertRow, fix: AlertFix): Promise<void> => {
+        const key = getFixKey(alertIdx, fix.fix_id);
+        setFixStates(prev => ({ ...prev, [key]: { status: 'applying' } }));
+
+        const res = await props.mitoAPI._edit(
+            'ai_transformation_edit',
+            {
+                user_input: `AI Alerts fix: ${fix.title}`,
+                prompt_version: 'data-alerts-v2',
+                prompt: alert.title,
+                completion: fix.code,
+                edited_completion: fix.code,
+            },
+            getRandomId()
+        );
+
+        if (res !== undefined && 'error' in res) {
+            setFixStates(prev => ({
+                ...prev,
+                [key]: { status: 'error', message: res.error || 'Could not apply fix.' },
+            }));
+            return;
+        }
+
+        setFixStates(prev => ({ ...prev, [key]: { status: 'applied' } }));
+    };
+
     if (!aiPrivacyPolicyAccepted) {
         return <AIPrivacyPolicy mitoAPI={props.mitoAPI} setUIState={props.setUIState} />;
     }
@@ -213,6 +259,53 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
                                                     .map(colIdx => columnLabelByIndex[colIdx] ?? `Column ${colIdx}`)
                                                     .join(', ')}
                                             </div>
+                                            {alert.fixes !== undefined && alert.fixes.length > 0 && (
+                                                <div className='ai-alert-fixes'>
+                                                    <div className='ai-alert-fixes-label'>Suggested fixes</div>
+                                                    {alert.fixes.map(fix => {
+                                                        const key = getFixKey(idx, fix.fix_id);
+                                                        const state = fixStates[key];
+                                                        const isApplying = state?.status === 'applying';
+                                                        const isApplied = state?.status === 'applied';
+                                                        const isError = state?.status === 'error';
+                                                        return (
+                                                            <div
+                                                                key={`${fix.fix_id}`}
+                                                                className='ai-alert-fix'
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                <div className='ai-alert-fix-text'>
+                                                                    <div className='ai-alert-fix-title'>{fix.title}</div>
+                                                                    <div className='ai-alert-fix-description'>{fix.description}</div>
+                                                                    {isError && (
+                                                                        <div className='ai-alert-fix-error'>{state.message}</div>
+                                                                    )}
+                                                                </div>
+                                                                <button
+                                                                    type='button'
+                                                                    className={
+                                                                        'ai-alert-fix-button' +
+                                                                        (isApplied ? ' ai-alert-fix-button-applied' : '')
+                                                                    }
+                                                                    disabled={isApplying || isApplied}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        void applyFix(idx, alert, fix);
+                                                                    }}
+                                                                >
+                                                                    {isApplied
+                                                                        ? 'Applied'
+                                                                        : isApplying
+                                                                            ? 'Applying…'
+                                                                            : isError
+                                                                                ? 'Retry'
+                                                                                : 'Apply'}
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

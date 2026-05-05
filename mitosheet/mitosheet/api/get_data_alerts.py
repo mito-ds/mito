@@ -19,14 +19,16 @@ from mitosheet.api.suggestions_api_utils import (
     get_suggestions_from_mito_server,
     get_suggestions_from_open_ai_compatible,
     get_suggestions_from_openai_key,
+    salvage_truncated_json,
     strip_json_fences,
 )
 from mitosheet.types import StepsManagerType
 
-DATA_ALERTS_PROMPT_VERSION = "data-alerts-v1"
+DATA_ALERTS_PROMPT_VERSION = "data-alerts-v2"
 MAX_COLUMNS_PROFILED = 60
 MAX_SAMPLE_ROWS = 2000
 MAX_ALERTS = 8
+MAX_FIXES_PER_ALERT = 3
 ALLOWED_SEVERITIES = frozenset({"high", "medium", "low"})
 
 
@@ -129,45 +131,115 @@ def _build_data_alerts_prompt(df_name: str, profile: Dict[str, Any]) -> str:
         ]
     )
 
-    example_json = (
-        '{"alerts":['
-        '{"issue_type":"missing_values","severity":"high","title":"Missing values in important field",'
-        '"description":"Column has a high share of missing values that may bias analysis.",'
-        '"column_indices":[2]}'
-        "]}"
-    )
+    example_json = f"""{{
+  "alerts": [
+    {{
+      "issue_type": "missing_values",
+      "severity": "high",
+      "title": "Missing values in important field",
+      "description": "Column has a high share of missing values that may bias analysis.",
+      "column_indices": [2],
+      "fixes": [
+        {{
+          "title": "Drop rows where Age is missing",
+          "description": "Removes any row that has a missing Age value.",
+          "code": "{df_name} = {df_name}.dropna(subset=['Age'])"
+        }},
+        {{
+          "title": "Fill missing Age with median",
+          "description": "Replaces missing Age values with the column median.",
+          "code": "{df_name}['Age'] = {df_name}['Age'].fillna({df_name}['Age'].median())"
+        }}
+      ]
+    }}
+  ]
+}}"""
 
-    return (
-        "You are a data quality analyst assistant.\n"
-        "Identify the most important data-cleaning issues an analyst should investigate first.\n\n"
-        f"Dataframe variable name: {df_name}\n"
-        f"Rows in dataframe: {profile['total_rows']}\n"
-        f"Sample rows profiled: {profile['sample_rows_profiled']}\n"
-        f"Columns profiled: {profile['columns_profiled']} of {profile['total_columns']}\n\n"
-        "Column index catalog (use ONLY these indices):\n"
-        f"{column_catalog}\n\n"
-        "Per-column profile JSON:\n"
-        f"{json.dumps(profile['column_summaries'])}\n\n"
-        "Respond with ONLY valid JSON (no markdown, no code fences) with this exact shape:\n"
-        f"{example_json}\n\n"
-        "Rules:\n"
-        f"- Return at most {MAX_ALERTS} alerts.\n"
-        "- severity must be one of: high, medium, low.\n"
-        "- issue_type should be short snake_case (examples: missing_values, inconsistent_format, outliers, potential_duplicates, constant_column, suspicious_distribution).\n"
-        "- title should be concise and specific to this dataset.\n"
-        "- description should explain why this matters for analysis in 1-2 sentences.\n"
-        "- column_indices must reference valid column indices from the catalog.\n"
-        "- Prefer high-signal issues that an analyst would reasonably inspect during cleaning.\n"
-        '- If nothing stands out, return {"alerts":[]}.'
-    )
+    return f"""You are a data quality analyst assistant.
+Identify the most important data-cleaning issues an analyst should investigate first, and for each issue propose concrete pandas code that fixes it.
+
+Dataframe variable name: {df_name}
+Rows in dataframe: {profile['total_rows']}
+Sample rows profiled: {profile['sample_rows_profiled']}
+Columns profiled: {profile['columns_profiled']} of {profile['total_columns']}
+
+Column index catalog (use ONLY these indices):
+{column_catalog}
+
+Per-column profile JSON:
+{json.dumps(profile['column_summaries'])}
+
+Respond with ONLY valid JSON (no markdown, no code fences) with this exact shape:
+{example_json}
+
+Rules:
+- Return at most {MAX_ALERTS} alerts.
+- severity must be one of: high, medium, low.
+- issue_type should be short snake_case (examples: missing_values, inconsistent_format, outliers, potential_duplicates, constant_column, suspicious_distribution).
+- title should be concise and specific to this dataset.
+- description should explain why this matters for analysis in 1-2 sentences.
+- column_indices must reference valid column indices from the catalog.
+- Prefer high-signal issues that an analyst would reasonably inspect during cleaning.
+- For each alert, include 1 to {MAX_FIXES_PER_ALERT} entries in 'fixes' that the user can apply with one click.
+- Each fix MUST have: 'title' (short button label, max 8 words), 'description' (1 sentence), and 'code'.
+- 'code' MUST be a single short pandas snippet (one or two statements) that uses ONLY the dataframe variable named '{df_name}' and modifies it in place (e.g. assigning back to {df_name} or to {df_name}['col']).
+- 'code' MUST reference column names exactly as they appear in the column index catalog above.
+- 'code' MUST NOT include imports, prints, comments, or read/write to disk.
+- Prefer fixes that are safe and reversible. Order fixes from least to most destructive.
+- If nothing stands out, return {{"alerts":[]}}."""
 
 
 def _parse_alerts_json(completion: str) -> Any:
     text = strip_json_fences(completion)
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        salvaged = salvage_truncated_json(text)
+        if salvaged is None:
+            raise
+        # Validation drops any alert missing required fields, so a partially
+        # recovered response surfaces the alerts that did make it through.
+        return json.loads(salvaged)
 
 
-def _validate_alerts(raw: Any, max_columns: int) -> List[Dict[str, Any]]:
+def _validate_fixes(raw: Any, df_name: str) -> List[Dict[str, Any]]:
+    if not isinstance(raw, list):
+        return []
+
+    fixes: List[Dict[str, Any]] = []
+    for item in raw[:MAX_FIXES_PER_ALERT]:
+        if not isinstance(item, dict):
+            continue
+
+        title = item.get("title")
+        description = item.get("description")
+        code = item.get("code")
+
+        if not isinstance(title, str) or not title.strip():
+            continue
+        if not isinstance(description, str) or not description.strip():
+            continue
+        if not isinstance(code, str) or not code.strip():
+            continue
+
+        # Sanity check: the code should reference the dataframe variable so that the
+        # ai_transformation step can detect it as a modified dataframe.
+        if df_name not in code:
+            continue
+
+        fixes.append(
+            {
+                "fix_id": f"fix_{len(fixes)}",
+                "title": title.strip()[:120],
+                "description": description.strip()[:300],
+                "code": code.strip(),
+            }
+        )
+
+    return fixes
+
+
+def _validate_alerts(raw: Any, max_columns: int, df_name: str) -> List[Dict[str, Any]]:
     if not isinstance(raw, dict):
         return []
     items = raw.get("alerts")
@@ -219,6 +291,7 @@ def _validate_alerts(raw: Any, max_columns: int) -> List[Dict[str, Any]]:
                 "title": title.strip()[:200],
                 "description": description.strip()[:700],
                 "column_indices": normalized_indices,
+                "fixes": _validate_fixes(item.get("fixes"), df_name),
             }
         )
 
@@ -238,8 +311,7 @@ def get_data_alerts(params: Dict[str, Any], steps_manager: StepsManagerType) -> 
     if df is None or len(df.columns) == 0:
         return {"prompt_version": DATA_ALERTS_PROMPT_VERSION, "alerts": []}
 
-    profiled_df = df.iloc[:, :MAX_COLUMNS_PROFILED]
-    profile = _build_profile(profiled_df)
+    profile = _build_profile(df)
     df_name = str(state.df_names[sheet_index]) if sheet_index < len(state.df_names) else "df"
     prompt = _build_data_alerts_prompt(df_name, profile)
 
@@ -268,10 +340,11 @@ def get_data_alerts(params: Dict[str, Any], steps_manager: StepsManagerType) -> 
             "prompt_version": DATA_ALERTS_PROMPT_VERSION,
         }
 
-    alerts = _validate_alerts(parsed, len(profiled_df.columns))
+    alerts = _validate_alerts(parsed, profile["columns_profiled"], df_name)
     return {
         "prompt_version": DATA_ALERTS_PROMPT_VERSION,
         "alerts": alerts,
+        "df_name": df_name,
         "profile_metadata": {
             "rows_profiled": profile["sample_rows_profiled"],
             "total_rows": profile["total_rows"],
