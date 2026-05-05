@@ -21,7 +21,7 @@ import { scheduleAnimatedColumnDelete } from "../../utils/gridMicroAnimations";
 import { scheduleAnimatedRowDelete } from "../../utils/gridRowDeleteAnimation";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
-import { ensureCellVisible } from "./visibilityUtils";
+import { ensureCellVisible, scrollColumnIntoView } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 import { SendFunctionStatus } from "../../api/send";
@@ -226,6 +226,22 @@ function EndoGrid(props: {
             }
         })
     }, [sheetData, setGridState, sheetIndex])
+
+    // Consume external scroll-to-column requests (e.g. from the AI Alerts taskpane)
+    useEffect(() => {
+        const pending = uiState.pendingColumnScroll;
+        if (pending === undefined || pending.sheetIndex !== sheetIndex) {
+            return;
+        }
+        scrollColumnIntoView(
+            containerRef.current,
+            scrollAndRenderedContainerRef.current,
+            currentSheetView,
+            gridState,
+            pending.columnIndex
+        );
+        setUIState(prev => ({ ...prev, pendingColumnScroll: undefined }));
+    }, [uiState.pendingColumnScroll, sheetIndex, currentSheetView, gridState, setUIState])
 
     // A helper function that should be run when the viewport changes sizes
     const resizeViewport = () => {

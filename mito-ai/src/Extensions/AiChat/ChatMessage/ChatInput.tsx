@@ -21,6 +21,7 @@ import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import AttachFileButton from '../../../components/AttachFileButton';
 import DatabaseButton from '../../../components/DatabaseButton';
+import IconButton from '../../../components/IconButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
 import { uploadFileToBackend } from '../../../utils/fileUpload';
@@ -745,9 +746,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             >
                 <DatabaseButton app={app} />
                 <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
-                <button
-                    type="button"
-                    className="context-button"
+                <IconButton
+                    icon={<span className="add-context-button-icon">@</span>}
+                    title="Add Context"
                     disabled={!canSendMessages}
                     onClick={() => {
                         setDropdownVisible(true);
@@ -755,9 +756,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         setIsDropdownFromButton(true);
                         textAreaRef.current?.focus();
                     }}
-                >
-                    ＠ Add Context
-                </button>
+                    className="icon-button-hover"
+                    style={{
+                        height: 'var(--chat-context-button-height)',
+                        width: 'var(--chat-context-button-height)'
+                    }}
+                />
                 {additionalContext.map((context, index) => (
                     <SelectedContextContainer
                         key={`${context.type}-${context.value}-${index}`}

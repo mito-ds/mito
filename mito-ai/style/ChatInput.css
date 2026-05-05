@@ -114,37 +114,24 @@
   color: var(--jp-ui-font-color3);
 }
 
-.context-button {
-  display: flex;
-  align-items: center;
-  background-color: var(--jp-layout-color2);
-  border: 1px solid var(--jp-border-color1);
-  border-radius: 3px;
-  padding: 4px 8px;
-  font-size: 12px;
-  height: var(--chat-context-button-height);
-  cursor: pointer;
-  color: var(--jp-content-font-color1);
-  transition: background-color 0.2s ease;
+.add-context-button-icon {
+  font-size: 16px;
+  line-height: 1;
+  color: currentColor;
 }
 
-.context-button:hover {
-  background-color: var(--jp-layout-color3);
+/* Ensure the database, attach-file, and add-context buttons all render
+   at the exact dimensions set on them (e.g. 20x20). Without these
+   resets the browser's default button padding inflates the hover area,
+   making the three buttons look uneven. */
+.context-container .icon-button {
+  padding: 0;
+  box-sizing: border-box;
 }
 
 /* Disabled state styles */
 .chat-input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: var(--jp-layout-color2);
-}
-
-.context-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background-color: var(--jp-layout-color2);
-}
-
-.context-button:disabled:hover {
   background-color: var(--jp-layout-color2);
 }

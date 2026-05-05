@@ -638,7 +638,7 @@ describe('ChatInput Component', () => {
         it('opens dropdown with search input when Add Context button is clicked', async () => {
             renderChatInput();
 
-            const addContextButton = screen.getByText('＠ Add Context');
+            const addContextButton = screen.getByTitle('Add Context');
 
             // Initially, dropdown should not be visible
             expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
@@ -661,7 +661,7 @@ describe('ChatInput Component', () => {
         it('shows both variables and rules in the dropdown when opened via Add Context button', async () => {
             renderChatInput();
 
-            const addContextButton = screen.getByText('＠ Add Context');
+            const addContextButton = screen.getByTitle('Add Context');
 
             await act(async () => {
                 fireEvent.click(addContextButton);
@@ -684,7 +684,7 @@ describe('ChatInput Component', () => {
         it('filters dropdown options when typing in search input', async () => {
             renderChatInput();
 
-            const addContextButton = screen.getByText('＠ Add Context');
+            const addContextButton = screen.getByTitle('Add Context');
 
             await act(async () => {
                 fireEvent.click(addContextButton);

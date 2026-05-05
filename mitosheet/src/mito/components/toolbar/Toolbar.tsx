@@ -15,6 +15,7 @@ import { classNames } from '../../utils/classNames';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import DocumentationIcon from '../icons/DocumentationIcon';
 import AIIcon from '../icons/AIIcon';
+import AIChatIcon from '../icons/AIChatIcon';
 import HexagonAIIcon from '../icons/HexagonAI';
 import { CodeTabContents } from './CodeTabContents';
 import { DataTabContents } from './DataTabContents';
@@ -211,13 +212,27 @@ export const Toolbar = (
                         onClick={() => {
                             props.setUIState(prev => ({
                                 ...prev,
-                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                currOpenTaskpane: {type: TaskpaneType.AIALERTS},
                                 selectedTabType: 'data'
                             }));
                         }}
                     >
                         <AIIcon />
-                        AI
+                        AI Alerts
+                    </div>
+                    <div
+                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                selectedTabType: 'data'
+                            }));
+                        }}
+                    >
+                        <AIChatIcon />
+                        AI Chat
                     </div>
                 </div>
             </div>

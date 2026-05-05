@@ -48,7 +48,8 @@ const DatabaseButton: React.FC<DatabaseButtonProps> = ({app}) => {
             notificationDotType={getNotificationDotType()}
             className='icon-button-hover'
             style={{
-                height: 'var(--chat-context-button-height)'
+                height: 'var(--chat-context-button-height)',
+                width: 'var(--chat-context-button-height)'
             }}
         />
     );
