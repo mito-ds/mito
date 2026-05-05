@@ -131,52 +131,62 @@ def _build_data_alerts_prompt(df_name: str, profile: Dict[str, Any]) -> str:
         ]
     )
 
-    example_json = (
-        '{"alerts":['
-        '{"issue_type":"missing_values","severity":"high",'
-        '"title":"Missing values in important field",'
-        '"description":"Column has a high share of missing values that may bias analysis.",'
-        '"column_indices":[2],'
-        '"fixes":['
-        '{"title":"Drop rows where Age is missing",'
-        f'"description":"Removes any row that has a missing Age value.","code":"{df_name} = {df_name}.dropna(subset=[\'Age\'])"' + "},"
-        '{"title":"Fill missing Age with median",'
-        f'"description":"Replaces missing Age values with the column median.","code":"{df_name}[\'Age\'] = {df_name}[\'Age\'].fillna({df_name}[\'Age\'].median())"' + "}"
-        "]}"
-        "]}"
-    )
+    example_json = f"""{{
+  "alerts": [
+    {{
+      "issue_type": "missing_values",
+      "severity": "high",
+      "title": "Missing values in important field",
+      "description": "Column has a high share of missing values that may bias analysis.",
+      "column_indices": [2],
+      "fixes": [
+        {{
+          "title": "Drop rows where Age is missing",
+          "description": "Removes any row that has a missing Age value.",
+          "code": "{df_name} = {df_name}.dropna(subset=['Age'])"
+        }},
+        {{
+          "title": "Fill missing Age with median",
+          "description": "Replaces missing Age values with the column median.",
+          "code": "{df_name}['Age'] = {df_name}['Age'].fillna({df_name}['Age'].median())"
+        }}
+      ]
+    }}
+  ]
+}}"""
 
-    return (
-        "You are a data quality analyst assistant.\n"
-        "Identify the most important data-cleaning issues an analyst should investigate first, "
-        "and for each issue propose concrete pandas code that fixes it.\n\n"
-        f"Dataframe variable name: {df_name}\n"
-        f"Rows in dataframe: {profile['total_rows']}\n"
-        f"Sample rows profiled: {profile['sample_rows_profiled']}\n"
-        f"Columns profiled: {profile['columns_profiled']} of {profile['total_columns']}\n\n"
-        "Column index catalog (use ONLY these indices):\n"
-        f"{column_catalog}\n\n"
-        "Per-column profile JSON:\n"
-        f"{json.dumps(profile['column_summaries'])}\n\n"
-        "Respond with ONLY valid JSON (no markdown, no code fences) with this exact shape:\n"
-        f"{example_json}\n\n"
-        "Rules:\n"
-        f"- Return at most {MAX_ALERTS} alerts.\n"
-        "- severity must be one of: high, medium, low.\n"
-        "- issue_type should be short snake_case (examples: missing_values, inconsistent_format, outliers, potential_duplicates, constant_column, suspicious_distribution).\n"
-        "- title should be concise and specific to this dataset.\n"
-        "- description should explain why this matters for analysis in 1-2 sentences.\n"
-        "- column_indices must reference valid column indices from the catalog.\n"
-        "- Prefer high-signal issues that an analyst would reasonably inspect during cleaning.\n"
-        f"- For each alert, include 1 to {MAX_FIXES_PER_ALERT} entries in 'fixes' that the user can apply with one click.\n"
-        "- Each fix MUST have: 'title' (short button label, max 8 words), 'description' (1 sentence), and 'code'.\n"
-        f"- 'code' MUST be a single short pandas snippet (one or two statements) that uses ONLY the dataframe variable named '{df_name}' "
-        f"and modifies it in place (e.g. assigning back to {df_name} or to {df_name}['col']).\n"
-        "- 'code' MUST reference column names exactly as they appear in the column index catalog above.\n"
-        "- 'code' MUST NOT include imports, prints, comments, or read/write to disk.\n"
-        "- Prefer fixes that are safe and reversible. Order fixes from least to most destructive.\n"
-        '- If nothing stands out, return {"alerts":[]}.'
-    )
+    return f"""You are a data quality analyst assistant.
+Identify the most important data-cleaning issues an analyst should investigate first, and for each issue propose concrete pandas code that fixes it.
+
+Dataframe variable name: {df_name}
+Rows in dataframe: {profile['total_rows']}
+Sample rows profiled: {profile['sample_rows_profiled']}
+Columns profiled: {profile['columns_profiled']} of {profile['total_columns']}
+
+Column index catalog (use ONLY these indices):
+{column_catalog}
+
+Per-column profile JSON:
+{json.dumps(profile['column_summaries'])}
+
+Respond with ONLY valid JSON (no markdown, no code fences) with this exact shape:
+{example_json}
+
+Rules:
+- Return at most {MAX_ALERTS} alerts.
+- severity must be one of: high, medium, low.
+- issue_type should be short snake_case (examples: missing_values, inconsistent_format, outliers, potential_duplicates, constant_column, suspicious_distribution).
+- title should be concise and specific to this dataset.
+- description should explain why this matters for analysis in 1-2 sentences.
+- column_indices must reference valid column indices from the catalog.
+- Prefer high-signal issues that an analyst would reasonably inspect during cleaning.
+- For each alert, include 1 to {MAX_FIXES_PER_ALERT} entries in 'fixes' that the user can apply with one click.
+- Each fix MUST have: 'title' (short button label, max 8 words), 'description' (1 sentence), and 'code'.
+- 'code' MUST be a single short pandas snippet (one or two statements) that uses ONLY the dataframe variable named '{df_name}' and modifies it in place (e.g. assigning back to {df_name} or to {df_name}['col']).
+- 'code' MUST reference column names exactly as they appear in the column index catalog above.
+- 'code' MUST NOT include imports, prints, comments, or read/write to disk.
+- Prefer fixes that are safe and reversible. Order fixes from least to most destructive.
+- If nothing stands out, return {{"alerts":[]}}."""
 
 
 def _parse_alerts_json(completion: str) -> Any:
