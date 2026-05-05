@@ -292,8 +292,7 @@ def get_data_alerts(params: Dict[str, Any], steps_manager: StepsManagerType) -> 
     if df is None or len(df.columns) == 0:
         return {"prompt_version": DATA_ALERTS_PROMPT_VERSION, "alerts": []}
 
-    profiled_df = df.iloc[:, :MAX_COLUMNS_PROFILED]
-    profile = _build_profile(profiled_df)
+    profile = _build_profile(df)
     df_name = str(state.df_names[sheet_index]) if sheet_index < len(state.df_names) else "df"
     prompt = _build_data_alerts_prompt(df_name, profile)
 
@@ -322,7 +321,7 @@ def get_data_alerts(params: Dict[str, Any], steps_manager: StepsManagerType) -> 
             "prompt_version": DATA_ALERTS_PROMPT_VERSION,
         }
 
-    alerts = _validate_alerts(parsed, len(profiled_df.columns), df_name)
+    alerts = _validate_alerts(parsed, profile["columns_profiled"], df_name)
     return {
         "prompt_version": DATA_ALERTS_PROMPT_VERSION,
         "alerts": alerts,
