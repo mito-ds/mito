@@ -176,15 +176,18 @@ describe('MitoToolbarWidget', () => {
 
   it('transfers third-party notebook toolbar widgets and restores them on rebind', () => {
     const kernelSpyWidget = new Widget();
+    const popupOpenerWidget = new Widget();
     const toolbarItems = new Map<string, Widget>([
       ['save', new Widget()],
       ['insert', new Widget()],
       ['executionProgress', new Widget()],
+      ['toolbar-popup-opener', popupOpenerWidget],
       ['kernelspy-new', kernelSpyWidget]
     ]);
     const panel = createMockNotebookPanel('kernelspy-panel', 'kernelspy.ipynb');
     const mockToolbar = {
       names: jest.fn(() => toolbarItems.keys()),
+      children: jest.fn(() => toolbarItems.values()),
       removeItem: jest.fn((name: string) => {
         const item = toolbarItems.get(name);
         if (item) {
@@ -207,6 +210,8 @@ describe('MitoToolbarWidget', () => {
     expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('save');
     expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('insert');
     expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('executionProgress');
+    expect(mockToolbar.removeItem).not.toHaveBeenCalledWith('toolbar-popup-opener');
+    expect(popupOpenerWidget.isHidden).toBe(true);
     expect(addItemSpy).toHaveBeenCalledWith('third-party:kernelspy-new', kernelSpyWidget);
     expect(addItemSpy).not.toHaveBeenCalledWith('third-party:save', expect.anything());
     expect(addItemSpy).not.toHaveBeenCalledWith(

@@ -734,6 +734,8 @@ class AppActionsWidget extends ReactWidget {
 }
 
 export class MitoToolbarWidget extends Widget {
+  private static readonly _TOOLBAR_POPUP_OPENER_ITEM_NAME = 'toolbar-popup-opener';
+
   private static readonly _DEFAULT_NOTEBOOK_ITEM_NAMES = new Set([
     'save',
     'insert',
@@ -844,6 +846,10 @@ export class MitoToolbarWidget extends Widget {
       children?: () => Iterable<Widget>;
       node?: HTMLElement;
     };
+    this._hideToolbarPopupOpener({
+      children: () => this._notebookExtensions.children(),
+      node: this._notebookExtensions.node
+    });
     const transferableItems = this._getTransferableNotebookItems(sourceToolbar);
     if (transferableItems.length === 0) {
       return;
@@ -928,10 +934,14 @@ export class MitoToolbarWidget extends Widget {
     node?: HTMLElement;
   }): Array<{ name: string; widget: Widget }> {
     const transferableItems: Array<{ name: string; widget: Widget }> = [];
+    this._hideToolbarPopupOpener(sourceToolbar);
 
     if (sourceToolbar.names && sourceToolbar.removeItem) {
       Array.from(sourceToolbar.names()).forEach(itemName => {
-        if (MitoToolbarWidget._DEFAULT_NOTEBOOK_ITEM_NAMES.has(itemName)) {
+        if (
+          MitoToolbarWidget._DEFAULT_NOTEBOOK_ITEM_NAMES.has(itemName) ||
+          itemName === MitoToolbarWidget._TOOLBAR_POPUP_OPENER_ITEM_NAME
+        ) {
           return;
         }
         const widget = sourceToolbar.removeItem?.(itemName);
@@ -963,8 +973,39 @@ export class MitoToolbarWidget extends Widget {
       if (MitoToolbarWidget._DEFAULT_NOTEBOOK_ITEM_NAMES.has(name)) {
         continue;
       }
+      if (name === MitoToolbarWidget._TOOLBAR_POPUP_OPENER_ITEM_NAME) {
+        widget.hide();
+        continue;
+      }
       transferableItems.push({ name, widget });
     }
     return transferableItems;
+  }
+
+  private _hideToolbarPopupOpener(sourceToolbar: {
+    names?: () => Iterable<string>;
+    children?: () => Iterable<Widget>;
+    node?: HTMLElement;
+  }): void {
+    if (sourceToolbar.names && sourceToolbar.children) {
+      const names = Array.from(sourceToolbar.names());
+      const widgets = Array.from(sourceToolbar.children());
+      const popupOpenerIndex = names.indexOf(
+        MitoToolbarWidget._TOOLBAR_POPUP_OPENER_ITEM_NAME
+      );
+      if (popupOpenerIndex >= 0) {
+        widgets[popupOpenerIndex]?.hide();
+      }
+    }
+
+    const popupOpenerSelector = [
+      `[data-jp-item-name="${MitoToolbarWidget._TOOLBAR_POPUP_OPENER_ITEM_NAME}"]`,
+      `.${MitoToolbarWidget._TOOLBAR_POPUP_OPENER_ITEM_NAME}`
+    ].join(', ');
+    sourceToolbar.node
+      ?.querySelectorAll<HTMLElement>(popupOpenerSelector)
+      .forEach(node => {
+        node.style.display = 'none';
+      });
   }
 }
