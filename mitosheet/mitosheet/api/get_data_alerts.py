@@ -23,10 +23,11 @@ from mitosheet.api.suggestions_api_utils import (
 )
 from mitosheet.types import StepsManagerType
 
-DATA_ALERTS_PROMPT_VERSION = "data-alerts-v1"
+DATA_ALERTS_PROMPT_VERSION = "data-alerts-v2"
 MAX_COLUMNS_PROFILED = 60
 MAX_SAMPLE_ROWS = 2000
 MAX_ALERTS = 8
+MAX_FIXES_PER_ALERT = 3
 ALLOWED_SEVERITIES = frozenset({"high", "medium", "low"})
 
 
@@ -131,15 +132,23 @@ def _build_data_alerts_prompt(df_name: str, profile: Dict[str, Any]) -> str:
 
     example_json = (
         '{"alerts":['
-        '{"issue_type":"missing_values","severity":"high","title":"Missing values in important field",'
+        '{"issue_type":"missing_values","severity":"high",'
+        '"title":"Missing values in important field",'
         '"description":"Column has a high share of missing values that may bias analysis.",'
-        '"column_indices":[2]}'
+        '"column_indices":[2],'
+        '"fixes":['
+        '{"title":"Drop rows where Age is missing",'
+        f'"description":"Removes any row that has a missing Age value.","code":"{df_name} = {df_name}.dropna(subset=[\'Age\'])"' + "},"
+        '{"title":"Fill missing Age with median",'
+        f'"description":"Replaces missing Age values with the column median.","code":"{df_name}[\'Age\'] = {df_name}[\'Age\'].fillna({df_name}[\'Age\'].median())"' + "}"
+        "]}"
         "]}"
     )
 
     return (
         "You are a data quality analyst assistant.\n"
-        "Identify the most important data-cleaning issues an analyst should investigate first.\n\n"
+        "Identify the most important data-cleaning issues an analyst should investigate first, "
+        "and for each issue propose concrete pandas code that fixes it.\n\n"
         f"Dataframe variable name: {df_name}\n"
         f"Rows in dataframe: {profile['total_rows']}\n"
         f"Sample rows profiled: {profile['sample_rows_profiled']}\n"
@@ -158,6 +167,13 @@ def _build_data_alerts_prompt(df_name: str, profile: Dict[str, Any]) -> str:
         "- description should explain why this matters for analysis in 1-2 sentences.\n"
         "- column_indices must reference valid column indices from the catalog.\n"
         "- Prefer high-signal issues that an analyst would reasonably inspect during cleaning.\n"
+        f"- For each alert, include 1 to {MAX_FIXES_PER_ALERT} entries in 'fixes' that the user can apply with one click.\n"
+        "- Each fix MUST have: 'title' (short button label, max 8 words), 'description' (1 sentence), and 'code'.\n"
+        f"- 'code' MUST be a single short pandas snippet (one or two statements) that uses ONLY the dataframe variable named '{df_name}' "
+        f"and modifies it in place (e.g. assigning back to {df_name} or to {df_name}['col']).\n"
+        "- 'code' MUST reference column names exactly as they appear in the column index catalog above.\n"
+        "- 'code' MUST NOT include imports, prints, comments, or read/write to disk.\n"
+        "- Prefer fixes that are safe and reversible. Order fixes from least to most destructive.\n"
         '- If nothing stands out, return {"alerts":[]}.'
     )
 
@@ -167,7 +183,44 @@ def _parse_alerts_json(completion: str) -> Any:
     return json.loads(text)
 
 
-def _validate_alerts(raw: Any, max_columns: int) -> List[Dict[str, Any]]:
+def _validate_fixes(raw: Any, df_name: str) -> List[Dict[str, Any]]:
+    if not isinstance(raw, list):
+        return []
+
+    fixes: List[Dict[str, Any]] = []
+    for item in raw[:MAX_FIXES_PER_ALERT]:
+        if not isinstance(item, dict):
+            continue
+
+        title = item.get("title")
+        description = item.get("description")
+        code = item.get("code")
+
+        if not isinstance(title, str) or not title.strip():
+            continue
+        if not isinstance(description, str) or not description.strip():
+            continue
+        if not isinstance(code, str) or not code.strip():
+            continue
+
+        # Sanity check: the code should reference the dataframe variable so that the
+        # ai_transformation step can detect it as a modified dataframe.
+        if df_name not in code:
+            continue
+
+        fixes.append(
+            {
+                "fix_id": f"fix_{len(fixes)}",
+                "title": title.strip()[:120],
+                "description": description.strip()[:300],
+                "code": code.strip(),
+            }
+        )
+
+    return fixes
+
+
+def _validate_alerts(raw: Any, max_columns: int, df_name: str) -> List[Dict[str, Any]]:
     if not isinstance(raw, dict):
         return []
     items = raw.get("alerts")
@@ -219,6 +272,7 @@ def _validate_alerts(raw: Any, max_columns: int) -> List[Dict[str, Any]]:
                 "title": title.strip()[:200],
                 "description": description.strip()[:700],
                 "column_indices": normalized_indices,
+                "fixes": _validate_fixes(item.get("fixes"), df_name),
             }
         )
 
@@ -268,10 +322,11 @@ def get_data_alerts(params: Dict[str, Any], steps_manager: StepsManagerType) -> 
             "prompt_version": DATA_ALERTS_PROMPT_VERSION,
         }
 
-    alerts = _validate_alerts(parsed, len(profiled_df.columns))
+    alerts = _validate_alerts(parsed, len(profiled_df.columns), df_name)
     return {
         "prompt_version": DATA_ALERTS_PROMPT_VERSION,
         "alerts": alerts,
+        "df_name": df_name,
         "profile_metadata": {
             "rows_profiled": profile["sample_rows_profiled"],
             "total_rows": profile["total_rows"],

@@ -55,16 +55,25 @@ export type AIChartSuggestionsResult =
       };
 
 /** Response from Python get_data_alerts (LLM JSON, validated server-side). */
+export type AIDataAlertFix = {
+    fix_id: string;
+    title: string;
+    description: string;
+    code: string;
+};
+
 export type AIDataAlertsResult =
     | { error: string; prompt_version?: string }
     | {
           prompt_version: string;
+          df_name?: string;
           alerts: {
               issue_type: string;
               severity: 'high' | 'medium' | 'low';
               title: string;
               description: string;
               column_indices: number[];
+              fixes?: AIDataAlertFix[];
           }[];
           profile_metadata?: {
               rows_profiled: number;

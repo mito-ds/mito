@@ -33,7 +33,9 @@ def get_suggestions_llm_payload(prompt: str) -> Dict[str, Any]:
     return {
         "model": "gpt-4.1",
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 900,
+        # AI Alerts now embeds suggested fix code per alert, which can produce
+        # responses longer than the previous 900-token cap and cause JSON truncation.
+        "max_tokens": 1800,
         "temperature": 0.2,
     }
 
