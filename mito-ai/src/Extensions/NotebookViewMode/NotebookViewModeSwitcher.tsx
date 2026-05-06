@@ -49,6 +49,11 @@ const NotebookViewModeSwitcher: React.FC<INotebookViewModeSwitcherProps> = ({
   disabled = false
 }) => {
   const modeIndex = MODES.findIndex(({ id }) => id === mode);
+  const tabRefs = React.useRef<Record<NotebookViewMode, HTMLButtonElement | null>>({
+    Notebook: null,
+    Document: null,
+    App: null
+  });
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (disabled || modeIndex === -1) {
@@ -66,6 +71,7 @@ const NotebookViewModeSwitcher: React.FC<INotebookViewModeSwitcherProps> = ({
       return;
     }
     onModeChange(nextMode.id);
+    tabRefs.current[nextMode.id]?.focus();
   };
 
   return (
@@ -81,6 +87,7 @@ const NotebookViewModeSwitcher: React.FC<INotebookViewModeSwitcherProps> = ({
           type="button"
           role="tab"
           aria-selected={mode === id}
+          tabIndex={mode === id ? 0 : -1}
           className={classNames(
             'mode-switcher-segment',
             mode === id ? 'selected' : 'unselected'
@@ -88,6 +95,9 @@ const NotebookViewModeSwitcher: React.FC<INotebookViewModeSwitcherProps> = ({
           onClick={() => onModeChange(id)}
           title={tooltip}
           disabled={disabled}
+          ref={(node) => {
+            tabRefs.current[id] = node;
+          }}
         >
           <span className="mode-switcher-segment-icon" aria-hidden>
             <Icon />

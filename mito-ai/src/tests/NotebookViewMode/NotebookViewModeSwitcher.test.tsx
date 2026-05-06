@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import NotebookViewModeSwitcher from '../../Extensions/NotebookViewMode/NotebookViewModeSwitcher';
 
@@ -39,6 +40,24 @@ describe('NotebookViewModeSwitcher', () => {
 
     fireEvent.keyDown(screen.getByRole('tablist'), { key: 'ArrowLeft' });
     expect(onModeChange).toHaveBeenCalledWith('Notebook');
+  });
+
+  it('moves focus and selected border together on arrow key navigation', () => {
+    const Wrapper: React.FC = () => {
+      const [mode, setMode] = React.useState<'Notebook' | 'Document' | 'App'>('Document');
+      return <NotebookViewModeSwitcher mode={mode} onModeChange={setMode} />;
+    };
+
+    render(<Wrapper />);
+
+    const documentTab = screen.getByRole('tab', { name: 'Document' });
+    documentTab.focus();
+    expect(documentTab).toHaveFocus();
+
+    fireEvent.keyDown(documentTab, { key: 'ArrowRight' });
+    const appTab = screen.getByRole('tab', { name: 'App' });
+    expect(appTab).toHaveFocus();
+    expect(appTab.getAttribute('aria-selected')).toBe('true');
   });
 
   it('disables all tabs when no notebook is active', () => {
