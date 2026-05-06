@@ -8,6 +8,7 @@ from mito_ai_core.utils.model_utils import (
     get_available_models,
     get_fast_model_for_selected_model,
     STANDARD_MODELS,
+    DEV_MODE_EXTRA_MODELS,
     ANTHROPIC_MODEL_ORDER,
     OPENAI_MODEL_ORDER,
     GEMINI_MODEL_ORDER,
@@ -16,6 +17,11 @@ from mito_ai_core.utils.model_utils import (
 
 class TestGetAvailableModels:
     """Tests for get_available_models() function."""
+
+    @pytest.fixture(autouse=True)
+    def _default_non_dev_mode(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Keep existing tests stable by defaulting to non-dev mode."""
+        monkeypatch.setattr("mito_ai_core.utils.model_utils.is_dev_mode", lambda: False)
 
     @patch('mito_ai_core.copilot.service.get_cached_copilot_api_model_ids', return_value=None)
     @patch('mito_ai_core.utils.model_utils.is_github_copilot_helper_installed')
@@ -117,6 +123,52 @@ class TestGetAvailableModels:
         result = get_available_models()
         
         assert result == ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]
+
+    @patch('mito_ai_core.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
+    @patch('mito_ai_core.utils.model_utils.is_abacus_configured', return_value=False)
+    @patch('mito_ai_core.utils.model_utils.is_enterprise', return_value=False)
+    @patch('mito_ai_core.utils.model_utils.is_dev_mode', return_value=True)
+    def test_dev_mode_returns_standard_plus_dev_models(
+        self, _mock_is_dev_mode, _mock_is_enterprise, _mock_is_abacus_configured, _mock_copilot
+    ):
+        result = get_available_models()
+        expected = list(dict.fromkeys([*STANDARD_MODELS, *DEV_MODE_EXTRA_MODELS]))
+        assert result == expected
+
+    @patch('mito_ai_core.copilot.service.get_cached_copilot_api_model_ids', return_value=['gpt-4o', 'gpt-5'])
+    @patch('mito_ai_core.utils.model_utils.is_github_copilot_helper_installed', return_value=True)
+    @patch('mito_ai_core.utils.model_utils.is_dev_mode', return_value=True)
+    def test_dev_mode_extends_copilot_models(self, _mock_is_dev_mode, _mock_copilot_helper, _mock_cache):
+        result = get_available_models()
+        expected = list(dict.fromkeys(['copilot/gpt-4o', 'copilot/gpt-5', *DEV_MODE_EXTRA_MODELS]))
+        assert result == expected
+
+    @patch('mito_ai_core.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
+    @patch('mito_ai_core.utils.model_utils.is_abacus_configured', return_value=True)
+    @patch('mito_ai_core.utils.model_utils.is_enterprise', return_value=True)
+    @patch('mito_ai_core.utils.model_utils.is_dev_mode', return_value=True)
+    @patch('mito_ai_core.utils.model_utils.constants')
+    def test_dev_mode_extends_abacus_models(
+        self, mock_constants, _mock_is_dev_mode, _mock_is_enterprise, _mock_is_abacus_configured, _mock_copilot
+    ):
+        mock_constants.ABACUS_MODELS = ["Abacus/gpt-4.1"]
+        result = get_available_models()
+        expected = list(dict.fromkeys(["Abacus/gpt-4.1", *DEV_MODE_EXTRA_MODELS]))
+        assert result == expected
+
+    @patch('mito_ai_core.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
+    @patch('mito_ai_core.utils.model_utils.is_abacus_configured', return_value=False)
+    @patch('mito_ai_core.utils.model_utils.is_enterprise', return_value=True)
+    @patch('mito_ai_core.utils.model_utils.is_dev_mode', return_value=True)
+    @patch('mito_ai_core.utils.model_utils.constants')
+    def test_dev_mode_extends_litellm_models(
+        self, mock_constants, _mock_is_dev_mode, _mock_is_enterprise, _mock_is_abacus_configured, _mock_copilot
+    ):
+        mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
+        mock_constants.LITELLM_MODELS = ["litellm/openai/gpt-4o"]
+        result = get_available_models()
+        expected = list(dict.fromkeys(["litellm/openai/gpt-4o", *DEV_MODE_EXTRA_MODELS]))
+        assert result == expected
 
 
 class TestGetFastModelForSelectedModel:

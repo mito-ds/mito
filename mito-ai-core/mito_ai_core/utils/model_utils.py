@@ -4,6 +4,7 @@
 from typing import List, Tuple, Union, Optional, cast
 from mito_ai_core import constants
 from mito_ai_core.utils.version_utils import is_enterprise, is_github_copilot_helper_installed
+from mito_ai_core.utils.telemetry_utils import is_dev_mode
 from mito_ai_core.enterprise.utils import is_abacus_configured
 from mito_ai_core.copilot.model_ids import get_fallback_copilot_models_prefixed
 
@@ -32,6 +33,33 @@ STANDARD_MODELS = [
     "gemini-3.1-pro-preview",
 ]
 
+DEV_MODE_EXTRA_MODELS = [
+    "gpt-5.5",
+    "gpt-5.4",
+    "gpt-5.2",
+    "gpt-4o",
+    "claude-sonnet-4-5-20250929",
+    "claude-sonnet-4-6",
+    "claude-opus-4-7",
+    "gpt-5-mini",
+    "gpt-4.1-mini",
+    "gpt-5-nano",
+]
+
+
+def _with_dev_mode_extras(base_models: List[str]) -> List[str]:
+    """
+    In developer installs, expose additional models for internal testing.
+    """
+    if not is_dev_mode():
+        return base_models
+
+    merged: List[str] = []
+    for model in [*base_models, *DEV_MODE_EXTRA_MODELS]:
+        if model not in merged:
+            merged.append(model)
+    return merged
+
 
 def get_available_models() -> List[str]:
     """
@@ -51,19 +79,19 @@ def get_available_models() -> List[str]:
 
         api_ids = copilot_service.get_cached_copilot_api_model_ids()
         if api_ids is not None and len(api_ids) > 0:
-            return [f"copilot/{m}" for m in api_ids]
-        return get_fallback_copilot_models_prefixed()
+            return _with_dev_mode_extras([f"copilot/{m}" for m in api_ids])
+        return _with_dev_mode_extras(get_fallback_copilot_models_prefixed())
     # Check if enterprise mode is enabled AND Abacus is configured (highest priority)
     if is_abacus_configured():
         # Return Abacus models (with Abacus/ prefix)
-        return constants.ABACUS_MODELS
+        return _with_dev_mode_extras(constants.ABACUS_MODELS)
     # Check if enterprise mode is enabled AND LiteLLM is configured
     elif is_enterprise() and constants.LITELLM_BASE_URL and constants.LITELLM_MODELS:
         # Return LiteLLM models (with LiteLLM/provider/ prefix or legacy provider/ prefix)
-        return constants.LITELLM_MODELS
+        return _with_dev_mode_extras(constants.LITELLM_MODELS)
     else:
         # Return standard models
-        return STANDARD_MODELS
+        return _with_dev_mode_extras(STANDARD_MODELS)
 
 
 def get_fast_model_for_selected_model(selected_model: str) -> str:
