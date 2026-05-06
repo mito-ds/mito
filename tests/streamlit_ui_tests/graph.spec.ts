@@ -21,7 +21,7 @@ const openPopupAndEditTitle = async (mito: any, selector: string, newTitle: stri
 const testEditTitleThroughContextMenu = async (page, selector) => {
   const mito = await getMitoFrameWithTypeCSV(page);
 
-  await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+  await openGraphEditor(mito, page);
   await expect(mito.getByText('Column1 bar chart')).toBeVisible();
 
   await mito.locator(selector).click({ button: 'right' });
@@ -55,7 +55,14 @@ const addColumnToAxis = async (mito: FrameLocator, page: Page, axis: 'X' | 'Y', 
 }
 
 const openGraphEditor = async (mito: FrameLocator, page: Page) => {
-  await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+  // Graph can be on the top toolbar or under the Insert tab depending on UI version.
+  const graphButton = mito.getByRole('button', { name: 'Graph', exact: true });
+  if (await graphButton.count() > 0) {
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' });
+  } else {
+    await clickTab(page, mito, 'Insert');
+    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph', exact: true });
+  }
 
   // Note: This won't work if there isn't a column selected when we open the graph editor, 
   // because the graph will be empty and won't render anything. 
@@ -102,7 +109,7 @@ test.describe('Graph Functionality', () => {
     await mito.getByTitle('Column1').click();
     await mito.getByTitle('Column2').click({ modifiers: ['Shift']});
     
-    await clickButtonAndAwaitResponse(page, mito, { name: 'Graph' })
+    await openGraphEditor(mito, page);
 
     await expect(mito.locator('p.select-text').getByText('Column1')).toBeVisible();
     await expect(mito.locator('p.select-text').getByText('Column2')).toBeVisible();

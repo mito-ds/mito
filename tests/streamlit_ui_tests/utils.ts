@@ -100,10 +100,18 @@ export const awaitResponse = async (page: Page): Promise<void> => {
 }
   
 export const clickButtonAndAwaitResponse = async (page: Page, mito: FrameLocator, nameOrOptions: string | any): Promise<void> => {
-    const button = mito.getByRole('button', typeof nameOrOptions === 'string' ? { name: nameOrOptions} : nameOrOptions);
-    // Scroll button into view
+    let button = mito.getByRole('button', typeof nameOrOptions === 'string' ? { name: nameOrOptions} : nameOrOptions);
+
+    // Some toolbar controls don't expose the expected "button" role consistently
+    // across app/snapshot variants. Fall back to the toolbar text button selector.
+    if (await button.count() === 0) {
+        const fallbackName = typeof nameOrOptions === 'string' ? nameOrOptions : nameOrOptions?.name;
+        if (typeof fallbackName === 'string') {
+            button = mito.locator('.mito-toolbar-button', { hasText: fallbackName }).first();
+        }
+    }
+
     await button.scrollIntoViewIfNeeded();
-    // Click button
     await button.click();
     await awaitResponse(page);
 }
