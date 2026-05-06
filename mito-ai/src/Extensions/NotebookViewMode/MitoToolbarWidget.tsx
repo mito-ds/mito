@@ -137,8 +137,7 @@ class TabDropdownWidget extends ReactWidget {
     const activeFilename = activePanel ? getDisplayName(activePanel) : 'No active notebook';
     const triggerLabel =
       notebooks.length === 0 ? 'No notebooks open' : middleTruncateFilename(activeFilename);
-    const triggerTitle = activePanel ? getDisplayName(activePanel) : triggerLabel;
-    const shortcutLabel = getShortcutLabel();
+    const triggerTitle = `Switch notebooks (${getShortcutLabel()})`;
 
     return (
       <div className="mito-tab-dropdown-root" onKeyDown={this._handleMenuKeyDown}>
@@ -152,17 +151,10 @@ class TabDropdownWidget extends ReactWidget {
           onKeyDown={this._handleTriggerKeyDown}
         >
           <span className="mito-tab-dropdown-trigger-content">
-            <span className="mito-tab-dropdown-file-icon" aria-hidden>
-              <FileIcon />
-            </span>
             <span className="mito-tab-dropdown-filename">{triggerLabel}</span>
             {activePanel?.context.model.dirty && (
               <span className="mito-tab-dropdown-dirty-dot" title="Unsaved changes" />
             )}
-            {notebooks.length > 0 && (
-              <span className="mito-tab-dropdown-open-count">· {notebooks.length}</span>
-            )}
-            <span className="mito-tab-dropdown-kbd">{shortcutLabel}</span>
             <span className="mito-tab-dropdown-caret" aria-hidden>
               <ChevronIcon direction={this._isOpen ? 'up' : 'down'} />
             </span>
@@ -187,6 +179,12 @@ class TabDropdownWidget extends ReactWidget {
     return (
       <div className="mito-tab-dropdown-menu" role="menu">
         <div className="mito-tab-dropdown-scroll-area">
+          {notebooks.length > 0 && (
+            <div className="mito-tab-dropdown-menu-meta">
+              <span className="mito-tab-dropdown-menu-meta-title">Open notebooks</span>
+              <span className="mito-tab-dropdown-menu-meta-shortcut">{getShortcutLabel()}</span>
+            </div>
+          )}
           {notebooks.length === 0 ? (
             <div className="mito-tab-dropdown-empty">No notebooks open</div>
           ) : (
