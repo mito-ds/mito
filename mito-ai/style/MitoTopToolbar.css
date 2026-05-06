@@ -44,7 +44,6 @@
   min-height: 52px;
   width: 100%;
   box-sizing: border-box;
-  border-bottom: 1px solid var(--jp-border-color2);
   background: var(--jp-layout-color1);
 }
 
