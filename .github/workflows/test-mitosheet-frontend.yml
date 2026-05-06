@@ -156,7 +156,7 @@ jobs:
         source venv/bin/activate
         streamlit run streamlit_test.py --server.port 8555 &
         bash check_server.sh
-        npm run test -- --project=chromium --retries=1 streamlit_ui_tests/${{matrix.testfiles}}
+        npm run test -- --project=chromium --retries=1 --workers=1 streamlit_ui_tests/${{matrix.testfiles}}
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()

@@ -26,8 +26,15 @@ export const importCSV = async (page: Page, mito: FrameLocator, filename: string
       // as tabCount is already 0
     }
   
-    await mito.getByRole('button', { name: '▾ Import' }).click();
-    await mito.getByTitle('Import Files').getByText('Import Files').click();
+    // Prefer the direct "Import Files" button when available. Some environments no longer
+    // render the old "Import" dropdown button.
+    const importFilesButton = mito.locator('.text-button:not(.text-button-disabled)', { hasText: 'Import Files' }).first();
+    if (await importFilesButton.isVisible()) {
+        await importFilesButton.click();
+    } else {
+        await mito.getByRole('button', { name: /Import/ }).click();
+        await mito.getByTitle('Import Files').getByText('Import Files').click();
+    }
     await mito.getByText(filename).dblclick();
   
     // Wait until the number of tabs has increased by 1
