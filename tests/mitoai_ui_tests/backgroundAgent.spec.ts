@@ -3,6 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { IJupyterLabPageFixture } from '@jupyterlab/galata';
 import { test, expect } from '../fixtures';
 import {
     createAndRunNotebookWithCells,
@@ -12,15 +13,25 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import {
     sendMessageToAgent,
-    waitForMitoAILoadingToDisappear,
     turnOnAgentMode,
-    getNotebookCode,
     waitForAgentToFinish,
     startNewMitoAIChat
 } from './utils';
 import { CLAUDE_HAIKU_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
 const MODEL = CLAUDE_HAIKU_DISPLAY_NAME;
+
+const openLauncherFromNotebookSelector = async (page: IJupyterLabPageFixture) => {
+    await page.locator('.mito-tab-dropdown-trigger').click();
+    await page.locator('.mito-tab-dropdown-footer').click();
+    await page.locator('.jp-Launcher').waitFor({ state: 'visible' });
+}
+
+const switchToPreviousNotebookFromNotebookSelector = async (page: IJupyterLabPageFixture) => {
+    await page.locator('.mito-tab-dropdown-trigger').click();
+    await page.locator('.mito-tab-dropdown-row').nth(1).click();
+    await waitForIdle(page);
+}
 
 test.describe.parallel("Background Agent functionality", () => {
 
@@ -39,8 +50,8 @@ test.describe.parallel("Background Agent functionality", () => {
         // Wait a moment for the agent to start working
         await page.waitForTimeout(500);
 
-        // Create a second notebook by clicking the Jupyter launcher
-        await page.getByRole('tab', { name: 'Launcher' }).click();
+        // Create a second notebook from the Mito notebook selector's launcher action.
+        await openLauncherFromNotebookSelector(page);
         await page.getByText('Python 3').first().click();
         await waitForIdle(page);
 
@@ -51,8 +62,8 @@ test.describe.parallel("Background Agent functionality", () => {
         const secondNotebookCodeCell = await getCodeFromCell(page, 0);
         expect(secondNotebookCodeCell).toContain('Write Python or Press');
 
-        // Switch back to the original notebook
-        await page.getByRole('tab', { name: /\.ipynb$/ }).last().click();
+        // Switch back to the original notebook.
+        await switchToPreviousNotebookFromNotebookSelector(page);
 
         // Scroll to the first code cell
         await scrollToCell(page, 0);
@@ -80,8 +91,8 @@ test.describe.parallel("Background Agent functionality", () => {
         // Wait a moment for the agent to start working
         await page.waitForTimeout(500);
 
-        // Create a second notebook by clicking the Jupyter launcher
-        await page.getByRole('tab', { name: 'Launcher' }).click();
+        // Create a second notebook from the Mito notebook selector's launcher action.
+        await openLauncherFromNotebookSelector(page);
         await page.getByText('Python 3').first().click();
         await waitForIdle(page);
 
@@ -92,8 +103,8 @@ test.describe.parallel("Background Agent functionality", () => {
         const secondNotebookCodeCell = await getCodeFromCell(page, 0);
         expect(secondNotebookCodeCell).toContain('Write Python or Press');
 
-        // Switch back to the original notebook
-        await page.getByRole('tab', { name: /\.ipynb$/ }).last().click();
+        // Switch back to the original notebook.
+        await switchToPreviousNotebookFromNotebookSelector(page);
 
         // Scroll to the first code cell
         await scrollToCell(page, 0);
