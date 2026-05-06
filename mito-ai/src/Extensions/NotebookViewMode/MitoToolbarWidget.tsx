@@ -339,12 +339,16 @@ class TabDropdownWidget extends ReactWidget {
     this.update();
 
     if (open && shouldFocusOption) {
-      requestAnimationFrame(() => {
-        this.node
-          .querySelector<HTMLElement>('[data-active-option="true"]')
-          ?.focus();
-      });
+      this._focusActiveOption();
     }
+  }
+
+  private _focusActiveOption(): void {
+    requestAnimationFrame(() => {
+      this.node
+        .querySelector<HTMLElement>('[data-active-option="true"]')
+        ?.focus();
+    });
   }
 
   private _getInitialOptionIndex(): number {
@@ -362,11 +366,7 @@ class TabDropdownWidget extends ReactWidget {
     this._activeOptionIndex =
       (this._activeOptionIndex + delta + optionCount) % optionCount;
     this.update();
-    requestAnimationFrame(() => {
-      this.node
-        .querySelector<HTMLElement>('[data-active-option="true"]')
-        ?.focus();
-    });
+    this._focusActiveOption();
   }
 
   private _activateCurrentOption(): void {
@@ -430,7 +430,34 @@ class TabDropdownWidget extends ReactWidget {
   };
 
   private _handleDocumentKeyDown = (event: KeyboardEvent): void => {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    if (!this._isOpen) {
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this._moveActiveOption(1);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this._moveActiveOption(-1);
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this._activateCurrentOption();
+      return;
+    }
+
     if (event.key === 'Escape') {
+      event.preventDefault();
       this._setOpen(false);
     }
   };
