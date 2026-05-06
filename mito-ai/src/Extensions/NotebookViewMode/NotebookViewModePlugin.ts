@@ -69,6 +69,9 @@ export class NotebookViewModeManager implements INotebookViewMode {
   private _activePreviewId: string | null = null;
   private _activeIframe: IFrameWidget | null = null;
   private _activePlaceholder: PlaceholderWidget | null = null;
+  // Guards against async preview responses that return after the user leaves App mode.
+  // Without this, a late success response can still mount an iframe beneath notebook/document UI.
+  private _appModeRequestToken = 0;
 
   constructor(
     notebookTracker: INotebookTracker,
@@ -90,6 +93,9 @@ export class NotebookViewModeManager implements INotebookViewMode {
     const panel = this._notebookTracker.currentWidget;
     if (!panel || this._mode === mode) {
       return;
+    }
+    if (mode !== 'App') {
+      this._invalidateAppModeRequests();
     }
     this._mode = mode;
     this._applyMode(panel, mode);
@@ -116,6 +122,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
     notebookPanel: NotebookPanel,
     createStreamlitAppPrompt?: string
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
+    const requestToken = this._beginAppModeRequest();
     this._mode = 'App';
     this._applyAppModeUI(notebookPanel);
     this._modeChanged.emit('App');
@@ -130,10 +137,17 @@ export class NotebookViewModeManager implements INotebookViewMode {
     );
 
     if (result.type === 'success') {
+      if (!this._isCurrentAppModeRequest(requestToken, notebookPanel)) {
+        void this._streamlitPreviewManager.stopPreview(result.id);
+        return result;
+      }
       void logEvent('opened_streamlit_app_preview');
       this._activePreviewId = result.id;
       this._swapPlaceholderForIframe(notebookPanel, result.url);
     } else {
+      if (!this._isCurrentAppModeRequest(requestToken, notebookPanel)) {
+        return result;
+      }
       this._mode = 'Notebook';
       this._applyNotebookMode(notebookPanel);
       this._modeChanged.emit('Notebook');
@@ -146,6 +160,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
     editPrompt: string,
     notebookPanel: NotebookPanel
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
+    const requestToken = this._beginAppModeRequest();
     if (this._mode !== 'App') {
       this._mode = 'App';
       this._applyAppModeUI(notebookPanel);
@@ -162,11 +177,18 @@ export class NotebookViewModeManager implements INotebookViewMode {
     );
 
     if (result.type === 'success') {
+      if (!this._isCurrentAppModeRequest(requestToken, notebookPanel)) {
+        void this._streamlitPreviewManager.stopPreview(result.id);
+        return result;
+      }
       this._activePreviewId = result.id;
       if (!this._activeIframe) {
         this._swapPlaceholderForIframe(notebookPanel, result.url);
       }
     } else {
+      if (!this._isCurrentAppModeRequest(requestToken, notebookPanel)) {
+        return result;
+      }
       this._mode = 'Notebook';
       this._applyNotebookMode(notebookPanel);
       this._modeChanged.emit('Notebook');
@@ -336,6 +358,23 @@ export class NotebookViewModeManager implements INotebookViewMode {
       this._killActiveProcess();
       this._disposeTransientWidgets();
     }
+  }
+
+  private _beginAppModeRequest(): number {
+    this._appModeRequestToken += 1;
+    return this._appModeRequestToken;
+  }
+
+  private _invalidateAppModeRequests(): void {
+    this._appModeRequestToken += 1;
+  }
+
+  private _isCurrentAppModeRequest(requestToken: number, panel: NotebookPanel): boolean {
+    return (
+      requestToken === this._appModeRequestToken &&
+      this._mode === 'App' &&
+      this._notebookTracker.currentWidget === panel
+    );
   }
 }
 
