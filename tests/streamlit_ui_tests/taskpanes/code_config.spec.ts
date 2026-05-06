@@ -8,6 +8,22 @@ import { awaitResponse, checkOpenTaskpane, clickTab, getMitoFrameWithTestCSV } f
 
 
 test.describe('Code Config', () => {
+  const openExportDropdown = async (mito: any) => {
+    const exportButton = mito.locator('.mito-toolbar-button', { hasText: 'Export' }).first();
+    if (await exportButton.count() > 0) {
+      await exportButton.click();
+      return;
+    }
+
+    const exportTab = mito.locator('.mito-toolbar-tabbar-tabname', { hasText: 'Export' }).first();
+    if (await exportTab.count() > 0) {
+      await exportTab.click();
+      return;
+    }
+
+    throw new Error('Could not find Export control in toolbar');
+  };
+
   test('Configure Code to generate function with new name for function', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
     await clickTab(page, mito, 'Code');
@@ -23,7 +39,8 @@ test.describe('Code Config', () => {
 
   test('Configure Code to generate function with parameters', async ({ page }) => {
     const mito = await getMitoFrameWithTestCSV(page);
-    await mito.locator('.mito-toolbar-button', { hasText: 'Export'}).click();
+    await clickTab(page, mito, 'Home');
+    await openExportDropdown(mito);
     await mito.locator('.mito-dropdown-item', { hasText: 'Download File when Executing Code'}).click();
     await awaitResponse(page);
     await mito.getByText('Generate Export Code').click();
