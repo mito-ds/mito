@@ -100,6 +100,7 @@ const getRelativeTimestamp = (timestamp: number): string => {
 class TabDropdownWidget extends ReactWidget {
   private readonly _lastOpenedByPanelId = new Map<string, number>();
   private readonly _trackedPanelIds = new Set<string>();
+  private _activePanel: NotebookPanel | null = null;
   private _isOpen = false;
   private _activeOptionIndex = 0;
 
@@ -120,11 +121,16 @@ class TabDropdownWidget extends ReactWidget {
       this.update();
     });
     this.notebookTracker.currentChanged.connect((_, panel) => {
-      if (panel) {
-        this._recordOpened(panel);
-      }
-      this.update();
+      this.setActivePanel(panel);
     });
+  }
+
+  setActivePanel(panel: NotebookPanel | null): void {
+    this._activePanel = panel;
+    if (panel) {
+      this._recordOpened(panel);
+    }
+    this.update();
   }
 
   toggleDropdown(): void {
@@ -133,7 +139,7 @@ class TabDropdownWidget extends ReactWidget {
 
   render(): JSX.Element {
     const notebooks = this._getSortedNotebooks();
-    const activePanel = this.getActivePanel();
+    const activePanel = this._getActivePanel();
     const activeFilename = activePanel ? getDisplayName(activePanel) : 'No active notebook';
     const triggerLabel =
       notebooks.length === 0 ? 'No notebooks open' : middleTruncateFilename(activeFilename);
@@ -298,6 +304,9 @@ class TabDropdownWidget extends ReactWidget {
     panel.disposed.connect(() => {
       this._trackedPanelIds.delete(panel.id);
       this._lastOpenedByPanelId.delete(panel.id);
+      if (this._activePanel === panel) {
+        this._activePanel = null;
+      }
       this._activeOptionIndex = 0;
       this.update();
     });
@@ -318,6 +327,10 @@ class TabDropdownWidget extends ReactWidget {
 
   private _recordOpened(panel: NotebookPanel): void {
     this._lastOpenedByPanelId.set(panel.id, Date.now());
+  }
+
+  private _getActivePanel(): NotebookPanel | null {
+    return this.notebookTracker.currentWidget ?? this.getActivePanel() ?? this._activePanel;
   }
 
   private _setOpen(open: boolean, shouldFocusOption = false): void {
@@ -351,7 +364,7 @@ class TabDropdownWidget extends ReactWidget {
 
   private _getInitialOptionIndex(): number {
     const notebooks = this._getSortedNotebooks();
-    const activePanel = this.getActivePanel();
+    const activePanel = this._getActivePanel();
     const activePanelIndex = activePanel ? notebooks.indexOf(activePanel) : -1;
     if (activePanelIndex >= 0) {
       return activePanelIndex;
@@ -385,7 +398,7 @@ class TabDropdownWidget extends ReactWidget {
   }
 
   private _openLauncher = (): void => {
-    const activePanel = this.getActivePanel();
+    const activePanel = this._getActivePanel();
     const cwd = activePanel ? PathExt.dirname(activePanel.context.path) : undefined;
     if (this.app.commands.hasCommand(LAUNCHER_COMMAND)) {
       void this.app.commands.execute(LAUNCHER_COMMAND, cwd ? { cwd } : undefined);
@@ -916,6 +929,7 @@ export class MitoToolbarWidget extends Widget {
   }
 
   setActivePanel(panel: NotebookPanel | null): void {
+    this._leftCluster.setActivePanel(panel);
     this._centerWidget.update();
     this._setNotebookJupyterControls(panel);
     this._notebookHero.setPanel(panel);
