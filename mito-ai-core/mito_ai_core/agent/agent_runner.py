@@ -335,19 +335,33 @@ class AgentRunner:
                         "Agent returned mcp_tool_call but mcp_tool_call payload is null."
                     ),
                 )
-            parsed_arguments: dict = {}
             raw_arguments = response.mcp_tool_call.arguments
             try:
                 loaded = json.loads(raw_arguments) if raw_arguments else {}
-                if isinstance(loaded, dict):
-                    parsed_arguments = loaded
-            except Exception:
-                parsed_arguments = {}
+            except Exception as e:
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message=(
+                        "Invalid arguments for mcp_tool_call: arguments must be valid JSON "
+                        f"object string. Parser error: {e}"
+                    ),
+                )
+
+            if not isinstance(loaded, dict):
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message=(
+                        "Invalid arguments for mcp_tool_call: expected a JSON object "
+                        f"but received {type(loaded).__name__}."
+                    ),
+                )
             return await self._tool_executor.execute_mcp_tool(
                 ctx,
                 response.mcp_tool_call.mcp_server_id,
                 response.mcp_tool_call.tool_name,
-                parsed_arguments,
+                loaded,
                 response.message,
             )
 
