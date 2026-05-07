@@ -364,8 +364,7 @@ Important information:
 3. The tool_name must exactly match a listed tool for that server.
 4. The arguments field must be a JSON string whose parsed object follows that tool's input_schema. If no arguments are needed, use "{}".
 5. Use this tool for tasks outside notebook mutation when an MCP tool is available (e.g. weather lookup, web APIs, external systems).
-6. If no suitable MCP tool is available, use ASK_USER_QUESTION or continue with notebook tools as appropriate.
-7. This list is fixed for the current chat. If the user adds or removes MCP tools, ask them to start a new chat to refresh available MCP tools.
+6. This list is fixed for the current chat. If the user adds or removes MCP tools, ask them to start a new chat to refresh available MCP tools.
 """))
     
     # CREATE_STREAMLIT_APP tool
