@@ -1,8 +1,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import Any, Dict, List, Optional
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai_core.completions.prompt_builders.mcp_tools import format_available_mcp_tools
 from mito_ai_core.completions.prompt_builders.prompt_constants import (
     ABOUT_MITO,
     CHART_CONFIG_RULES,
@@ -15,7 +16,10 @@ from mito_ai_core.completions.prompt_builders.prompt_constants import (
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 from mito_ai_core.rules.utils import get_default_rules_content
 
-def create_agent_system_message_prompt(include_cell_output_tool: bool) -> str:
+def create_agent_system_message_prompt(
+    include_cell_output_tool: bool,
+    mcp_tools: Optional[List[Dict[str, Any]]] = None,
+) -> str:
     
     # GET_CELL_OUTPUT requires a Chrome-based browser.
     # This constant helps us replace the phrase 'or GET_CELL_OUTPUT' with ''
@@ -336,6 +340,10 @@ Important information:
 """))
 
     # MCP_TOOL_CALL tool
+    sections.append(
+        SG.Generic("Available MCP Tools", format_available_mcp_tools(mcp_tools))
+    )
+
     sections.append(SG.Generic("TOOL: MCP_TOOL_CALL", """
 Use this tool when the user's request should be handled by an available MCP tool.
 
@@ -357,6 +365,7 @@ Important information:
 4. The arguments field must be a JSON string whose parsed object follows that tool's input_schema. If no arguments are needed, use "{}".
 5. Use this tool for tasks outside notebook mutation when an MCP tool is available (e.g. weather lookup, web APIs, external systems).
 6. If no suitable MCP tool is available, use ASK_USER_QUESTION or continue with notebook tools as appropriate.
+7. This list is fixed for the current chat. If the user adds or removes MCP tools, ask them to start a new chat to refresh available MCP tools.
 """))
     
     # CREATE_STREAMLIT_APP tool

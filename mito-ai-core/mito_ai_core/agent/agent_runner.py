@@ -120,6 +120,7 @@ class AgentRunner:
             self._provider,
             ctx.thread_id,
             self._config.enable_get_cell_output,
+            ctx.mcp_tools,
         )
 
         prompt = create_agent_execution_prompt(ctx, user_input)

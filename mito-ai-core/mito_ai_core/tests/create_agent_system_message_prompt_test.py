@@ -20,3 +20,24 @@ def test_create_agent_system_message_prompt_browser_conditional() -> None:
     # Enabled (Chrome and not Copilot)
     enabled_prompt = create_agent_system_message_prompt(include_cell_output_tool=True)
     assert "GET_CELL_OUTPUT" in enabled_prompt, "Enabled prompt should contain GET_CELL_OUTPUT"
+
+
+@pytest.mark.parametrize(
+    "mcp_tools, expected_text",
+    [
+        (None, "No MCP tools are currently available."),
+        (
+            [{"server_id": "weather", "tools": [{"name": "get_forecast"}]}],
+            '"server_id": "weather"',
+        ),
+    ],
+)
+def test_create_agent_system_message_prompt_includes_available_mcp_tools(
+    mcp_tools, expected_text
+) -> None:
+    prompt = create_agent_system_message_prompt(
+        include_cell_output_tool=False,
+        mcp_tools=mcp_tools,
+    )
+    assert "Available MCP Tools" in prompt
+    assert expected_text in prompt
