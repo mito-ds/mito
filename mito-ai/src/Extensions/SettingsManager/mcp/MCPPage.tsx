@@ -15,6 +15,7 @@ import {
 } from './model';
 import '../../../../style/DatabasePage.css';
 import '../../../../style/MCPPage.css';
+import '../../../../style/SettingsPage.css';
 
 export const MCPPage = (): JSX.Element => {
     const [servers, setServers] = useState<IMCPServers>({});
@@ -202,6 +203,10 @@ export const MCPPage = (): JSX.Element => {
                         <b>＋ Add Server</b>
                     </button>
                 </div>
+            </div>
+            <div className="settings-page-muted-description">
+                Changes to MCP servers apply to new chats only. Start a new chat to
+                use newly added or updated MCP tools.
             </div>
 
             {renderServers()}
