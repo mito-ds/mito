@@ -363,8 +363,12 @@ Important information:
 2. The mcp_server_id must exactly match one of the listed server IDs.
 3. The tool_name must exactly match a listed tool for that server.
 4. The arguments field must be a JSON string whose parsed object follows that tool's input_schema. If no arguments are needed, use "{}".
-5. Use this tool for tasks outside notebook mutation when an MCP tool is available (e.g. weather lookup, web APIs, external systems).
-6. This list is fixed for the current chat. If the user adds or removes MCP tools, ask them to start a new chat to refresh available MCP tools.
+5. Treat tool schemas as the source of truth: never invent parameters, and validate arguments before calling.
+6. If a tool call returns isError: true, use the error message to correct arguments and retry at most once. Do not loop.
+7. Treat protocol/transport errors differently from tool execution errors; protocol errors usually require fixing request shape or selecting a valid tool.
+8. For sensitive or side-effecting operations (writes/deletes/external actions), ask for user confirmation before calling.
+9. Use this tool for tasks outside notebook mutation when an MCP tool is available (e.g. weather lookup, web APIs, external systems).
+10. If MCP tool availability appears stale or changed, refresh the available tool list when possible; otherwise ask the user to start a new chat to refresh available MCP tools.
 """))
     
     # CREATE_STREAMLIT_APP tool
