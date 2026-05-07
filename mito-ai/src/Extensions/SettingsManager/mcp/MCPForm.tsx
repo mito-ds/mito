@@ -39,6 +39,11 @@ export const MCPForm: React.FC<IMCPFormProps> = ({
         <form onSubmit={handleSubmit} className="connection-form mcp-form">
             {formError && <p className="error">{formError}</p>}
 
+            <div className="settings-option-description">
+                Mito currently supports MCP servers that run as a local command-line process and
+                expose tools via stdio.
+            </div>
+
             <div className="form-group">
                 <label htmlFor="name">Name</label>
                 <input
