@@ -11,6 +11,7 @@ import { GeneralPage } from './general/GeneralPage';
 import { RulesPage } from './rules/RulesPage';
 import { ProfilerPage } from './profiler/ProfilerPage';
 import { SubscriptionPage } from './subscription/SubscriptionPage';
+import { MCPPage } from './mcp/MCPPage';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import '../../../style/SettingsWidget.css';
 
@@ -26,6 +27,10 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
     database: {
         label: 'Database',
         component: DatabasePage
+    },
+    mcp: {
+        label: 'MCP Servers',
+        component: MCPPage
     },
     rules: {
         label: 'Rules',

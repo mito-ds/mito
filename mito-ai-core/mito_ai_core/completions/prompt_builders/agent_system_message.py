@@ -1,8 +1,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import Any, Dict, List, Optional
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai_core.completions.prompt_builders.mcp_tools import format_available_mcp_tools
 from mito_ai_core.completions.prompt_builders.prompt_constants import (
     ABOUT_MITO,
     CHART_CONFIG_RULES,
@@ -15,7 +16,10 @@ from mito_ai_core.completions.prompt_builders.prompt_constants import (
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 from mito_ai_core.rules.utils import get_default_rules_content
 
-def create_agent_system_message_prompt(include_cell_output_tool: bool) -> str:
+def create_agent_system_message_prompt(
+    include_cell_output_tool: bool,
+    mcp_tools: Optional[List[Dict[str, Any]]] = None,
+) -> str:
     
     # GET_CELL_OUTPUT requires a Chrome-based browser.
     # This constant helps us replace the phrase 'or GET_CELL_OUTPUT' with ''
@@ -333,6 +337,38 @@ Important information:
     }}
     </Example>
 
+"""))
+
+    # MCP_TOOL_CALL tool
+    sections.append(
+        SG.Generic("Available MCP Tools", format_available_mcp_tools(mcp_tools))
+    )
+
+    sections.append(SG.Generic("TOOL: MCP_TOOL_CALL", """
+Use this tool when the user's request should be handled by an available MCP tool.
+
+Format:
+{{
+    "type": "mcp_tool_call",
+    "message": "<string>",
+    "mcp_tool_call": {{
+        "mcp_server_id": "<string>",
+        "tool_name": "<string>",
+        "arguments": "{{}}"
+    }}
+}}
+
+Important information:
+1. Only use MCP tools listed in the "Available MCP Tools" section of the current prompt.
+2. The mcp_server_id must exactly match one of the listed server IDs.
+3. The tool_name must exactly match a listed tool for that server.
+4. The arguments field must be a JSON string whose parsed object follows that tool's input_schema. If no arguments are needed, use "{}".
+5. Treat tool schemas as the source of truth: never invent parameters, and validate arguments before calling.
+6. If a tool call returns isError: true, use the error message to correct arguments and retry at most once. Do not loop.
+7. Treat protocol/transport errors differently from tool execution errors; protocol errors usually require fixing request shape or selecting a valid tool.
+8. For sensitive or side-effecting operations (writes/deletes/external actions), ask for user confirmation before calling.
+9. Use this tool for tasks outside notebook mutation when an MCP tool is available (e.g. weather lookup, web APIs, external systems).
+10. If MCP tool availability appears stale or changed, refresh the available tool list when possible; otherwise ask the user to start a new chat to refresh available MCP tools.
 """))
     
     # CREATE_STREAMLIT_APP tool
