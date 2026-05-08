@@ -320,10 +320,26 @@
 .mito-top-toolbar-jupyter-controls
   [data-jp-item-name='cellType']
   .jp-HTMLSelect {
-  height: 32px;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
   border: none;
-  border-radius: 7px;
+  border-radius: inherit;
   background: transparent;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'],
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] {
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  border-radius: 8px;
+  background: var(--jp-mito-toolbar-secondary-control-background);
+  overflow: hidden;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] {
+  margin-right: 6px;
 }
 
 .mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button {
@@ -336,7 +352,7 @@
 .mito-top-toolbar-jupyter-controls
   [data-jp-item-name='cellType']
   .jp-HTMLSelect {
-  padding: 0 10px;
+  padding: 0 2px 0 10px;
   color: var(--mito-theme-toolbar-primary-text);
 }
 
@@ -345,6 +361,7 @@
   .jp-HTMLSelect {
   display: inline-flex;
   align-items: center;
+  width: auto;
 }
 
 .mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button:hover,
@@ -362,6 +379,7 @@
   height: 100%;
   line-height: 32px;
   margin: 0;
+  padding-right: 8px;
   padding-top: 0;
   padding-bottom: 0;
   border: none;
@@ -387,6 +405,7 @@
   .jp-HTMLSelect
   > span {
   top: 5px !important;
+  right: 2px !important;
 }
 
 .mito-top-toolbar-notebook-extensions {
