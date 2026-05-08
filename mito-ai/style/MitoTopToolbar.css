@@ -81,24 +81,17 @@
   align-items: center;
   gap: 8px;
   box-sizing: border-box;
-  padding: 0 10px 0 0;
+  padding: 0 4px 0 4px;
   border-radius: 5px;
   background: transparent;
 }
 
 .mito-tab-dropdown-trigger:hover {
-  background: var(--mito-theme-toolbar-control-active-background);
+  background: var(--mito-theme-toolbar-control-hover-background);
 }
 
 .mito-tab-dropdown-trigger[aria-expanded='true'] {
   background: var(--mito-theme-toolbar-control-active-background);
-}
-
-.mito-tab-dropdown-trigger:hover .mito-tab-dropdown-caret,
-.mito-tab-dropdown-trigger:hover .mito-tab-dropdown-filename,
-.mito-tab-dropdown-trigger[aria-expanded='true'] .mito-tab-dropdown-filename,
-.mito-tab-dropdown-trigger[aria-expanded='true'] .mito-tab-dropdown-caret {
-  color: var(--mito-theme-toolbar-accent-text);
 }
 
 .mito-tab-dropdown-file-icon,
