@@ -10,7 +10,7 @@ import { IDocumentManager } from '@jupyterlab/docmanager';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { BoxLayout } from '@lumino/widgets';
+import { BoxLayout, Widget } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
 import { Signal } from '@lumino/signaling';
 import {
@@ -414,6 +414,18 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       const widget = shell.currentWidget;
       return widget instanceof NotebookPanel ? widget : null;
     };
+    const getCurrentMainAreaWidget = (): Widget | null => {
+      const mainAreaWidgets = Array.from(shell.widgets('main'));
+      return (
+        shell.currentWidget ??
+        mainAreaWidgets.find(widget => widget.isVisible && !widget.isHidden) ??
+        mainAreaWidgets.find(
+          widget => widget.title.label === 'Launcher' || widget.id.toLowerCase().includes('launcher')
+        ) ??
+        mainAreaWidgets[0] ??
+        null
+      );
+    };
 
     notebookTracker.forEach((panel) => {
       manager.setupNotebookPanel(panel);
@@ -428,6 +440,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       notebookTracker,
       app,
       toolbarRegistry,
+      getCurrentMainAreaWidget,
       documentManager,
       appDeployService,
       appManagerService
@@ -472,6 +485,9 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
         return;
       }
       manager.syncToCurrentNotebook();
+    });
+    shell.layoutModified.connect(() => {
+      toolbarWidget.refreshCurrentWidgetState(getActiveNotebookPanel());
     });
 
     manager.modeChanged.connect((_, mode) => {

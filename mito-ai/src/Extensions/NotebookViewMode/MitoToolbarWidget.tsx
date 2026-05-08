@@ -28,6 +28,7 @@ import MagicWand from '../../icons/MagicWand';
 import Pencil from '../../icons/Pencil';
 import RestartIcon from '../../icons/RestartIcon';
 import LightningIcon from '../../icons/LightningIcon';
+import XMarkIcon from '../../icons/XMark';
 
 import '../../../style/MitoTopToolbar.css';
 import '../../../style/RunCellButton.css';
@@ -36,6 +37,7 @@ import '../../../style/button.css';
 const MAX_FILENAME_LENGTH = 24;
 const IPYNB_EXTENSION = '.ipynb';
 const LAUNCHER_COMMAND = 'launcher:create';
+const CLOSE_CURRENT_WIDGET_COMMAND = 'application:close';
 
 const getShortcutLabel = (): string => {
   if (typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform)) {
@@ -46,6 +48,45 @@ const getShortcutLabel = (): string => {
 
 const getDisplayName = (panel: NotebookPanel): string => {
   return PathExt.basename(panel.context.path) || panel.title.label;
+};
+
+const getSelectedMainAreaTabLabel = (): string | null => {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const selectedTabLabels = Array.from(
+    document.querySelectorAll<HTMLElement>('[role="tab"][aria-selected="true"]')
+  )
+    .map(tab => tab.textContent?.trim())
+    .filter((label): label is string => Boolean(label));
+  const launcherLabel = selectedTabLabels.find(label => label === 'Launcher');
+  if (launcherLabel) {
+    return launcherLabel;
+  }
+  const ignoredTabLabels = new Set([
+    'Notebook',
+    'Document',
+    'App',
+    'File Browser (⇧ ⌘ F)',
+    'Running Terminals and Kernels',
+    'Table of Contents',
+    'Extension Manager',
+    'AI Chat for your JupyterLab',
+    'Property Inspector',
+    'Debugger'
+  ]);
+  return selectedTabLabels.find(label => !ignoredTabLabels.has(label)) ?? null;
+};
+
+const getCurrentWidgetDisplayName = (widget: Widget | null): string => {
+  if (!widget) {
+    return getSelectedMainAreaTabLabel() ?? 'No active notebook';
+  }
+  if (widget.title.label === 'Launcher' || widget.id.toLowerCase().includes('launcher')) {
+    return 'Launcher';
+  }
+  return widget.title.label || 'Untitled';
 };
 
 const middleTruncateFilename = (filename: string): string => {
@@ -108,7 +149,8 @@ class TabDropdownWidget extends ReactWidget {
     private readonly app: JupyterFrontEnd,
     private readonly notebookTracker: INotebookTracker,
     private readonly viewMode: INotebookViewMode,
-    private readonly getActivePanel: () => NotebookPanel | null
+    private readonly getActivePanel: () => NotebookPanel | null,
+    private readonly getCurrentWidget: () => Widget | null
   ) {
     super();
     this.addClass('mito-top-toolbar-left');
@@ -123,6 +165,12 @@ class TabDropdownWidget extends ReactWidget {
     this.notebookTracker.currentChanged.connect((_, panel) => {
       this.setActivePanel(panel);
     });
+  }
+
+  onAfterAttach(msg: Message): void {
+    super.onAfterAttach(msg);
+    requestAnimationFrame(() => this.update());
+    window.setTimeout(() => this.update(), 500);
   }
 
   setActivePanel(panel: NotebookPanel | null): void {
@@ -140,9 +188,13 @@ class TabDropdownWidget extends ReactWidget {
   render(): JSX.Element {
     const notebooks = this._getSortedNotebooks();
     const activePanel = this._getActivePanel();
-    const activeFilename = activePanel ? getDisplayName(activePanel) : 'No active notebook';
+    const activeFilename = activePanel
+      ? getDisplayName(activePanel)
+      : getCurrentWidgetDisplayName(this.getCurrentWidget());
     const triggerLabel =
-      notebooks.length === 0 ? 'No notebooks open' : middleTruncateFilename(activeFilename);
+      notebooks.length === 0 && !this.getCurrentWidget() && activeFilename === 'No active notebook'
+        ? 'No notebooks open'
+        : middleTruncateFilename(activeFilename);
     const triggerTitle = `Switch notebooks (${getShortcutLabel()})`;
 
     return (
@@ -330,7 +382,7 @@ class TabDropdownWidget extends ReactWidget {
   }
 
   private _getActivePanel(): NotebookPanel | null {
-    return this.notebookTracker.currentWidget ?? this.getActivePanel() ?? this._activePanel;
+    return this.getActivePanel() ?? this._activePanel;
   }
 
   private _setOpen(open: boolean, shouldFocusOption = false): void {
@@ -771,6 +823,53 @@ class AppActionsWidget extends ReactWidget {
   }
 }
 
+class CurrentWidgetCloseButton extends ReactWidget {
+  constructor(
+    private readonly app: JupyterFrontEnd,
+    private readonly getCurrentWidget: () => Widget | null
+  ) {
+    super();
+    this.addClass('mito-top-toolbar-close-widget');
+    this.addClass('mito-top-toolbar-left-close-widget');
+  }
+
+  onAfterAttach(msg: Message): void {
+    super.onAfterAttach(msg);
+    requestAnimationFrame(() => this.update());
+    window.setTimeout(() => this.update(), 500);
+  }
+
+  render(): JSX.Element | null {
+    const widget = this.getCurrentWidget();
+    const selectedTabLabel = getSelectedMainAreaTabLabel();
+    const canCloseSelectedTab =
+      Boolean(selectedTabLabel) && this.app.commands.hasCommand(CLOSE_CURRENT_WIDGET_COMMAND);
+    if (!widget?.title.closable && !canCloseSelectedTab) {
+      return null;
+    }
+
+    const widgetName = getCurrentWidgetDisplayName(widget);
+    return (
+      <button
+        type="button"
+        className="mito-top-toolbar-close-button"
+        aria-label={`Close ${widgetName}`}
+        title={`Close ${widgetName}`}
+        onClick={() => {
+          if (widget?.title.closable) {
+            widget.close();
+          } else {
+            void this.app.commands.execute(CLOSE_CURRENT_WIDGET_COMMAND);
+          }
+          this.update();
+        }}
+      >
+        <XMarkIcon fill="currentColor" width="9" height="9" />
+      </button>
+    );
+  }
+}
+
 export class MitoToolbarWidget extends Widget {
   private static readonly _TOOLBAR_POPUP_OPENER_ITEM_NAME = 'toolbar-popup-opener';
 
@@ -799,6 +898,7 @@ export class MitoToolbarWidget extends Widget {
   private readonly _rightDivider = new Widget();
   private readonly _notebookHero = new NotebookHeroWidget();
   private readonly _appActions: AppActionsWidget;
+  private readonly _currentWidgetCloseButton: CurrentWidgetCloseButton;
   private _transferredNotebookItems: Array<{ name: string; widget: Widget }> = [];
   private _sourcePanelForTransferredItems: NotebookPanel | null = null;
 
@@ -808,6 +908,7 @@ export class MitoToolbarWidget extends Widget {
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     private readonly toolbarRegistry: IToolbarWidgetRegistry,
+    getCurrentWidget: () => Widget | null,
     documentManager: IDocumentManager,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService
@@ -817,7 +918,13 @@ export class MitoToolbarWidget extends Widget {
     this.addClass('mito-top-toolbar');
     this.node.setAttribute('role', 'toolbar');
 
-    this._leftCluster = new TabDropdownWidget(app, notebookTracker, viewMode, getActivePanel);
+    this._leftCluster = new TabDropdownWidget(
+      app,
+      notebookTracker,
+      viewMode,
+      getActivePanel,
+      getCurrentWidget
+    );
 
     this._centerWidget = new ModeSwitcherWidget(viewMode, getActivePanel);
 
@@ -832,6 +939,7 @@ export class MitoToolbarWidget extends Widget {
       appManagerService,
       viewMode
     );
+    this._currentWidgetCloseButton = new CurrentWidgetCloseButton(app, getCurrentWidget);
     this._rightCluster.addWidget(this._notebookJupyterControls);
     this._rightCluster.addWidget(this._notebookExtensions);
     this._rightCluster.addWidget(this._rightDivider);
@@ -840,6 +948,7 @@ export class MitoToolbarWidget extends Widget {
 
     const layout = new PanelLayout();
     this.layout = layout;
+    layout.addWidget(this._currentWidgetCloseButton);
     layout.addWidget(this._leftCluster);
     layout.addWidget(this._centerWidget);
     layout.addWidget(this._rightCluster);
@@ -934,6 +1043,13 @@ export class MitoToolbarWidget extends Widget {
     this._setNotebookJupyterControls(panel);
     this._notebookHero.setPanel(panel);
     this._appActions.setPanel(panel);
+    this._currentWidgetCloseButton.update();
+  }
+
+  refreshCurrentWidgetState(panel: NotebookPanel | null): void {
+    this._leftCluster.setActivePanel(panel);
+    this._centerWidget.update();
+    this._currentWidgetCloseButton.update();
   }
 
   private _setNotebookJupyterControls(panel: NotebookPanel | null): void {

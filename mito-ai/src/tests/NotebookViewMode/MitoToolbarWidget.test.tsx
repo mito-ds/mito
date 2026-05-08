@@ -51,9 +51,12 @@ const createMockNotebookTracker = (
     currentChanged: createMockSignal()
   }) as unknown as INotebookTracker;
 
+const createdToolbarWidgets: MitoToolbarWidget[] = [];
+
 const createMockToolbarWidget = (
   panels: NotebookPanel[],
-  activePanel: NotebookPanel | null
+  activePanel: NotebookPanel | null,
+  currentWidget: Widget | null = activePanel
 ): MitoToolbarWidget => {
   const app = {
     shell: {
@@ -75,20 +78,24 @@ const createMockToolbarWidget = (
     createWidget: jest.fn(() => new Widget())
   } as unknown as IToolbarWidgetRegistry;
 
-  return new MitoToolbarWidget(
+  const toolbarWidget = new MitoToolbarWidget(
     viewMode,
     () => activePanel,
     createMockNotebookTracker(panels),
     app,
     toolbarRegistry,
+    () => currentWidget,
     {} as IDocumentManager,
     {} as any,
     {} as any
   );
+  createdToolbarWidgets.push(toolbarWidget);
+  return toolbarWidget;
 };
 
 describe('MitoToolbarWidget', () => {
   afterEach(() => {
+    createdToolbarWidgets.splice(0).forEach(widget => widget.dispose());
     document.body.innerHTML = '';
   });
 
@@ -172,6 +179,59 @@ describe('MitoToolbarWidget', () => {
     expect(css).toContain('.mito-tab-dropdown-trigger-content');
     expect(css).toContain('border-radius: 7px;');
     expect(css).toContain('box-shadow 0.15s ease;');
+  });
+
+  it('shows the launcher name when no notebook is active', async () => {
+    const launcher = new Widget();
+    launcher.id = 'launcher';
+    launcher.title.label = 'Launcher';
+    const widget = createMockToolbarWidget([], null, launcher);
+
+    Widget.attach(widget, document.body);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(document.querySelector('.mito-tab-dropdown-filename')?.textContent).toBe(
+      'Launcher'
+    );
+  });
+
+  it('uses the selected launcher tab name when Jupyter has no current widget yet', async () => {
+    const selectedLauncherTab = document.createElement('div');
+    selectedLauncherTab.setAttribute('role', 'tab');
+    selectedLauncherTab.setAttribute('aria-selected', 'true');
+    selectedLauncherTab.textContent = 'Launcher';
+    document.body.appendChild(selectedLauncherTab);
+    const widget = createMockToolbarWidget([], null, null);
+
+    Widget.attach(widget, document.body);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(document.querySelector('.mito-tab-dropdown-filename')?.textContent).toBe(
+      'Launcher'
+    );
+  });
+
+  it('closes the current closable main area widget', async () => {
+    const settings = new Widget();
+    settings.title.label = 'Mito AI Settings';
+    settings.title.closable = true;
+    const closeSpy = jest.spyOn(settings, 'close');
+    const widget = createMockToolbarWidget([], null, settings);
+
+    Widget.attach(widget, document.body);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    document.querySelector<HTMLButtonElement>('.mito-top-toolbar-close-button')?.click();
+
+    expect(closeSpy).toHaveBeenCalled();
+  });
+
+  it('hides the global close button for non-closable widgets', async () => {
+    const widget = createMockToolbarWidget([], null, new Widget());
+
+    Widget.attach(widget, document.body);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(document.querySelector('.mito-top-toolbar-close-button')).toBeNull();
   });
 
   it('transfers third-party notebook toolbar widgets and restores them on rebind', () => {
