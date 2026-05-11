@@ -19,6 +19,10 @@ export const getShortcutLabel = (): string => {
   return getOperatingSystem() === 'mac' ? '⌘ K' : 'Ctrl K';
 };
 
+export const getEditWithAIShortcutLabel = (): string => {
+  return getOperatingSystem() === 'mac' ? '⌘ E' : 'Ctrl E';
+};
+
 export const getDisplayName = (panel: NotebookPanel): string => {
   return PathExt.basename(panel.context.path) || panel.title.label;
 };

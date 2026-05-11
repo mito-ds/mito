@@ -26,7 +26,7 @@ import MagicWand from '../../../icons/MagicWand';
 import Pencil from '../../../icons/Pencil';
 import RestartIcon from '../../../icons/RestartIcon';
 import { INotebookViewMode } from '../NotebookViewModePlugin';
-import { getShortcutLabel } from '../mitoToolbarWidgetUtils';
+import { getEditWithAIShortcutLabel } from '../mitoToolbarWidgetUtils';
 
 interface IAppActionsContentProps {
   isEditMenuOpen: boolean;
@@ -84,7 +84,7 @@ const AppActionsContent: React.FC<IAppActionsContentProps> = ({
               </span>
             </span>
             <span className="mito-app-edit-menu-item-kbd">
-              {getShortcutLabel().replace('K', 'E')}
+              {getEditWithAIShortcutLabel()}
             </span>
           </button>
           <button
