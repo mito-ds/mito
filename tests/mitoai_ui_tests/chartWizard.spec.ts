@@ -94,5 +94,11 @@ test.describe.parallel('Chart Wizard', () => {
         // Verify the code cell has been updated with the new title
         const updatedCode = await getCodeFromCell(page, 0);
         expect(updatedCode).toContain(`TITLE = '${newTitle}'`);
+
+        const closeButton = chartWizardWidget.getByRole('button', { name: 'Close Chart Wizard' });
+        await expect(closeButton).toBeVisible();
+        await closeButton.click();
+        await waitForIdle(page);
+        await expect(chartWizardWidget).toBeHidden();
     });
 });

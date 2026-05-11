@@ -34,7 +34,7 @@ test.describe('App Button Integration Test', () => {
     
     // First, wait for either the preview tab or the placeholder
     const previewTab = page.locator('.lm-TabBar-tabLabel').filter({ hasText: /App Preview|Streamlit/i });
-    const placeholderWidget = page.locator('.placeholder-widget, .jp-iframe-widget');
+    const placeholderWidget = page.locator('.jp-placeholder-widget, .jp-iframe-widget');
     
     // Wait for either the tab or the widget to appear (with a reasonable timeout)
     await Promise.race([

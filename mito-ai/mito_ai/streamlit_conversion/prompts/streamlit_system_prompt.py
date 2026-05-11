@@ -46,6 +46,8 @@ STYLE GUIDELINES:
 - Do not modify the graphs or analysis. If the notebook has a graph, use the same graph in the streamlit app.
 - Always include the following code at the top of the file so the user does not use the wrong deploy button
 ```python
+import streamlit as st
+
 st.markdown(\"\"\"
     <style>
         #MainMenu {visibility: hidden;}

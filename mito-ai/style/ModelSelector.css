@@ -135,12 +135,13 @@
 }
 
 .model-name {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: bottom;
+  line-height: 1;
 }
 
 /* On wider screens, show only the name of the model*/
@@ -149,7 +150,7 @@
 }
 
 .model-name {
-  display: inline;
+  display: inline-flex;
 }
 
 /* On compact screens, show only the icon */

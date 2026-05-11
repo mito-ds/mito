@@ -14,6 +14,7 @@ import AppIcon from '../../icons/AppIcon';
 export interface INotebookViewModeSwitcherProps {
   mode: NotebookViewMode;
   onModeChange: (mode: NotebookViewMode) => void;
+  disabled?: boolean;
 }
 
 const MODES: {
@@ -44,20 +45,59 @@ const MODES: {
 
 const NotebookViewModeSwitcher: React.FC<INotebookViewModeSwitcherProps> = ({
   mode,
-  onModeChange
+  onModeChange,
+  disabled = false
 }) => {
+  const modeIndex = MODES.findIndex(({ id }) => id === mode);
+  const tabRefs = React.useRef<Record<NotebookViewMode, HTMLButtonElement | null>>({
+    Notebook: null,
+    Document: null,
+    App: null
+  });
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (disabled || modeIndex === -1) {
+      return;
+    }
+
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      return;
+    }
+
+    event.preventDefault();
+    const direction = event.key === 'ArrowRight' ? 1 : -1;
+    const nextMode = MODES[(modeIndex + direction + MODES.length) % MODES.length];
+    if (!nextMode) {
+      return;
+    }
+    onModeChange(nextMode.id);
+    tabRefs.current[nextMode.id]?.focus();
+  };
+
   return (
-    <div className={classNames('mode-switcher-container')}>
+    <div
+      className={classNames('mode-switcher-container')}
+      role="tablist"
+      aria-disabled={disabled}
+      onKeyDown={handleKeyDown}
+    >
       {MODES.map(({ id, label, tooltip, Icon }) => (
         <button
           key={id}
           type="button"
+          role="tab"
+          aria-selected={mode === id}
+          tabIndex={mode === id ? 0 : -1}
           className={classNames(
             'mode-switcher-segment',
             mode === id ? 'selected' : 'unselected'
           )}
           onClick={() => onModeChange(id)}
           title={tooltip}
+          disabled={disabled}
+          ref={(node) => {
+            tabRefs.current[id] = node;
+          }}
         >
           <span className="mode-switcher-segment-icon" aria-hidden>
             <Icon />

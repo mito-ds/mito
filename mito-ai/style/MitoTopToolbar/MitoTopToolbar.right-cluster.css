@@ -1,0 +1,134 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-top-toolbar-right {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-right: 14px;
+  height: 100%;
+}
+
+.mito-top-toolbar-jupyter-controls {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button,
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect {
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'],
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] {
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  border-radius: 8px;
+  background: var(--jp-mito-toolbar-secondary-control-background);
+  overflow: hidden;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] {
+  margin-right: 6px;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button {
+  width: 32px;
+  min-width: 32px;
+  color: var(--mito-theme-toolbar-secondary-text);
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button,
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect {
+  padding: 0 2px 0 10px;
+  color: var(--mito-theme-toolbar-primary-text);
+}
+
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button:hover,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button:hover,
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect:hover {
+  background: var(--mito-theme-toolbar-control-hover-background);
+}
+
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect
+  select {
+  height: 100%;
+  line-height: 32px;
+  margin: 0;
+  padding-right: 20px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect
+  select:hover,
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect
+  select:focus {
+  background: transparent;
+}
+
+.mito-top-toolbar-notebook-extensions {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mito-top-toolbar-notebook-extensions [data-jp-item-name='insert'],
+.mito-top-toolbar-notebook-extensions [data-jp-item-name='cellType'] {
+  display: none;
+}
+
+.mito-top-toolbar-notebook-hero {
+  display: flex;
+  align-items: center;
+}
+
+.mito-top-toolbar-right-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: var(--mito-theme-toolbar-divider);
+}
