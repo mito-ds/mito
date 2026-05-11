@@ -24,7 +24,9 @@ const MODEL = CLAUDE_HAIKU_DISPLAY_NAME;
 const openLauncherFromNotebookSelector = async (page: IJupyterLabPageFixture) => {
     await page.locator('.mito-tab-dropdown-trigger').click();
     await page.locator('.mito-tab-dropdown-footer').click();
-    await page.locator('.jp-Launcher').waitFor({ state: 'visible' });
+    const launcher = page.locator('.jp-Launcher').last();
+    await launcher.waitFor({ state: 'visible' });
+    return launcher;
 }
 
 const switchToPreviousNotebookFromNotebookSelector = async (page: IJupyterLabPageFixture) => {
@@ -51,8 +53,8 @@ test.describe.parallel("Background Agent functionality", () => {
         await page.waitForTimeout(500);
 
         // Create a second notebook from the Mito notebook selector's launcher action.
-        await openLauncherFromNotebookSelector(page);
-        await page.getByText('Python 3').first().click();
+        const launcher = await openLauncherFromNotebookSelector(page);
+        await launcher.getByText('Python 3').first().click();
         await waitForIdle(page);
 
         // Wait for the agent to finish
@@ -92,8 +94,8 @@ test.describe.parallel("Background Agent functionality", () => {
         await page.waitForTimeout(500);
 
         // Create a second notebook from the Mito notebook selector's launcher action.
-        await openLauncherFromNotebookSelector(page);
-        await page.getByText('Python 3').first().click();
+        const launcher = await openLauncherFromNotebookSelector(page);
+        await launcher.getByText('Python 3').first().click();
         await waitForIdle(page);
 
         // Wait for the agent to finish
