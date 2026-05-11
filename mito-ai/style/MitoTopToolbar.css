@@ -94,7 +94,6 @@
   background: var(--mito-theme-toolbar-control-active-background);
 }
 
-.mito-tab-dropdown-file-icon,
 .mito-tab-dropdown-caret,
 .mito-tab-dropdown-row-icon {
   display: flex;
