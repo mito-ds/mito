@@ -23,10 +23,12 @@ import {
 } from './inputs';
 import { useChartConfig, useDebouncedNotebookUpdate } from './hooks';
 import { getActiveCellID, scrollToCell } from '../../utils/notebook';
+import XMarkIcon from '../../icons/XMark';
 import '../../../style/ChartWizardWidget.css';
 
 interface ChartWizardContentProps {
     chartData: ChartWizardData | null;
+    onClose: () => void;
 }
 
 /**
@@ -40,7 +42,7 @@ const formatVariableLabel = (variableName: string): string => {
         .replace(/\b\w/g, (l) => l.toUpperCase());
 };
 
-const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
+const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData, onClose }) => {
     const [isConverting, setIsConverting] = useState(false);
     const [isAddingField, setIsAddingField] = useState(false);
     const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
@@ -276,16 +278,40 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     // Early return for empty state
     if (!chartData) {
         return (
-            <div className="chart-wizard-empty-state">
-                <h2>Chart Wizard</h2>
-                <p>Click the Chart Wizard button on a matplotlib chart to get started.</p>
-            </div>
+            <>
+                <div className="chart-wizard-header">
+                    <h2>Chart Wizard</h2>
+                    <button
+                        type="button"
+                        className="chart-wizard-close-button"
+                        aria-label="Close Chart Wizard"
+                        title="Close"
+                        onClick={onClose}
+                    >
+                        <XMarkIcon fill="currentColor" width="14" height="14" />
+                    </button>
+                </div>
+                <div className="chart-wizard-empty-state">
+                    <p>Click the Chart Wizard button on a matplotlib chart to get started.</p>
+                </div>
+            </>
         );
     }
 
     return (
         <div className="chart-wizard-widget" ref={widgetRef} style={{ position: 'relative' }}>
-            <h2>Chart Wizard</h2>
+            <div className="chart-wizard-header">
+                <h2>Chart Wizard</h2>
+                <button
+                    type="button"
+                    className="chart-wizard-close-button"
+                    aria-label="Close Chart Wizard"
+                    title="Close"
+                    onClick={onClose}
+                >
+                    <XMarkIcon fill="currentColor" width="14" height="14" />
+                </button>
+            </div>
 
             {isActiveCellMismatch && (
                 <div className="chart-wizard-warning">
@@ -413,6 +439,6 @@ export class ChartWizardWidget extends ReactWidget {
     }
 
     render(): React.ReactElement {
-        return <ChartWizardContent chartData={this.chartData} />;
+        return <ChartWizardContent chartData={this.chartData} onClose={() => this.close()} />;
     }
 }
