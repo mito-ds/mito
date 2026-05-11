@@ -478,16 +478,31 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       toolbarWidget.syncNotebookExtensionToolbar(panel);
       toolbarWidget.setMode(manager.getMode());
     };
+    let pendingToolbarBindPanel: NotebookPanel | null = null;
+    let hasPendingToolbarBind = false;
+    // Tab switches can trigger multiple cascading signals in the same tick.
+    // Coalesce them so we only rebind once, using the latest active panel.
+    const scheduleToolbarBind = (panel: NotebookPanel | null): void => {
+      pendingToolbarBindPanel = panel;
+      if (hasPendingToolbarBind) {
+        return;
+      }
+      hasPendingToolbarBind = true;
+      void Promise.resolve().then(() => {
+        hasPendingToolbarBind = false;
+        bindToolbarToPanel(pendingToolbarBindPanel);
+      });
+    };
 
     notebookTracker.currentChanged.connect((_, panel) => {
-      bindToolbarToPanel(panel);
+      scheduleToolbarBind(panel);
     });
 
     shell.currentChanged.connect(() => {
       const panel = getActiveNotebookPanel();
       if (!panel) {
         toolbarWidget.setMode('Notebook');
-        bindToolbarToPanel(null);
+        scheduleToolbarBind(null);
         return;
       }
       manager.syncToCurrentNotebook();
@@ -498,7 +513,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
 
     manager.modeChanged.connect((_, mode) => {
       toolbarWidget.setMode(mode);
-      bindToolbarToPanel(getActiveNotebookPanel());
+      scheduleToolbarBind(getActiveNotebookPanel());
     });
 
     app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
