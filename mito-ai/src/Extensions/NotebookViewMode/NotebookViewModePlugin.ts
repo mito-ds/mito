@@ -295,6 +295,9 @@ export class NotebookViewModeManager implements INotebookViewMode {
   private _onCurrentNotebookChanged(): void {
     const panel = this._notebookTracker.currentWidget;
     if (!panel) {
+      this._invalidateAppModeRequests();
+      this._killActiveProcess();
+      this._disposeTransientWidgets();
       this._mode = 'Notebook';
       this._modeChanged.emit(this._mode);
       return;
@@ -354,7 +357,10 @@ export class NotebookViewModeManager implements INotebookViewMode {
   }
 
   private _cleanupPanel(panel: NotebookPanel): void {
-    if (this._notebookTracker.currentWidget === panel && this._mode === 'App') {
+    if (
+      this._mode === 'App' &&
+      (this._notebookTracker.currentWidget === panel || !this._notebookTracker.currentWidget)
+    ) {
       this._killActiveProcess();
       this._disposeTransientWidgets();
     }
