@@ -10,6 +10,7 @@ import { IToolbarWidgetRegistry } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { Widget } from '@lumino/widgets';
+import { waitFor } from '@testing-library/dom';
 import { MitoToolbarWidget } from '../../Extensions/NotebookViewMode/MitoToolbarWidget';
 import { INotebookViewMode } from '../../Extensions/NotebookViewMode/NotebookViewModePlugin';
 
@@ -188,11 +189,12 @@ describe('MitoToolbarWidget', () => {
     const widget = createMockToolbarWidget([], null, launcher);
 
     Widget.attach(widget, document.body);
-    await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(document.querySelector('.mito-tab-dropdown-filename')?.textContent).toBe(
-      'Launcher'
-    );
+    await waitFor(() => {
+      expect(document.querySelector('.mito-tab-dropdown-filename')?.textContent).toBe(
+        'Launcher'
+      );
+    });
   });
 
   it('uses the selected launcher tab name when Jupyter has no current widget yet', async () => {
@@ -204,11 +206,12 @@ describe('MitoToolbarWidget', () => {
     const widget = createMockToolbarWidget([], null, null);
 
     Widget.attach(widget, document.body);
-    await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(document.querySelector('.mito-tab-dropdown-filename')?.textContent).toBe(
-      'Launcher'
-    );
+    await waitFor(() => {
+      expect(document.querySelector('.mito-tab-dropdown-filename')?.textContent).toBe(
+        'Launcher'
+      );
+    });
   });
 
   it('closes the current closable main area widget', async () => {
