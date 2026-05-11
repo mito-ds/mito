@@ -379,7 +379,7 @@
   height: 100%;
   line-height: 32px;
   margin: 0;
-  padding-right: 8px;
+  padding-right: 20px;
   padding-top: 0;
   padding-bottom: 0;
   border: none;
@@ -398,14 +398,6 @@
   .jp-HTMLSelect
   select:focus {
   background: transparent;
-}
-
-.mito-top-toolbar-jupyter-controls
-  [data-jp-item-name='cellType']
-  .jp-HTMLSelect
-  > span {
-  top: 5px !important;
-  right: 2px !important;
 }
 
 .mito-top-toolbar-notebook-extensions {
