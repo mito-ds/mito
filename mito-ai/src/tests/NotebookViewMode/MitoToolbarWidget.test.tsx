@@ -157,7 +157,10 @@ describe('MitoToolbarWidget', () => {
 
   it('caps the notebook list height with vertical scrolling', () => {
     const css = fs.readFileSync(
-      path.resolve(__dirname, '../../../style/MitoTopToolbar.css'),
+      path.resolve(
+        __dirname,
+        '../../../style/MitoTopToolbar/MitoTopToolbar.tab-dropdown.css'
+      ),
       'utf-8'
     );
 
@@ -168,7 +171,10 @@ describe('MitoToolbarWidget', () => {
 
   it('matches the rounded toolbar switcher treatment', () => {
     const css = fs.readFileSync(
-      path.resolve(__dirname, '../../../style/MitoTopToolbar.css'),
+      path.resolve(
+        __dirname,
+        '../../../style/MitoTopToolbar/MitoTopToolbar.tab-dropdown.css'
+      ),
       'utf-8'
     );
 
@@ -178,7 +184,7 @@ describe('MitoToolbarWidget', () => {
     expect(css).toContain('border-radius: 8px;');
     expect(css).toContain('background: transparent;');
     expect(css).toContain('.mito-tab-dropdown-trigger-content');
-    expect(css).toContain('border-radius: 7px;');
+    expect(css).toContain('border-radius: 5px;');
     expect(css).toContain('box-shadow 0.15s ease;');
   });
 

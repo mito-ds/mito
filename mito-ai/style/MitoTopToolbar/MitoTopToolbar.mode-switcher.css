@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-top-toolbar-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mito-top-toolbar-center .mode-switcher-container,
+.mito-top-toolbar-center .mode-switcher-container * {
+  pointer-events: auto;
+}
