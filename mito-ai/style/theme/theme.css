@@ -66,8 +66,8 @@
 
 .jp-StatusBar-Item[title^="Notebook is in"],
 .jp-StatusBar-Item:has(.jp-StatusBar-TextItem[title^="Go to line number"]),
-/* Hide the file path indicator in status bar by targeting title that ends with .ipynb*/
-.jp-StatusBar-Item:has(.jp-StatusBar-TextItem[title$=".ipynb"]) {
+/* Hide file path in status bar (title ends with .ipynb). Exclude kernel item: "Change kernel for …ipynb". */
+.jp-StatusBar-Item:has(.jp-StatusBar-TextItem[title$=".ipynb"]:not([title^="Change kernel"])) {
   display: none !important;
 }
 
