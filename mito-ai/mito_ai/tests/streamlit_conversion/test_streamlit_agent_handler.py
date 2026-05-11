@@ -98,12 +98,18 @@ class TestStreamlitHandler:
         provider = ProviderManager()
         
         await streamlit_handler(True, notebook_path, app_file_name, '', provider)
-        
+
+        # Generated code is normalized with `import streamlit as st` before validate/write
+        normalized_code = (
+            "import streamlit as st\n\n"
+            "import streamlit\nst.title('Test')"
+        )
+
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data, '', provider)
-        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
-        mock_create_file.assert_called_once_with(expected_app_path, "import streamlit\nst.title('Test')")
+        mock_validator.assert_called_once_with(normalized_code, notebook_path)
+        mock_create_file.assert_called_once_with(expected_app_path, normalized_code)
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
