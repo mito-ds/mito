@@ -13,9 +13,11 @@ jest.mock('../../Extensions/NotebookViewMode/documentReactiveOrigin', () => ({
   findCodeCellIndexForWidgetModelId: jest.fn()
 }));
 
-import { Signal } from '@lumino/signaling';
+import type { ISessionContext } from '@jupyterlab/apputils';
+import type { IChangedArgs } from '@jupyterlab/coreutils';
 import type { Kernel } from '@jupyterlab/services';
 import type { NotebookPanel } from '@jupyterlab/notebook';
+import { Signal } from '@lumino/signaling';
 import { DocumentReactiveRunner } from '../../Extensions/NotebookViewMode/documentReactiveRunner';
 import * as documentReactiveOrigin from '../../Extensions/NotebookViewMode/documentReactiveOrigin';
 import { runAllCellsStrictlyBelow } from '../../utils/notebook';
@@ -72,6 +74,63 @@ function createNotebookPanel(kernel: FakeKernel): NotebookPanel {
   return panelStub as unknown as NotebookPanel;
 }
 
+function createNotebookPanelWithKernelChangedSignal(initialKernel: FakeKernel): {
+  panel: NotebookPanel;
+  setSessionKernel: (k: FakeKernel | null) => void;
+  emitKernelSwap: (oldK: FakeKernel | null, newK: FakeKernel | null) => void;
+} {
+  const root = document.createElement('div');
+  const outputArea = document.createElement('div');
+  outputArea.className = 'jp-OutputArea';
+  const input = document.createElement('input');
+  outputArea.appendChild(input);
+  root.appendChild(outputArea);
+
+  let sessionKernel: FakeKernel | null = initialKernel;
+  const sessionContextOwner = {} as ISessionContext;
+  const kernelChanged = new Signal<
+    ISessionContext,
+    IChangedArgs<Kernel.IKernelConnection | null, Kernel.IKernelConnection | null, 'kernel'>
+  >(sessionContextOwner);
+
+  const panelStub = {
+    content: {
+      node: root,
+      widgets: [{}, {}, {}, {}, {}]
+    },
+    context: {
+      sessionContext: {
+        get session(): { kernel: FakeKernel | null } {
+          return {
+            get kernel(): FakeKernel | null {
+              return sessionKernel;
+            }
+          };
+        },
+        kernelChanged
+      }
+    },
+    disposed: {
+      connect: jest.fn(),
+      disconnect: jest.fn()
+    }
+  };
+
+  return {
+    panel: panelStub as unknown as NotebookPanel,
+    setSessionKernel(k: FakeKernel | null): void {
+      sessionKernel = k;
+    },
+    emitKernelSwap(oldK: FakeKernel | null, newK: FakeKernel | null): void {
+      kernelChanged.emit({
+        name: 'kernel',
+        oldValue: oldK as unknown as Kernel.IKernelConnection | null,
+        newValue: newK as unknown as Kernel.IKernelConnection | null
+      });
+    }
+  };
+}
+
 describe('DocumentReactiveRunner', () => {
   let kernel: FakeKernel;
   let panel: NotebookPanel;
@@ -90,6 +149,30 @@ describe('DocumentReactiveRunner', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it('disconnects trait listener from old kernel when session.kernel already points at new kernel', async () => {
+    const oldK = new FakeKernel();
+    const newK = new FakeKernel();
+    const { panel: swapPanel, setSessionKernel, emitKernelSwap } =
+      createNotebookPanelWithKernelChangedSignal(oldK);
+    findComm.mockReturnValue(0);
+    const runner = new DocumentReactiveRunner(swapPanel, isDocumentMode);
+    runner.attach();
+
+    setSessionKernel(newK);
+    emitKernelSwap(oldK, newK);
+
+    (runAllCellsStrictlyBelow as jest.Mock).mockClear();
+    oldK.anyMessage.emit(makeTraitUpdateCommArgs('w1'));
+    jest.advanceTimersByTime(400);
+    await Promise.resolve();
+    expect(runAllCellsStrictlyBelow).not.toHaveBeenCalled();
+
+    newK.anyMessage.emit(makeTraitUpdateCommArgs('w2'));
+    jest.advanceTimersByTime(400);
+    await Promise.resolve();
+    expect(runAllCellsStrictlyBelow).toHaveBeenCalledTimes(1);
   });
 
   it('does not run after dispose during debounce', async () => {

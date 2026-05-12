@@ -20,6 +20,8 @@
  * listeners apply. v1 does not re-run above the origin or build a dependency graph.
  */
 
+import type { ISessionContext } from '@jupyterlab/apputils';
+import type { IChangedArgs } from '@jupyterlab/coreutils';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { Kernel } from '@jupyterlab/services';
 import { IDisposable } from '@lumino/disposable';
@@ -65,7 +67,16 @@ export class DocumentReactiveRunner implements IDisposable {
   private readonly _isDocumentMode: () => boolean;
   private _kernelHandler: ((sender: Kernel.IKernelConnection, args: Kernel.IAnyMessageArgs) => void) | null =
     null;
-  private _kernelChangedHandler: (() => void) | null = null;
+  private _kernelChangedHandler:
+    | ((
+        sender: ISessionContext,
+        kernelData: IChangedArgs<
+          Kernel.IKernelConnection | null,
+          Kernel.IKernelConnection | null,
+          'kernel'
+        >
+      ) => void)
+    | null = null;
   private _disposePanelHook: (() => void) | null = null;
   private _domHandler: ((event: Event) => void) | null = null;
   private _debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -89,9 +100,21 @@ export class DocumentReactiveRunner implements IDisposable {
     this._panel.disposed.connect(this._disposePanelHook);
     const sessionContext = this._panel.context.sessionContext;
     if (sessionContext) {
-      this._kernelChangedHandler = (): void => {
-        this._unbindKernel();
-        this._bindKernel();
+      this._kernelChangedHandler = (
+        _sender: ISessionContext,
+        kernelData: IChangedArgs<
+          Kernel.IKernelConnection | null,
+          Kernel.IKernelConnection | null,
+          'kernel'
+        >
+      ): void => {
+        if (kernelData.oldValue && this._kernelHandler) {
+          kernelData.oldValue.anyMessage.disconnect(this._kernelHandler);
+        }
+        this._kernelHandler = null;
+        if (kernelData.newValue) {
+          this._bindKernel(kernelData.newValue);
+        }
       };
       sessionContext.kernelChanged.connect(this._kernelChangedHandler);
     }
@@ -170,9 +193,15 @@ export class DocumentReactiveRunner implements IDisposable {
     this._domHandler = null;
   }
 
-  private _bindKernel(): void {
-    const sessionContext = this._panel.context.sessionContext;
-    const kernel = sessionContext?.session?.kernel;
+  /**
+   * @param explicitKernel — When set (including from `kernelChanged`), bind to this
+   *   connection; otherwise use `sessionContext.session.kernel` (initial `attach`).
+   */
+  private _bindKernel(explicitKernel?: Kernel.IKernelConnection | null): void {
+    const kernel =
+      explicitKernel !== undefined
+        ? explicitKernel
+        : this._panel.context.sessionContext?.session?.kernel;
     if (!kernel) {
       return;
     }
