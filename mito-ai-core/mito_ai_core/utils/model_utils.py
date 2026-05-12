@@ -47,9 +47,13 @@ DEV_MODE_EXTRA_MODELS = [
 ]
 
 
-def _with_dev_mode_extras(base_models: List[str]) -> List[str]:
+def _with_dev_mode_extras_standard_only(base_models: List[str]) -> List[str]:
     """
     In developer installs, expose additional models for internal testing.
+
+    Only applies in standard mode (direct API keys / Mito server). Copilot,
+    Abacus, and LiteLLM use their own configured model lists and must not get
+    extra unprefixed dev models mixed in.
     """
     if not is_dev_mode():
         return base_models
@@ -72,26 +76,28 @@ def get_available_models() -> List[str]:
     4. Standard models
     
     Returns:
-        List of available model names with appropriate prefixes.
+        List of available model names with appropriate prefixes. In editable
+        dev installs, extra test models are appended only in standard mode
+        (not Copilot, Abacus, or LiteLLM).
     """
     if is_github_copilot_helper_installed():
         from mito_ai_core.copilot import service as copilot_service
 
         api_ids = copilot_service.get_cached_copilot_api_model_ids()
         if api_ids is not None and len(api_ids) > 0:
-            return _with_dev_mode_extras([f"copilot/{m}" for m in api_ids])
-        return _with_dev_mode_extras(get_fallback_copilot_models_prefixed())
+            return [f"copilot/{m}" for m in api_ids]
+        return get_fallback_copilot_models_prefixed()
     # Check if enterprise mode is enabled AND Abacus is configured (highest priority)
     if is_abacus_configured():
         # Return Abacus models (with Abacus/ prefix)
-        return _with_dev_mode_extras(constants.ABACUS_MODELS)
+        return constants.ABACUS_MODELS
     # Check if enterprise mode is enabled AND LiteLLM is configured
     elif is_enterprise() and constants.LITELLM_BASE_URL and constants.LITELLM_MODELS:
         # Return LiteLLM models (with LiteLLM/provider/ prefix or legacy provider/ prefix)
-        return _with_dev_mode_extras(constants.LITELLM_MODELS)
+        return constants.LITELLM_MODELS
     else:
-        # Return standard models
-        return _with_dev_mode_extras(STANDARD_MODELS)
+        # Return standard models (dev installs may append extra test models here only)
+        return _with_dev_mode_extras_standard_only(STANDARD_MODELS)
 
 
 def get_fast_model_for_selected_model(selected_model: str) -> str:
