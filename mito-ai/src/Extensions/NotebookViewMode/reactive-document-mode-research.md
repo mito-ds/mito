@@ -128,7 +128,7 @@ Shipped behavior (see `documentReactiveRunner.ts`, `documentReactiveOrigin.ts`, 
 
 **Manual QA (JupyterLab):** open a notebook with a control in an early cell and plots below; enter Document mode; change the control; confirm downstream updates and that the control does not reset. Re-run after kernel restart.
 
-**Widget-type learnings** (native vs slider vs nested containers): see [reactive-document-mode-intended-behavior.md](./reactive-document-mode-intended-behavior.md) — section **“Learnings — different widget types”**.
+**Widget-type learnings** (native vs slider vs nested containers): summarized in file-level comments on `src/Extensions/NotebookViewMode/documentReactiveRunner.ts` and `documentReactiveOrigin.ts`.
 
 ---
 

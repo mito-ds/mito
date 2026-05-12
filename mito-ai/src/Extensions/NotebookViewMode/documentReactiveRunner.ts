@@ -3,6 +3,23 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/**
+ * Document mode reactive refresh: user changes a control in a cell’s output → after a
+ * short debounce, run every cell **strictly below** that cell’s index. The cell that
+ * **defined** the control is skipped so widgets are not recreated and values do not
+ * snap back to defaults.
+ *
+ * Triggers: (1) client→kernel `comm_msg` with ipywidgets trait `update` only — see
+ * `isIpywidgetsTraitUpdateCommContent` — and (2) DOM `change` / `input` inside
+ * `.jp-OutputArea` (e.g. native date inputs when comm is narrow). Sliders often need
+ * the comm path; some controls still work via DOM alone.
+ *
+ * If we cannot resolve which code cell “owns” the interaction, do nothing (fail
+ * closed). While a refresh run is in progress, queue one follow-up origin and
+ * schedule after the run finishes (avoid re-entrancy). Not in Notebook/App mode: no
+ * listeners apply. v1 does not re-run above the origin or build a dependency graph.
+ */
+
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { Kernel } from '@jupyterlab/services';
 import { IDisposable } from '@lumino/disposable';

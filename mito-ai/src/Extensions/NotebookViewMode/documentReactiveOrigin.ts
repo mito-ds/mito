@@ -3,6 +3,16 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/**
+ * “Origin” for a widget interaction is the **code cell** whose output is the home of
+ * the UI (the cell that `display`’d / returned the `VBox` / slider, etc.). Child
+ * widgets have their own `comm_id` but must still map to **that same cell** so the
+ * runner skips only the defining cell while refreshing below. Resolution: serialized
+ * outputs first, then a live Lumino walk under each cell’s `OutputArea` — ipywidgets
+ * expose `model_id` on the Backbone view attached as `_view`, not on the bare Lumino
+ * widget (see `luminoWidgetBoundModelId`).
+ */
+
 import { CodeCell } from '@jupyterlab/cells';
 import { Notebook } from '@jupyterlab/notebook';
 import * as nbformat from '@jupyterlab/nbformat';
