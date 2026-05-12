@@ -23,13 +23,21 @@ function createMockNotebookPanel(id: string): NotebookPanel {
     },
     context: {
       path: '/test/notebook.ipynb',
-      save: jest.fn().mockResolvedValue(undefined)
+      save: jest.fn().mockResolvedValue(undefined),
+      sessionContext: {
+        session: { kernel: null },
+        kernelChanged: {
+          connect: jest.fn(),
+          disconnect: jest.fn()
+        }
+      }
     },
     layout: {
       addWidget: jest.fn()
     },
     disposed: {
-      connect: jest.fn()
+      connect: jest.fn(),
+      disconnect: jest.fn()
     }
   } as unknown as NotebookPanel;
 

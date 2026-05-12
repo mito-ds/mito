@@ -33,6 +33,7 @@ import {
   COMMAND_MITO_AI_TOGGLE_TAB_DROPDOWN
 } from '../../commands';
 import { MitoToolbarWidget } from './MitoToolbarWidget';
+import { DocumentReactiveRunner } from './documentReactiveRunner';
 
 export type NotebookViewMode = 'Notebook' | 'Document' | 'App';
 
@@ -72,6 +73,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
   // Guards against async preview responses that return after the user leaves App mode.
   // Without this, a late success response can still mount an iframe beneath notebook/document UI.
   private _appModeRequestToken = 0;
+  private _documentReactiveRunner: DocumentReactiveRunner | null = null;
 
   constructor(
     notebookTracker: INotebookTracker,
@@ -219,6 +221,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
   }
 
   private _applyNotebookMode(panel: NotebookPanel): void {
+    this._disposeDocumentReactiveRunner();
     this._killActiveProcess();
     this._disposeTransientWidgets();
     panel.toolbar.hide();
@@ -235,6 +238,9 @@ export class NotebookViewModeManager implements INotebookViewMode {
     panel.content.show();
     panel.content.node.classList.add(DOCUMENT_MODE_CSS_CLASS);
     this._attachOrDetachDblclickListener(panel, true);
+    this._disposeDocumentReactiveRunner();
+    this._documentReactiveRunner = new DocumentReactiveRunner(panel, () => this._mode === 'Document');
+    this._documentReactiveRunner.attach();
   }
 
   private _expandCollapsedOutputs(panel: NotebookPanel): void {
@@ -248,6 +254,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
   }
 
   private _applyAppModeUI(panel: NotebookPanel): void {
+    this._disposeDocumentReactiveRunner();
     panel.content.node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
     this._attachOrDetachDblclickListener(panel, false);
     panel.toolbar.hide();
@@ -357,12 +364,22 @@ export class NotebookViewModeManager implements INotebookViewMode {
   }
 
   private _cleanupPanel(panel: NotebookPanel): void {
+    if (this._documentReactiveRunner?.panel === panel) {
+      this._disposeDocumentReactiveRunner();
+    }
     if (
       this._mode === 'App' &&
       (this._notebookTracker.currentWidget === panel || !this._notebookTracker.currentWidget)
     ) {
       this._killActiveProcess();
       this._disposeTransientWidgets();
+    }
+  }
+
+  private _disposeDocumentReactiveRunner(): void {
+    if (this._documentReactiveRunner) {
+      this._documentReactiveRunner.dispose();
+      this._documentReactiveRunner = null;
     }
   }
 
