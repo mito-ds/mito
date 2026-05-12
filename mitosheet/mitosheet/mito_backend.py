@@ -418,12 +418,13 @@ def sheet(
     # If so, tell user to use the correct component
     if is_in_vs_code():
         from mitosheet.vscode.v1.spreadsheet import spreadsheet as _vscode_spreadsheet
-        return _vscode_spreadsheet(
+        _vscode_spreadsheet(
             *args,
             sheet_functions=sheet_functions,
             importers=importers,
             editors=editors,
         )
+        return
     elif is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
