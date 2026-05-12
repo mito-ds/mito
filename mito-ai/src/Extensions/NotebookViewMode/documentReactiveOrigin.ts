@@ -6,6 +6,7 @@
 import { CodeCell } from '@jupyterlab/cells';
 import { Notebook } from '@jupyterlab/notebook';
 import * as nbformat from '@jupyterlab/nbformat';
+import { PanelLayout, Widget } from '@lumino/widgets';
 
 const WIDGET_VIEW_MIME = 'application/vnd.jupyter.widget-view+json';
 
@@ -37,9 +38,112 @@ function outputListMentionsModelId(
 }
 
 /**
- * Returns the notebook index of the code cell whose persisted outputs include
- * a Jupyter widget view with the given model_id (ipywidgets uses the same id
- * as the shell comm channel's comm_id for that widget).
+ * True if `modelId` appears anywhere in serialized output payloads (e.g. nested
+ * models inside `application/vnd.jupyter.widget-state+json` when the root is a
+ * VBox). Child widgets' comm_ids match these ids even though they are not the
+ * top-level `widget-view+json` model_id.
+ */
+function outputDataBlobMentionsModelId(
+  outputs: nbformat.IOutput[],
+  modelId: string
+): boolean {
+  for (const output of outputs) {
+    if (
+      output.output_type !== 'display_data' &&
+      output.output_type !== 'execute_result'
+    ) {
+      continue;
+    }
+    const data = output.data as Record<string, unknown> | undefined;
+    if (!data) {
+      continue;
+    }
+    for (const [key, value] of Object.entries(data)) {
+      if (!key.includes('widget') && !key.includes('jupyter')) {
+        continue;
+      }
+      try {
+        if (typeof value === 'string' && value.includes(modelId)) {
+          return true;
+        }
+        if (value !== undefined && JSON.stringify(value).includes(modelId)) {
+          return true;
+        }
+      } catch {
+        // Skip non-serializable blobs
+      }
+    }
+  }
+  return false;
+}
+
+function cellSerializedOutputsMentionModelId(
+  outputs: nbformat.IOutput[],
+  modelId: string
+): boolean {
+  return (
+    outputListMentionsModelId(outputs, modelId) ||
+    outputDataBlobMentionsModelId(outputs, modelId)
+  );
+}
+
+/**
+ * Walk live rendered output widgets. ipywidgets wrap views in `JupyterLuminoWidget` /
+ * `JupyterLuminoPanelWidget`: the Backbone `DOMWidgetView` (and thus `model.model_id`)
+ * lives on `_view`, not on `Widget.model`.
+ */
+function luminoSubtreeMentionsWidgetModelId(
+  widget: Widget,
+  modelId: string
+): boolean {
+  const candidate = widget as unknown as {
+    model?: { model_id?: string };
+  };
+  if (candidate.model?.model_id === modelId) {
+    return true;
+  }
+  const fromIpywidgetsView = widget as unknown as {
+    _view?: { model?: { model_id?: string } };
+  };
+  if (fromIpywidgetsView._view?.model?.model_id === modelId) {
+    return true;
+  }
+  const layout = widget.layout;
+  if (layout instanceof PanelLayout) {
+    for (const child of layout.widgets) {
+      if (luminoSubtreeMentionsWidgetModelId(child, modelId)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function liveCodeCellOutputMentionsModelId(
+  cell: CodeCell,
+  modelId: string
+): boolean {
+  const outputArea = cell.outputArea;
+  if (!outputArea || outputArea.isDisposed) {
+    return false;
+  }
+  for (const w of outputArea.widgets) {
+    if (luminoSubtreeMentionsWidgetModelId(w, modelId)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Returns the notebook index of the code cell that "owns" the widget model `modelId`:
+ * - top-level match on `application/vnd.jupyter.widget-view+json`, or
+ * - nested models referenced in widget-related output MIME data (e.g. VBox children in
+ *   `application/vnd.jupyter.widget-state+json`), or
+ * - a live walk of rendered output widgets (ipywidgets `model.model_id` on the view
+ *   bridged by `JupyterLuminoWidget` as `_view.model`).
+ *
+ * ipywidgets uses the same id as the shell comm channel's `comm_id` for that widget.
  */
 export function findCodeCellIndexForWidgetModelId(
   notebook: Notebook,
@@ -51,7 +155,16 @@ export function findCodeCellIndexForWidgetModelId(
       continue;
     }
     const outputs = (cell as CodeCell).model.outputs.toJSON();
-    if (outputListMentionsModelId(outputs, modelId)) {
+    if (cellSerializedOutputsMentionModelId(outputs, modelId)) {
+      return i;
+    }
+  }
+  for (let i = 0; i < notebook.widgets.length; i++) {
+    const cell = notebook.widgets[i];
+    if (!cell || cell.model.type !== 'code') {
+      continue;
+    }
+    if (liveCodeCellOutputMentionsModelId(cell as CodeCell, modelId)) {
       return i;
     }
   }

@@ -121,12 +121,14 @@ So Marimo does **not** magically avoid “rerun resets widget” for **nested** 
 Shipped behavior (see `documentReactiveRunner.ts`, `documentReactiveOrigin.ts`, `NotebookViewModePlugin.ts`):
 
 - **Run slice:** `runAllCellsStrictlyBelow` in `notebook.tsx` calls `NotebookActions.runCells` on `notebook.widgets.slice(originIndex + 1)` without changing the active cell.
-- **Origin from DOM:** capture-phase `pointerdown` / `change` / `input` / `click` on the notebook node; only when the event target lies inside a `.jp-OutputArea`; map the target to a cell via `findNotebookCellIndexContainingDomNode`.
-- **Origin from comm:** shell-channel `comm_msg` with `direction === 'send'`; match `content.comm_id` to a code cell whose serialized outputs include `application/vnd.jupyter.widget-view+json` with the same `model_id` (ipywidgets convention).
+- **Origin from DOM:** capture-phase `change` / `input` on the notebook node; only when the event target lies inside a `.jp-OutputArea`; map the target to a cell via `findNotebookCellIndexContainingDomNode`.
+- **Origin from comm:** shell-channel `comm_msg` with `direction === 'send'`, filtered to ipywidgets trait updates (`isIpywidgetsTraitUpdateCommContent`); match `comm_id` to a code cell via `findCodeCellIndexForWidgetModelId` (includes **nested** models inside container widgets such as `VBox`, not only the root `widget-view` `model_id`).
 - **Debounce:** 400 ms coalescing; **re-entrancy guard** skips scheduling while a reactive run is in progress.
 - **Lifecycle:** runner is created in `_applyDocumentMode` and disposed when leaving Document/App mode, when the panel is disposed (if it still owns the runner), or when switching notebooks.
 
 **Manual QA (JupyterLab):** open a notebook with a control in an early cell and plots below; enter Document mode; change the control; confirm downstream updates and that the control does not reset. Re-run after kernel restart.
+
+**Widget-type learnings** (native vs slider vs nested containers): see [reactive-document-mode-intended-behavior.md](./reactive-document-mode-intended-behavior.md) — section **“Learnings — different widget types”**.
 
 ---
 
