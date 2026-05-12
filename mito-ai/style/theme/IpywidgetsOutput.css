@@ -12,7 +12,7 @@
 .jp-OutputArea {
   /* Tune ipywidgets' own CSS variables for this subtree only */
   --mito-widgets-control-radius: 6px;
-  --jp-widgets-label-color: var(--jp-content-font-color2);
+  --jp-widgets-label-color: var(--jp-content-font-color1);
   --jp-widgets-readout-color: var(--jp-content-font-color1);
   --jp-widgets-color: var(--jp-content-font-color1);
   --jp-widgets-input-focus-border-color: var(--jp-brand-color1);
@@ -42,7 +42,7 @@
   gap: var(--jp-widgets-inline-margin);
 }
 
-/* Labels: slightly softer than body (ipywidgets horizontal labels stay right-aligned) */
+/* Labels: primary text color so they read as real captions, not disabled chrome */
 .jp-OutputArea :is(.widget-label, .jupyter-widget-label) {
   font-weight: 500;
 }
