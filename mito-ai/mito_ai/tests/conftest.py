@@ -15,7 +15,9 @@ TOKEN = "test-token"
 def jp_server_config(token_fixture):
     """Configure the Jupyter server for testing."""
     config = Config()
-    config.ServerApp.jpserver_extensions = {"mito_ai": True}
+    # Mito tests do not need LSP; disabling avoids slow subprocess autodetection on
+    # Windows (jupyter_lsp spawns many check_output calls during server startup).
+    config.ServerApp.jpserver_extensions = {"mito_ai": True, "jupyter_lsp": False}
     # Disable password requirement for testing
     config.ServerApp.password = ""
     # Set the token for testing

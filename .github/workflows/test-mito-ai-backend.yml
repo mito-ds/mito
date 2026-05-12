@@ -55,6 +55,12 @@ jobs:
         jlpm build
         jupyter labextension develop . --overwrite
         jupyter server extension enable --py mito_ai
+    # install_db_drivers() runs pip inside the Jupyter handler during DB tests; on
+    # Windows that often exceeds pytest's 30s global timeout. Pre-install so tests
+    # only verify behavior, not PyPI download speed.
+    - name: Pre-install database drivers for tests
+      run: |
+        pip install snowflake-sqlalchemy pyodbc PyMySQL oracledb psycopg2-binary
     - name: Run tests
       run: |
         cd mito-ai
