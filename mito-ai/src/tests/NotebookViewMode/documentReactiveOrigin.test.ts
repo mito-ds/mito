@@ -23,6 +23,16 @@ class MockIpywidgetsLuminoLeaf extends Widget {
   }
 }
 
+/** Rare: Lumino widget carries `model` directly (not ipywidgets’ `_view` bridge). */
+class MockDirectModelLeaf extends Widget {
+  constructor(modelId: string) {
+    super();
+    (this as unknown as { model: { model_id: string } }).model = {
+      model_id: modelId
+    };
+  }
+}
+
 const widgetViewData = (modelId: string) => ({
   output_type: 'display_data' as const,
   data: {
@@ -109,7 +119,7 @@ describe('documentReactiveOrigin', () => {
       ).toBe(0);
     });
 
-    it('resolves child model id via live output walk (_view.model) when serialized outputs are empty', () => {
+    it('resolves child model id via live output walk (_view.model) when serialized outputs are empty (requires PanelLayout descent)', () => {
       const vboxLike = new Panel();
       vboxLike.addWidget(new MockIpywidgetsLuminoLeaf('slider-live-walk'));
 
@@ -132,6 +142,29 @@ describe('documentReactiveOrigin', () => {
       ).toBe(0);
 
       vboxLike.dispose();
+    });
+
+    it('resolves nested leaf via live walk when only Widget.model is set (fallback path)', () => {
+      const panel = new Panel();
+      panel.addWidget(new MockDirectModelLeaf('direct-model-leaf'));
+
+      const codeCell = {
+        model: {
+          type: 'code',
+          outputs: { toJSON: () => [] }
+        },
+        outputArea: {
+          isDisposed: false,
+          widgets: [panel]
+        }
+      };
+      const notebook = { widgets: [codeCell] };
+
+      expect(
+        findCodeCellIndexForWidgetModelId(notebook as never, 'direct-model-leaf')
+      ).toBe(0);
+
+      panel.dispose();
     });
   });
 

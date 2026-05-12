@@ -88,24 +88,26 @@ function cellSerializedOutputsMentionModelId(
 }
 
 /**
- * Walk live rendered output widgets. ipywidgets wrap views in `JupyterLuminoWidget` /
- * `JupyterLuminoPanelWidget`: the Backbone `DOMWidgetView` (and thus `model.model_id`)
- * lives on `_view`, not on `Widget.model`.
+ * Best-effort widget model id on a live Lumino `Widget` under an `OutputArea`.
+ * - ipywidgets: `JupyterLuminoWidget` / `JupyterLuminoPanelWidget` expose the Backbone
+ *   view as `_view`; `model_id` is on `_view.model` (not on `Widget.model`).
+ * - `model` on the Lumino widget is a rare fallback for other renderers / tests.
  */
-function luminoSubtreeMentionsWidgetModelId(
-  widget: Widget,
-  modelId: string
-): boolean {
-  const candidate = widget as unknown as {
+function luminoWidgetBoundModelId(widget: Widget): string | undefined {
+  const w = widget as unknown as {
+    _view?: { model?: { model_id?: string } };
     model?: { model_id?: string };
   };
-  if (candidate.model?.model_id === modelId) {
-    return true;
-  }
-  const fromIpywidgetsView = widget as unknown as {
-    _view?: { model?: { model_id?: string } };
-  };
-  if (fromIpywidgetsView._view?.model?.model_id === modelId) {
+  return w._view?.model?.model_id ?? w.model?.model_id;
+}
+
+/**
+ * Depth-first walk: nested controls (e.g. `IntSlider` inside `VBox`) live under a
+ * root output widget with `PanelLayout` children; the root’s `comm_id` is not the
+ * child’s, so we must recurse — a flat single-widget check is not enough.
+ */
+function luminoSubtreeMentionsWidgetModelId(widget: Widget, modelId: string): boolean {
+  if (luminoWidgetBoundModelId(widget) === modelId) {
     return true;
   }
   const layout = widget.layout;
