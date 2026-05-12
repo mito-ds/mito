@@ -4,6 +4,8 @@
 import pytest
 import threading
 import time
+from urllib.parse import urlsplit, urlunsplit
+
 from jupyter_server.serverapp import ServerApp
 from traitlets.config import Config
 
@@ -45,8 +47,15 @@ def jp_serverapp(jp_server_config, tmp_path):
 
 @pytest.fixture
 def jp_base_url(jp_serverapp):
-    """Get the base URL of the Jupyter server."""
-    return jp_serverapp.connection_url 
+    """Get the base URL of the Jupyter server (no trailing slash on the path).
+
+    Tests use ``jp_base_url + "/mito-ai/..."``; Jupyter's ``connection_url`` ends
+    with ``/``, which would produce ``//mito-ai/...`` and 404. Normalize with
+    ``urllib.parse`` rather than string ``rstrip`` so only the path component changes.
+    """
+    parts = urlsplit(jp_serverapp.connection_url)
+    path = parts.path.rstrip("/")
+    return urlunsplit((parts.scheme, parts.netloc, path, parts.query, parts.fragment))
 
 @pytest.fixture
 def token_fixture():
