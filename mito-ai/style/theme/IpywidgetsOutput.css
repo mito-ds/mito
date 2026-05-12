@@ -1,0 +1,128 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/*
+ * Mito-themed ipywidgets inside notebook outputs only (Mito Light/Dark theme bundle).
+ * Selectors align with @jupyter-widgets/controls ~5.x / ipywidgets 8.x (widgets-base.css,
+ * nouislider.css): .jupyter-widgets, .jupyter-widget-* , .noUi-*.
+ */
+
+.jp-OutputArea {
+  /* Tune ipywidgets' own CSS variables for this subtree only */
+  --mito-widgets-control-radius: 6px;
+  --jp-widgets-label-color: var(--jp-content-font-color2);
+  --jp-widgets-readout-color: var(--jp-content-font-color1);
+  --jp-widgets-color: var(--jp-content-font-color1);
+  --jp-widgets-input-focus-border-color: var(--jp-brand-color1);
+  --jp-widgets-input-color: var(--jp-content-font-color1);
+  --jp-widgets-input-background-color: var(--jp-input-background);
+  --jp-widgets-input-border-color: var(--jp-input-border-color);
+  --jp-widgets-slider-active-handle-color: var(--jp-brand-color1);
+  --jp-widgets-slider-handle-border-color: var(--jp-border-color1);
+  --jp-widgets-slider-handle-background-color: var(--jp-layout-color0);
+  --jp-widgets-margin: 4px;
+  --jp-widgets-inline-height: 30px;
+  --jp-widgets-inline-margin: 6px;
+}
+
+/* Layout rhythm */
+.jp-OutputArea .jupyter-widgets {
+  font-family: var(--jp-ui-font-family);
+}
+
+.jp-OutputArea :is(.widget-inline-hbox, .jupyter-widget-inline-hbox) {
+  align-items: center;
+  gap: var(--jp-widgets-inline-margin);
+}
+
+.jp-OutputArea
+  :is(.widget-hbox, .jupyter-widget-hbox, .widget-vbox, .jupyter-widget-vbox) {
+  gap: var(--jp-widgets-inline-margin);
+}
+
+/* Labels: slightly softer than body (ipywidgets horizontal labels stay right-aligned) */
+.jp-OutputArea :is(.widget-label, .jupyter-widget-label) {
+  font-weight: 500;
+}
+
+/* Shared field chrome */
+.jp-OutputArea
+  :is(
+    .widget-text input[type='text'],
+    .widget-text input[type='number'],
+    .widget-text input[type='password'],
+    .widget-textarea textarea,
+    .widget-datepicker input[type='date'],
+    .widget-dropdown > select,
+    .widget-select > select,
+    .jupyter-widget-text input[type='text'],
+    .jupyter-widget-text input[type='number'],
+    .jupyter-widget-text input[type='password'],
+    .jupyter-widget-textarea textarea,
+    .jupyter-widget-datepicker input[type='date'],
+    .jupyter-widget-dropdown > select,
+    .jupyter-widget-select > select
+  ) {
+  border-radius: var(--mito-widgets-control-radius);
+  box-shadow: none;
+}
+
+.jp-OutputArea
+  :is(
+    .widget-text input[type='text']:focus,
+    .widget-text input[type='number']:focus,
+    .widget-text input[type='password']:focus,
+    .widget-textarea textarea:focus,
+    .widget-datepicker input[type='date']:focus,
+    .widget-dropdown > select:focus,
+    .widget-select > select:focus,
+    .jupyter-widget-text input[type='text']:focus,
+    .jupyter-widget-text input[type='number']:focus,
+    .jupyter-widget-text input[type='password']:focus,
+    .jupyter-widget-textarea textarea:focus,
+    .jupyter-widget-datepicker input[type='date']:focus,
+    .jupyter-widget-dropdown > select:focus,
+    .jupyter-widget-select > select:focus
+  ) {
+  /* ipywidgets sets outline: none !important on these controls */
+  outline: 2px solid var(--jp-brand-color1) !important;
+  outline-offset: 1px;
+}
+
+/* Native checkboxes / radios: brand tint (supported in Chromium, Safari, Firefox) */
+.jp-OutputArea
+  :is(
+    .widget-checkbox input[type='checkbox'],
+    .jupyter-widget-checkbox input[type='checkbox'],
+    .jupyter-widget-radio-box input[type='radio']
+  ) {
+  accent-color: var(--jp-brand-color1);
+  min-width: 16px;
+  min-height: 16px;
+}
+
+/* noUi slider (IntSlider / FloatSlider): replace default teal #3FB8AF */
+.jp-OutputArea :is(.jupyter-widget-slider, .widget-slider) .noUi-connect {
+  background: var(--jp-brand-color1);
+}
+
+.jp-OutputArea :is(.jupyter-widget-slider, .widget-slider) .noUi-target {
+  background: var(--jp-layout-color2);
+  border: var(--jp-border-width) solid var(--jp-border-color1);
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+.jp-OutputArea :is(.jupyter-widget-slider, .widget-slider) .noUi-handle {
+  border: var(--jp-border-width) solid var(--jp-brand-color2);
+  border-radius: 50%;
+  background: var(--jp-layout-color0);
+  box-shadow: var(--jp-elevation-z1);
+}
+
+.jp-OutputArea :is(.jupyter-widget-slider, .widget-slider) .noUi-handle::before,
+.jp-OutputArea :is(.jupyter-widget-slider, .widget-slider) .noUi-handle::after {
+  display: none;
+}

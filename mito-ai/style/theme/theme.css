@@ -12,7 +12,7 @@
 @import './componentStyling.css';
 @import './icons.css';
 @import './CellNumbering.css';
-
+@import url('./IpywidgetsOutput.css');
 
 /* Set the default typography for monospace elements */
 .jp-ThemedContainer tt,
@@ -102,5 +102,3 @@
 .jp-Editor .cm-gutters {
   background: transparent !important;
 }
-
-
