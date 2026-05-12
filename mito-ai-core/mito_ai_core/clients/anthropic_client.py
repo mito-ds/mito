@@ -9,7 +9,7 @@ from anthropic.types import Message, MessageParam, TextBlockParam
 from mito_ai_core.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import get_max_trim_after_messages
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai_core.clients.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params, LARGE_CONTEXT_MODEL, EXTENDED_CONTEXT_BETA
+from mito_ai_core.clients.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params, LARGE_CONTEXT_MODEL, EXTENDED_CONTEXT_BETA, supports_temperature_param
 
 # Max tokens is a required parameter for the Anthropic API.
 # We set it to a high number so that we can edit large code cells
@@ -269,7 +269,7 @@ class AnthropicClient:
             response = await get_anthropic_completion_from_mito_server(
                 model=provider_data["model"],
                 max_tokens=provider_data["max_tokens"],
-                temperature=provider_data["temperature"],
+                temperature=provider_data.get("temperature"),
                 system=provider_data["system"],
                 messages=provider_data["messages"],
                 tools=provider_data.get("tools"),
@@ -293,11 +293,12 @@ class AnthropicClient:
                 create_params = {
                     "model": model,
                     "max_tokens": MAX_TOKENS,
-                    "temperature": 0,
                     "system": anthropic_system_prompt,
                     "messages": anthropic_messages,  # type: ignore[arg-type]
                     "stream": True
                 }
+                if supports_temperature_param(model):
+                    create_params["temperature"] = 0
                 if model == LARGE_CONTEXT_MODEL:
                     create_params["betas"] = [EXTENDED_CONTEXT_BETA]
                 stream = self.client.beta.messages.create(**create_params)  # type: ignore[call-overload]
@@ -324,7 +325,7 @@ class AnthropicClient:
                 async for stram_chunk in stream_anthropic_completion_from_mito_server(
                     model=model,
                     max_tokens=MAX_TOKENS,
-                    temperature=0,
+                    temperature=0 if supports_temperature_param(model) else None,
                     system=anthropic_system_prompt,
                     messages=anthropic_messages,
                     stream=True,

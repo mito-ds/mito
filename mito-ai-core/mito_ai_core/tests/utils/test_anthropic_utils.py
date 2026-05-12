@@ -5,7 +5,12 @@ import pytest
 import anthropic
 from typing import List, Dict, Any, Tuple, Union, cast
 from anthropic.types import MessageParam, ToolUnionParam, ToolParam
-from mito_ai_core.clients.anthropic_utils import ANTHROPIC_TIMEOUT, _prepare_anthropic_request_data_and_headers
+from mito_ai_core.clients.anthropic_utils import (
+    ANTHROPIC_TIMEOUT,
+    _prepare_anthropic_request_data_and_headers,
+    get_anthropic_completion_function_params,
+    supports_temperature_param,
+)
 from mito_ai_core.completions.models import MessageType
 from mito_ai_core.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai_core.utils.db import get_user_field
@@ -160,3 +165,33 @@ def test_missing_user_info(monkeypatch):
 
     assert data["email"] is None
     assert data["user_id"] is None 
+
+
+def test_supports_temperature_param_for_anthropic_models() -> None:
+    assert supports_temperature_param("claude-sonnet-4-5-20250929") is True
+    assert supports_temperature_param("claude-haiku-4-5-20251001") is True
+    assert supports_temperature_param("claude-opus-4-7") is False
+
+
+def test_get_anthropic_completion_function_params_omits_temperature_for_opus() -> None:
+    provider_data = get_anthropic_completion_function_params(
+        message_type=MessageType.CHAT,
+        model="claude-opus-4-7",
+        messages=[{"role": "user", "content": "Hello"}],
+        max_tokens=100,
+        system=anthropic.Omit(),
+        temperature=0,
+    )
+    assert "temperature" not in provider_data
+
+
+def test_get_anthropic_completion_function_params_keeps_temperature_for_sonnet() -> None:
+    provider_data = get_anthropic_completion_function_params(
+        message_type=MessageType.CHAT,
+        model="claude-sonnet-4-5-20250929",
+        messages=[{"role": "user", "content": "Hello"}],
+        max_tokens=100,
+        system=anthropic.Omit(),
+        temperature=0,
+    )
+    assert provider_data["temperature"] == 0
