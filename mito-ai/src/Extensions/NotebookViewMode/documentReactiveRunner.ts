@@ -53,6 +53,8 @@ export class DocumentReactiveRunner implements IDisposable {
   private _domHandler: ((event: Event) => void) | null = null;
   private _debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private _pendingOriginIndex: number | null = null;
+  /** Origin to debounce-schedule after the current downstream run finishes (coalesce in-flight interactions). */
+  private _pendingRefreshAfterRunOrigin: number | null = null;
   private _reactiveRunInProgress = false;
   private _isDisposed = false;
 
@@ -87,6 +89,8 @@ export class DocumentReactiveRunner implements IDisposable {
       clearTimeout(this._debounceTimer);
       this._debounceTimer = null;
     }
+    this._pendingOriginIndex = null;
+    this._pendingRefreshAfterRunOrigin = null;
     if (this._disposePanelHook) {
       this._panel.disposed.disconnect(this._disposePanelHook);
       this._disposePanelHook = null;
@@ -112,7 +116,7 @@ export class DocumentReactiveRunner implements IDisposable {
   private _bindDom(): void {
     const node = this._panel.content.node;
     this._domHandler = (event: Event): void => {
-      if (!this._isDocumentMode() || this._reactiveRunInProgress) {
+      if (!this._isDocumentMode()) {
         return;
       }
       if (event.type !== 'change' && event.type !== 'input') {
@@ -127,6 +131,10 @@ export class DocumentReactiveRunner implements IDisposable {
         event.target
       );
       if (origin === null) {
+        return;
+      }
+      if (this._reactiveRunInProgress) {
+        this._pendingRefreshAfterRunOrigin = origin;
         return;
       }
       this._scheduleRefreshFromOrigin(origin);
@@ -155,7 +163,7 @@ export class DocumentReactiveRunner implements IDisposable {
       _sender: Kernel.IKernelConnection,
       args: Kernel.IAnyMessageArgs
     ): void => {
-      if (!this._isDocumentMode() || this._reactiveRunInProgress) {
+      if (!this._isDocumentMode()) {
         return;
       }
       if (args.direction !== 'send') {
@@ -172,6 +180,10 @@ export class DocumentReactiveRunner implements IDisposable {
       }
       const origin = findCodeCellIndexForWidgetModelId(this._panel.content, commId);
       if (origin === null) {
+        return;
+      }
+      if (this._reactiveRunInProgress) {
+        this._pendingRefreshAfterRunOrigin = origin;
         return;
       }
       this._scheduleRefreshFromOrigin(origin);
@@ -218,6 +230,15 @@ export class DocumentReactiveRunner implements IDisposable {
       );
     } finally {
       this._reactiveRunInProgress = false;
+      const deferredOrigin = this._pendingRefreshAfterRunOrigin;
+      this._pendingRefreshAfterRunOrigin = null;
+      if (
+        deferredOrigin !== null &&
+        this._isDocumentMode() &&
+        !this._isDisposed
+      ) {
+        this._scheduleRefreshFromOrigin(deferredOrigin);
+      }
     }
   }
 }
