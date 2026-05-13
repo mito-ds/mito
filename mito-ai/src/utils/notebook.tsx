@@ -3,7 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker, NotebookActions, NotebookPanel } from '@jupyterlab/notebook';
+import type { ISessionContext } from '@jupyterlab/apputils';
+import { INotebookTracker, Notebook, NotebookActions, NotebookPanel } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
@@ -541,3 +542,29 @@ export const deleteCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | nul
 
     return true;
 }
+
+/**
+ * Returns cell widgets with index strictly greater than `originIndex` (top-down order).
+ */
+export const getCellWidgetsStrictlyBelow = (
+  notebook: Notebook,
+  originIndex: number
+): Cell[] => {
+  return notebook.widgets.slice(originIndex + 1);
+};
+
+/**
+ * Runs all notebook cells below `originIndex` (exclusive of that cell) via
+ * `NotebookActions.runCells`, without changing the active cell.
+ */
+export const runAllCellsStrictlyBelow = async (
+  notebook: Notebook,
+  originIndex: number,
+  sessionContext: ISessionContext | null | undefined
+): Promise<void> => {
+  const cells = getCellWidgetsStrictlyBelow(notebook, originIndex);
+  if (cells.length === 0) {
+    return;
+  }
+  await NotebookActions.runCells(notebook, cells, sessionContext ?? undefined);
+};
