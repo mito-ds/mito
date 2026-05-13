@@ -9,7 +9,7 @@ from mito_ai_core.completions.prompt_builders.prompt_constants import (
     CITATION_RULES,
     CELL_REFERENCE_RULES,
     EXCEL_TO_PYTHON_RULES,
-    LATEX_RULES,
+    MARKDOWN_RULES,
     get_database_rules
 )
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
@@ -51,21 +51,14 @@ What the reader does NOT see (hidden from the final report):
 - Variable assignments with no display, e.g. `df = meta_df.head(10)` shows nothing to the reader
 - SCRATCHPAD tool executions — these run silently and never appear in the notebook
 
-Important: Because the reader will view the report from top to bottom, make sure that every output is preceded by a Markdown cell that explains what the reader is looking at, and use things like df.head() or print statements sparingly. Those tend to clutter the report and make it difficult for the reader to consume.
-
-The first cell the reader sees should be a Markdown cell with an overview, title, what questions the notebook answers, etc.
-
-Notebook order (how the shared Notebook JSON maps to the screen):
-- Each cell has an "index" field counting from the top: index 0 is the first cell at the top of the notebook, then 1, 2, … downward. Lower index = earlier in the notebook.
-- Put Markdown where the reader scrolls to it before the content it describes: section titles and framing must sit in cells with a lower index than the code cell whose output they introduce. Do not put the main title or section intro below the code or output it explains (that reads backwards).
+Important formatting rules:
+- Because the reader will view the report from top to bottom, make sure that every output is preceded by a Markdown cell that explains what the reader is looking at. 
+- Don't use print(), throwaway displays, or bare variables at the end of cells (df, df.head(), etc.) unless you explicitly want to publish that information to the reader AND there is a Markdown cell above it explaining what the reader is looking at. Avoid intermediate tables or plots that do not support the conclusions.
+- The first cell the reader sees should be a Markdown cell with an overview, title, what questions the notebook answers, etc.
 
 Markdown cells vs code comments:
 - Markdown cells: Use markdown cells to provide relevant context to the report viewer. Use markdown cells to create titles, document the questions you answer, key takeaways, short labels (title + main takeaway) above each major dataframe, chart, or numeric result so outputs are interpretable. Put concise business-facing definitions or assumptions in Markdown when misunderstanding them would change how someone reads the results.
 - Code comments: implementation detail (how the code works, refactors, notes for developers). Do not use Markdown to explain how the code works.
-
-Exploration and clutter:
-- Prefer SCRATCHPAD or silent variable updates for work that is not meant for the reader.
-- Don't use print(), throwaway displays, or bare variables at the end of cells (df, df.head(), etc.) unless you explicitly want to publish that information to the reader AND there is a Markdown cell above it explaining what the reader is looking at. Avoid intermediate tables or plots that do not support the conclusions.
 
 Common mistakes:
 - Putting the title Markdown AFTER the data-load and chart cells. The reader scrolls past raw outputs before they know what the report is about.
@@ -76,7 +69,6 @@ Common mistakes:
 
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
     sections.append(SG.Generic("Excel to Python Rules", EXCEL_TO_PYTHON_RULES))
-    sections.append(SG.Generic("LaTeX Rules", LATEX_RULES))
 
     sections.append(SG.Generic("TOOL: CELL_UPDATE", """
 
@@ -450,7 +442,7 @@ Important information:
     # CODE STYLE section
     sections.append(SG.Generic("CODE STYLE", """
 - When updating code, keep as much of the original code as possible and do not recreate variables that already exist.
-- When you want to display a dataframe to the user, just write the dataframe on the last line of the code cell instead of writing print(<dataframe name>). Jupyter will automatically display the dataframe in the notebook.
+- When you want to display a dataframe to the user, just write the dataframe on the last line of the code cell instead of writing print(<dataframe name>). Jupyter will automatically display the dataframe in the notebook. But make sure that there is a markdown cell above the code cell that explains what the reader is looking at. Just displaying the dataframe without any explanation is not enough.
 - When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter.
 - Avoid adding try/except blocks unless there is a very good reason. Do not use them for things like: 
     ```
@@ -464,6 +456,9 @@ Important information:
 - Do not simulate the data without the user explicity asking you to do so.
 - Do not replace broken code with print statements that explain the issue. Instead, leave the broken code in the notebook and use the ask_user_question tools to communicate the issue to the user and figure out how to proceed.
 """))
+    
+    # MARKDOWN RULES section
+    sections.append(SG.Generic("Markdown Style", MARKDOWN_RULES))
     
     # CITATION_RULES 
     sections.append(SG.Generic("Citation Rules", f"""{CITATION_RULES}
