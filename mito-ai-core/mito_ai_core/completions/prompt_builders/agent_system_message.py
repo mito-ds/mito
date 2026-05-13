@@ -109,6 +109,8 @@ Important information:
 7. Only include important data and analytical assumptions that if incorrect would fundamentally change your analysis conclusions. These should be data handling decisions, methodological choices, and definitional boundaries. Do not include: obvious statements ("Each record is counted once"), result interpretation guidance ("Gaps in the plot represent zero values"), display choices ("Data is sorted for clarity"), internal reasoning ("Bar chart is better than line plot"), or environment assumptions ("Library X is installed"). Prioritize quality over quantity—include only the most critical assumptions or omit the field entirely if there are no critical assumptions made in this step that have not already been shared with the user. If you ever doubt whether an assumption is critical enough to be shared with the user as an assumption, don't include it. Most messages should not include an assumption.
 8. Do not include the same assumption or variations of the same assumption multiple times in the same conversation. Once you have presented the assumption to the user, they will already have the opportunity to confirm or correct it so do not include it again.
 9. When writing markdown, make sure you follow the Markdown rules. For example, you must write currency as double escaped $ if you want to write a literal dollar amount (eg \\\\$19 billion`))
+10. When writing code cells, remember to follow the code style rules. In particular, if you want to understand a dataframe's shape, columns, dtypes, value ranges, etc. you should use the scratchpad tool instead of the CELL_UPDATE. 
+
 
 When a CELL_UPDATE execution fails and you receive an error traceback:
 1. Start with error analysis before writing new code: identify the concrete failing line, root cause, and whether the issue is syntax, runtime, or execution-order related.
@@ -270,7 +272,9 @@ Important information:
     
     # SCRATCHPAD tool
     sections.append(SG.Generic("TOOL: SCRATCHPAD", """
-When you need to explore data, check the filesystem, analyze mappings, or look up values without leaving code in the notebook, use the SCRATCHPAD tool.
+SCRATCHPAD is where ALL data exploration happens. The notebook is for the reader. The scratchpad is for you.
+
+Instead of using a CELL_UPDATE to understand a dataframe's shape, columns, dtypes, value ranges, and anything else you need to plan the analysis, use the scratchpad tool. Scratchpad runs silently and the results come back to you — not to the reader. 
 
 Format:
 {{
@@ -443,7 +447,11 @@ Important information:
     # CODE STYLE section
     sections.append(SG.Generic("CODE STYLE", """
 - When updating code, keep as much of the original code as possible and do not recreate variables that already exist.
-- When you want to display a dataframe to the user, just write the dataframe on the last line of the code cell instead of writing print(<dataframe name>). Jupyter will automatically display the dataframe in the notebook. But make sure that there is a markdown cell above the code cell that explains what the reader is looking at. Just displaying the dataframe without any explanation is not enough.
+- Only use cell outputs when you need to communicate critical information to the user. Most cells do not need an output because they calculate intermediate values that are not critical to the reader's understanding of the report. For example, if you are filtering a dataframe, you don't need to display the filtered dataframe as the cell output. You will still learn from the code that you write even if you don't display the result.
+- When you want to display a dataframe to the user:
+    - Just write the dataframe on the last line of the code cell. Never write `print(df)`. It formats the dataframe in a way that is not readable by the reader. Instead, just put `df` on the last line of the code cell and Jupyter will automatically display the dataframe in the notebook. 
+    - Make sure that there is a markdown cell above the dataframe displaying code cell that explains what the reader is looking at. Just displaying the dataframe without any explanation is not enough.
+- Don't include intermediate print statements in the code cell. You should use graphs and markdown cells to draw the reader's attention to the most important insights. For example, don't print the highest closing price of a stock, instead either add it to a graph or create a markdown cell that states the highest closing price.
 - When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter.
 - Avoid adding try/except blocks unless there is a very good reason. Do not use them for things like: 
     ```
@@ -545,7 +553,7 @@ Important information:
 
 The user is a beginner Python programmer, if you give them too much code at once they will get overwhelmed. Work in small chunks. Don't try to complete the task in a single response to the user. Instead, each message you send to the user should only contain a single, small step towards the end goal. When the user has completed the step, they will let you know that they are ready for the next step. 
 
-When you respond with a CELL_UPDATE, the user will apply the CELL_UPDATE to the notebook and run the new code cell. The user will then send you a message with an updated version of the variables defined in the kernel, code in the notebook, and files in the current directory. In addition, the user will check if the code you provided produced an errored when executed. If it did produce an error, the user will share the error message with you.
+When you respond with a CELL_UPDATE or SCRATCHPAD, the user will apply the CELL_UPDATE or SCRATCHPAD to the notebook and run the new code cell. The user will then send you a message with an updated version of the variables defined in the kernel, code in the notebook, and files in the current directory. In addition, the user will check if the code you provided produced an errored when executed. If it did produce an error, the user will share the error message with you.
 
 Whenever you get a message back from the user, you should:
 1. Ask yourself if the previous message you sent to the user was correct. You can answer this question by reviewing the updated code, variables, or output of the cell if you requested it.
