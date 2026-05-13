@@ -62,7 +62,7 @@ MARKDOWN_RULES = """
 
 Dollar signs and math:
 - Jupyter renders Markdown cells through MathJax, so a bare `$` starts inline math and the next `$` closes it. Unescaped dollar amounts like `$1 billion ... $19 billion` get parsed as one math expression, which collapses spaces, italicizes text, and breaks any `**bold**` between them.
-- When writing literal dollar amounts in a Markdown cell, ALWAYS escape the dollar sign as `\\$` (e.g. `\\$1 billion`, `\\$19 billion`). Do this for every `$` that is not meant to be math.
+- When writing literal dollar amounts in a Markdown cell, ALWAYS escape the dollar sign as `\\\\$` (e.g. `\\\\$1 billion`, `\\\\$19 billion`). Do this for every `$` that is not meant to be math.
 - Use `$...$` for inline math and `$$...$$` (on its own line) for centered display math. No spaces directly inside the delimiters — `$x^2$` works, `$ x^2 $` may not.
 
 LaTeX (inside `$...$` / `$$...$$`):
