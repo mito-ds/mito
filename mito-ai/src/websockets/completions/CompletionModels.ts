@@ -40,8 +40,15 @@ export type CellUpdateNew = {
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
+export type MCPToolCall = {
+  mcp_server_id: string,
+  tool_name: string,
+  // JSON-encoded argument object (matches the backend MCPToolCall schema).
+  arguments: string,
+}
+
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad'
+  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad' | 'mcp_tool_call'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
@@ -52,6 +59,7 @@ export type AgentResponse = {
   answers?: string[] | null | undefined
   scratchpad_code?: string | null | undefined
   scratchpad_summary?: string | null | undefined
+  mcp_tool_call?: MCPToolCall | null | undefined
 }
 
 /* 

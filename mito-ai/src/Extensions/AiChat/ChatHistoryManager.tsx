@@ -43,7 +43,9 @@ export interface IDisplayOptimizedChatItem {
     codeCellID?: string | undefined,
     agentResponse?: AgentResponse,
     additionalContext?: Array<{type: string, value: string}>,
-    scratchpadResult?: string  // Store the scratchpad execution result
+    scratchpadResult?: string,  // Store the scratchpad execution result
+    mcpToolResult?: string,     // Store the MCP tool call output
+    mcpToolError?: string,      // Store the MCP tool call error message
 }
 
 /* 
@@ -400,6 +402,25 @@ export class ChatHistoryManager {
                 this.displayOptimizedChatHistory[i] = {
                     ...item,
                     scratchpadResult
+                };
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    attachMCPToolResultToLatestMCPMessage(
+        mcpToolResult: string | undefined,
+        mcpToolError: string | undefined
+    ): boolean {
+        for (let i = this.displayOptimizedChatHistory.length - 1; i >= 0; i--) {
+            const item = this.displayOptimizedChatHistory[i];
+            if (item?.agentResponse?.type === 'mcp_tool_call') {
+                this.displayOptimizedChatHistory[i] = {
+                    ...item,
+                    mcpToolResult,
+                    mcpToolError,
                 };
                 return true;
             }

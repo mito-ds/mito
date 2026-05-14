@@ -274,10 +274,15 @@ export const useAgentExecution = ({
 
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         newChatHistoryManager.addAIMessageFromAgentResponse(msg.agent_response);
+        // Eagerly update the ref so the next websocket handler (e.g. an MCP tool
+        // result arriving milliseconds later) sees this assistant message instead
+        // of a stale snapshot that misses it.
+        chatHistoryManagerRef.current = newChatHistoryManager;
         setChatHistoryManager(newChatHistoryManager);
         setLoadingStatus(undefined);
     }, [
         activeThreadIdRef,
+        chatHistoryManagerRef,
         getDuplicateChatHistoryManager,
         setChatHistoryManager,
         setLoadingStatus,
@@ -305,6 +310,23 @@ export const useAgentExecution = ({
             );
 
             if (didAttachResult) {
+                setChatHistoryManager(updatedChatHistoryManager);
+            }
+        }
+
+        // Attach MCP tool call results (success or failure) to the latest
+        // mcp_tool_call message so the inline UI can show the response.
+        // Failures still surface a tool-failure user message below so the
+        // agent can observe the error.
+        if (msg.tool_result.tool_name === 'mcp_tool_call') {
+            const updatedChatHistoryManager = getDuplicateChatHistoryManager();
+            const didAttachResult = updatedChatHistoryManager.attachMCPToolResultToLatestMCPMessage(
+                msg.tool_result.output ?? undefined,
+                msg.tool_result.success ? undefined : (msg.tool_result.error_message ?? undefined)
+            );
+
+            if (didAttachResult) {
+                chatHistoryManagerRef.current = updatedChatHistoryManager;
                 setChatHistoryManager(updatedChatHistoryManager);
             }
         }
