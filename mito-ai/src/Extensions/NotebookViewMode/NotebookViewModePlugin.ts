@@ -74,6 +74,10 @@ export class NotebookViewModeManager implements INotebookViewMode {
   private _appModeRequestToken = 0;
   private _documentReactiveRunner: DocumentReactiveRunner | null = null;
   private _documentModeViewCodeButtons: DocumentModeViewCodeButtons | null = null;
+  // Capture-phase handler so dblclicks never reach Jupyter cell widgets (e.g. markdown edit).
+  // In document mode, users tend to double click around the document without intending to edit the markdown code.
+  private _documentCellDblclickGuard: ((event: MouseEvent) => void) | null = null;
+  private _documentCellDblclickGuardPanel: NotebookPanel | null = null;
 
   constructor(
     notebookTracker: INotebookTracker,
@@ -222,6 +226,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
 
   private _applyNotebookMode(panel: NotebookPanel): void {
     this._disposeDocumentReactiveRunner();
+    this._disposeDocumentModeCellDblclickGuard();
     this._killActiveProcess();
     this._disposeTransientWidgets();
     panel.toolbar.hide();
@@ -237,6 +242,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
     panel.toolbar.hide();
     panel.content.show();
     panel.content.node.classList.add(DOCUMENT_MODE_CSS_CLASS);
+    this._attachDocumentModeCellDblclickGuard(panel);
     this._disposeDocumentModeViewCodeButtons();
     this._documentModeViewCodeButtons = new DocumentModeViewCodeButtons(panel, (cellId: string) => {
       this.setMode('Notebook');
@@ -261,6 +267,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
 
   private _applyAppModeUI(panel: NotebookPanel): void {
     this._disposeDocumentReactiveRunner();
+    this._disposeDocumentModeCellDblclickGuard();
     panel.content.node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
     this._disposeDocumentModeViewCodeButtons();
     panel.toolbar.hide();
@@ -328,12 +335,52 @@ export class NotebookViewModeManager implements INotebookViewMode {
     }
   }
 
+  private _disposeDocumentModeCellDblclickGuard(): void {
+    if (this._documentCellDblclickGuard) {
+      window.removeEventListener('dblclick', this._documentCellDblclickGuard, true);
+    }
+    this._documentCellDblclickGuard = null;
+    this._documentCellDblclickGuardPanel = null;
+  }
+
+  /**
+   * In Document mode, swallow double-clicks on the active notebook before they reach
+   * JupyterLab cell widgets (e.g. markdown entering edit mode). Uses window capture so
+   * we run before per-node handlers registered earlier on the notebook subtree.
+   */
+  private _attachDocumentModeCellDblclickGuard(panel: NotebookPanel): void {
+    this._disposeDocumentModeCellDblclickGuard();
+    this._documentCellDblclickGuardPanel = panel;
+    this._documentCellDblclickGuard = (event: MouseEvent): void => {
+      if (this._mode !== 'Document') {
+        return;
+      }
+      const active = this._notebookTracker.currentWidget;
+      if (!active?.content?.node || active !== panel) {
+        return;
+      }
+      const target = event.target;
+      if (!(target instanceof Node) || !active.content.node.contains(target)) {
+        return;
+      }
+      if (!(target instanceof Element) || !target.closest('.jp-Cell')) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    window.addEventListener('dblclick', this._documentCellDblclickGuard, true);
+  }
+
   private _cleanupPanel(panel: NotebookPanel): void {
     if (this._documentReactiveRunner?.panel === panel) {
       this._disposeDocumentReactiveRunner();
     }
     if (this._documentModeViewCodeButtons?.panel === panel) {
       this._disposeDocumentModeViewCodeButtons();
+    }
+    if (this._documentCellDblclickGuardPanel === panel) {
+      this._disposeDocumentModeCellDblclickGuard();
     }
     if (
       this._mode === 'App' &&
