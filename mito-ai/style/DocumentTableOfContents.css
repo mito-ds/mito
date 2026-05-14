@@ -1,0 +1,150 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Notion-style table of contents overlay shown in document mode.
+ * The host is mounted on every NotebookPanel but the inner container
+ * only renders content when the notebook is in document mode.
+ */
+
+.mito-toc-host {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.mito-toc-container {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  font-family: var(--jp-ui-font-family);
+  font-size: var(--jp-ui-font-size1);
+}
+
+.mito-toc-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 6px;
+  align-items: flex-end;
+  cursor: pointer;
+  transition: opacity 120ms ease-in-out;
+}
+
+.mito-toc-container.mito-toc-hovered .mito-toc-indicator {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mito-toc-line {
+  height: 2px;
+  border-radius: 2px;
+  background-color: var(--jp-border-color2);
+  transition: background-color 120ms ease-in-out;
+}
+
+.mito-toc-line-h1 {
+  width: 28px;
+  background-color: var(--jp-ui-font-color2);
+}
+
+.mito-toc-line-h2 {
+  width: 22px;
+}
+
+.mito-toc-line-h3 {
+  width: 18px;
+}
+
+.mito-toc-line-h4 {
+  width: 14px;
+}
+
+.mito-toc-line-h5 {
+  width: 12px;
+}
+
+.mito-toc-line-h6 {
+  width: 10px;
+}
+
+.mito-toc-line-active {
+  background-color: var(--jp-ui-font-color1);
+  height: 3px;
+}
+
+.mito-toc-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 220px;
+  max-width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 12px 8px;
+  background-color: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mito-toc-container.mito-toc-hovered .mito-toc-panel {
+  display: flex;
+}
+
+.mito-toc-item {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font: inherit;
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mito-toc-item[data-level='1'] {
+  padding-left: 8px;
+}
+
+.mito-toc-item[data-level='2'] {
+  padding-left: 24px;
+}
+
+.mito-toc-item[data-level='3'] {
+  padding-left: 40px;
+}
+
+.mito-toc-item[data-level='4'] {
+  padding-left: 56px;
+}
+
+.mito-toc-item[data-level='5'] {
+  padding-left: 72px;
+}
+
+.mito-toc-item[data-level='6'] {
+  padding-left: 88px;
+}
+
+.mito-toc-item:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.mito-toc-item-active {
+  color: var(--jp-brand-color1);
+  font-weight: 600;
+}
