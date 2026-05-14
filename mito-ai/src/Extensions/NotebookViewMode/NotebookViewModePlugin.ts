@@ -34,6 +34,7 @@ import {
 } from '../../commands';
 import { MitoToolbarWidget } from './MitoToolbarWidget';
 import { DocumentReactiveRunner } from './documentReactiveRunner';
+import { DocumentModeViewCodeButtons } from './documentModeViewCodeButtons';
 
 export type NotebookViewMode = 'Notebook' | 'Document' | 'App';
 
@@ -65,8 +66,6 @@ export class NotebookViewModeManager implements INotebookViewMode {
   private _modeChanged = new Signal<this, NotebookViewMode>(this);
   private _notebookTracker: INotebookTracker;
   private _streamlitPreviewManager: IStreamlitPreviewManager;
-  private _dblclickHandler: ((event: MouseEvent) => void) | null = null;
-  private _currentPanelForDblclick: NotebookPanel | null = null;
   private _activePreviewId: string | null = null;
   private _activeIframe: IFrameWidget | null = null;
   private _activePlaceholder: PlaceholderWidget | null = null;
@@ -74,6 +73,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
   // Without this, a late success response can still mount an iframe beneath notebook/document UI.
   private _appModeRequestToken = 0;
   private _documentReactiveRunner: DocumentReactiveRunner | null = null;
+  private _documentModeViewCodeButtons: DocumentModeViewCodeButtons | null = null;
 
   constructor(
     notebookTracker: INotebookTracker,
@@ -227,7 +227,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
     panel.toolbar.hide();
     panel.content.show();
     panel.content.node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
-    this._attachOrDetachDblclickListener(panel, false);
+    this._disposeDocumentModeViewCodeButtons();
   }
 
   private _applyDocumentMode(panel: NotebookPanel): void {
@@ -237,7 +237,13 @@ export class NotebookViewModeManager implements INotebookViewMode {
     panel.toolbar.hide();
     panel.content.show();
     panel.content.node.classList.add(DOCUMENT_MODE_CSS_CLASS);
-    this._attachOrDetachDblclickListener(panel, true);
+    this._disposeDocumentModeViewCodeButtons();
+    this._documentModeViewCodeButtons = new DocumentModeViewCodeButtons(panel, (cellId: string) => {
+      this.setMode('Notebook');
+      setActiveCellByIDInNotebookPanel(panel, cellId);
+      scrollToCell(panel, cellId, undefined, 'center');
+    });
+    this._documentModeViewCodeButtons.attach();
     this._disposeDocumentReactiveRunner();
     this._documentReactiveRunner = new DocumentReactiveRunner(panel, () => this._mode === 'Document');
     this._documentReactiveRunner.attach();
@@ -256,7 +262,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
   private _applyAppModeUI(panel: NotebookPanel): void {
     this._disposeDocumentReactiveRunner();
     panel.content.node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
-    this._attachOrDetachDblclickListener(panel, false);
+    this._disposeDocumentModeViewCodeButtons();
     panel.toolbar.hide();
     panel.content.hide();
     this._showPlaceholder(panel);
@@ -315,57 +321,19 @@ export class NotebookViewModeManager implements INotebookViewMode {
     this._modeChanged.emit(this._mode);
   }
 
-  private _attachOrDetachDblclickListener(
-    panel: NotebookPanel,
-    attach: boolean
-  ): void {
-    if (this._dblclickHandler && this._currentPanelForDblclick?.content?.node) {
-      this._currentPanelForDblclick.content.node.removeEventListener(
-        'dblclick',
-        this._dblclickHandler
-      );
-      this._dblclickHandler = null;
-      this._currentPanelForDblclick = null;
+  private _disposeDocumentModeViewCodeButtons(): void {
+    if (this._documentModeViewCodeButtons) {
+      this._documentModeViewCodeButtons.dispose();
+      this._documentModeViewCodeButtons = null;
     }
-
-    if (!attach || !panel?.content?.node) {
-      return;
-    }
-
-    this._dblclickHandler = (event: MouseEvent) => {
-      this._handleDocumentModeDblclick(panel, event);
-    };
-    this._currentPanelForDblclick = panel;
-    panel.content.node.addEventListener('dblclick', this._dblclickHandler);
-  }
-
-  private _handleDocumentModeDblclick(
-    notebookPanel: NotebookPanel,
-    event: MouseEvent
-  ): void {
-    const target = event.target as Node;
-    if (!target || !notebookPanel.content?.widgets) {
-      return;
-    }
-    const cellWidget = notebookPanel.content.widgets.find((w) =>
-      w.node.contains(target)
-    );
-    if (!cellWidget) {
-      return;
-    }
-    const outputArea = cellWidget.node.querySelector('.jp-OutputArea');
-    if (!outputArea || !outputArea.contains(target)) {
-      return;
-    }
-    const cellId = cellWidget.model.id;
-    this.setMode('Notebook');
-    setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
-    scrollToCell(notebookPanel, cellId, undefined, 'center');
   }
 
   private _cleanupPanel(panel: NotebookPanel): void {
     if (this._documentReactiveRunner?.panel === panel) {
       this._disposeDocumentReactiveRunner();
+    }
+    if (this._documentModeViewCodeButtons?.panel === panel) {
+      this._disposeDocumentModeViewCodeButtons();
     }
     if (
       this._mode === 'App' &&

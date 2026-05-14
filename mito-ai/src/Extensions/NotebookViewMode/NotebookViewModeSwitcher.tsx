@@ -33,7 +33,7 @@ const MODES: {
     id: 'Document',
     label: 'Document',
     tooltip:
-      'Markdown and outputs only; double-click output to edit. Put controls in cells above analysis — changing a control re-runs cells below it (ipywidgets). Nested widgets in lower cells may reset; see docs.',
+      'Read the notebook like a report. Markdown and outputs only',
     Icon: FileIcon
   },
   {
