@@ -19,9 +19,14 @@
   display: none !important;
 }
 
-/* Hide cell number labels in document mode (markdown cells still show header area) */
+/* Hide cell number labels in document mode */
 .jp-Notebook.jp-mod-mito-document-mode .jp-Cell-header::before {
   content: "" !important;
+  display: none !important;
+}
+
+/* Match code cells: the header exists only for the cell label in our theme; hide it in document mode. */
+.jp-Notebook.jp-mod-mito-document-mode .jp-MarkdownCell .jp-Cell-header {
   display: none !important;
 }
 
@@ -69,6 +74,34 @@
  */
 .jp-Notebook.jp-mod-mito-document-mode .jp-collapseHeadingButton {
   display: none !important;
+}
+
+/*
+ * Document mode: markdown reads as one continuous document. CellNumbering
+ * reserves top padding on .jp-Cell and .jp-MarkdownOutput for the cell label;
+ * in document mode that label is hidden, so the padding reads as a large gap
+ * before every new markdown cell. NotebookMarkdown also adds margin-top on
+ * h2/h3 for in-cell section breaks — strip that when the heading is the first
+ * block in a cell so "## ..." at a cell boundary matches single-cell rhythm.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-MarkdownCell.jp-Cell {
+  padding-top: 0 !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-MarkdownCell .jp-MarkdownOutput {
+  min-height: 0 !important;
+  padding-top: 0 !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-MarkdownCell
+  .jp-RenderedHTMLCommon
+  > h2:first-child,
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-MarkdownCell
+  .jp-RenderedHTMLCommon
+  > h3:first-child {
+  margin-top: 0;
 }
 
 /*
