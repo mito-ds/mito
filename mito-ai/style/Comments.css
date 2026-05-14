@@ -130,7 +130,16 @@
 }
 
 /* Output comment indicator - purple left border when a comment is active */
-.jp-Cell-outputWrapper.comment-indicator-active {
+.jp-Cell-outputWrapper.comment-indicator-active,
+.jp-MarkdownOutput.comment-indicator-active {
     border-left: 3px solid var(--purple-500);
     cursor: pointer;
+}
+
+/*
+ * Output "Comment" affordance is for Document-style reading; hide in full Notebook mode.
+ * (View code controls are injected only in Document mode from NotebookViewMode.)
+ */
+.jp-Notebook:not(.jp-mod-mito-document-mode) .output-comment-button-container {
+    display: none !important;
 }

@@ -4,10 +4,10 @@
  */
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { CodeCell } from '@jupyterlab/cells';
+import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { Compartment, StateEffect } from '@codemirror/state';
 import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
 import { commentGutterIndicator, CommentLineRange, COMMENT_INDICATOR_CLICK_EVENT, CommentIndicatorClickDetail } from './CommentGutterIndicator';
@@ -23,6 +23,9 @@ import TextAndIconButton from '../../components/TextAndIconButton';
 import CommentIcon from '../../icons/CommentIcon';
 
 import '../../../style/Comments.css';
+
+/** Must match `DOCUMENT_MODE_CSS_CLASS` in NotebookViewModePlugin (avoid circular import). */
+const MITO_NOTEBOOK_DOCUMENT_MODE_CLASS = 'jp-mod-mito-document-mode';
 
 // Track compartments and the EditorView they were applied to, keyed by cell ID
 const commentSelectionCompartments = new Map<string, { compartment: Compartment; view: any }>();
@@ -203,37 +206,18 @@ const OutputCommentButton: React.FC<OutputCommentButtonProps> = ({ onClick }) =>
     );
 };
 
-/**
- * Inject a "Comment" button into a code cell's output wrapper.
- * Works for all output types (images, text, tables, HTML, etc.).
- */
-function injectOutputCommentButton(
-    cell: CodeCell,
+export function mountOutputCommentButtonOnHost(
+    host: HTMLElement,
+    cellId: string,
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-): void {
-    const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
-    if (!outputWrapper) {
-        return;
+): Root | null {
+    if (host.querySelector('.output-comment-button-container')) {
+        return null;
     }
 
-    const isMitosheetOutput =
-        !!outputWrapper.querySelector('.mito-container, .mito-viewer, .mito-mime-renderer') ||
-        cell.model.sharedModel.getSource().toLowerCase().includes('mitosheet');
-
-    if (isMitosheetOutput) {
-        outputWrapper.querySelector('.output-comment-button-container')?.remove();
-        return;
-    }
-
-    // Don't add if already present
-    if (outputWrapper.querySelector('.output-comment-button-container')) {
-        return;
-    }
-
-    // Make the wrapper a positioning context and add hover class
-    outputWrapper.style.position = 'relative';
-    outputWrapper.classList.add('output-comment-output-container');
+    host.style.position = 'relative';
+    host.classList.add('output-comment-output-container');
 
     const commentBtnDiv = document.createElement('div');
     commentBtnDiv.className = 'output-comment-button-container';
@@ -244,7 +228,6 @@ function injectOutputCommentButton(
             return;
         }
 
-        const cellId = cell.model.id;
         const cellNumber = getCellNumberById(cellId, notebookPanel) || 0;
         const btnRect = commentBtnDiv.getBoundingClientRect();
 
@@ -272,7 +255,40 @@ function injectOutputCommentButton(
     const root = createRoot(commentBtnDiv);
     root.render(<OutputCommentButton onClick={handleClick} />);
 
-    outputWrapper.appendChild(commentBtnDiv);
+    host.appendChild(commentBtnDiv);
+    return root;
+}
+
+/**
+ * Inject a "Comment" button into a code cell's output wrapper.
+ * Mitosheet / default dataframe outputs skip the button in Notebook mode only;
+ * in Document mode they get the same comment affordance as other outputs.
+ */
+function injectOutputCommentButton(
+    cell: CodeCell,
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
+): void {
+    const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
+    if (!outputWrapper) {
+        return;
+    }
+
+    const isDocumentMode = notebookPanel.content.node.classList.contains(
+        MITO_NOTEBOOK_DOCUMENT_MODE_CLASS
+    );
+
+    const isMitosheetOutput =
+        !!outputWrapper.querySelector('.mito-container, .mito-viewer, .mito-mime-renderer') ||
+        cell.model.sharedModel.getSource().toLowerCase().includes('mitosheet');
+
+    if (isMitosheetOutput && !isDocumentMode) {
+        outputWrapper.querySelector('.output-comment-button-container')?.remove();
+        return;
+    }
+
+    mountOutputCommentButtonOnHost(outputWrapper, cell.model.id, app, notebookTracker);
 }
 
 /**
@@ -283,7 +299,8 @@ function setupOutputCommentButtons(
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
 ): void {
-    const OUTPUT_MUTATION_SELECTOR = '.jp-Cell-outputWrapper, .jp-Cell-outputArea, .jp-OutputArea-output';
+    const OUTPUT_MUTATION_SELECTOR =
+        '.jp-Cell-outputWrapper, .jp-Cell-outputArea, .jp-OutputArea-output';
 
     const isRelevantOutputMutationNode = (node: Node): boolean => {
         if (!(node instanceof HTMLElement)) {
@@ -307,7 +324,7 @@ function setupOutputCommentButtons(
     const injectAllForPanel = (notebookPanel: NotebookPanel): void => {
         for (const cell of notebookPanel.content.widgets) {
             if (cell instanceof CodeCell && cell.outputArea?.model.length > 0) {
-                injectOutputCommentButton(cell, app, notebookTracker);
+                injectOutputCommentButton(cell, app, notebookTracker, notebookPanel);
             }
         }
     };
@@ -337,9 +354,20 @@ function setupOutputCommentButtons(
             });
             observer.observe(notebookPanel.content.node, { childList: true, subtree: true });
 
+            // Document mode toggles a class on the notebook root only; re-inject so Mitosheet
+            // outputs pick up the Comment button when entering Document mode.
+            const documentClassObserver = new MutationObserver(() => {
+                scheduleInjectAll();
+            });
+            documentClassObserver.observe(notebookPanel.content.node, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+
             // Disconnect when the notebook is disposed
             notebookPanel.disposed.connect(() => {
                 observer.disconnect();
+                documentClassObserver.disconnect();
             });
         }).catch(() => {});
     };
@@ -405,51 +433,57 @@ function updateCommentIndicators(
 
     // Apply/remove gutter indicators for each cell
     for (const cell of notebookPanel.content.widgets) {
-        if (!(cell instanceof CodeCell)) {
-            continue;
-        }
         const cellId = cell.model.id;
-        const cmEditor = cell.editor as any;
-        const editorView = cmEditor?.editor;
 
-        // Handle code comment gutter indicators
-        const ranges = codeCommentsByCell.get(cellId);
-        const existing = commentGutterCompartments.get(cellId);
+        if (cell instanceof CodeCell) {
+            const cmEditor = cell.editor as any;
+            const editorView = cmEditor?.editor;
 
-        if (ranges && editorView) {
-            // Apply or reconfigure the gutter
-            if (existing && existing.view === editorView) {
+            // Handle code comment gutter indicators
+            const ranges = codeCommentsByCell.get(cellId);
+            const existing = commentGutterCompartments.get(cellId);
+
+            if (ranges && editorView) {
+                // Apply or reconfigure the gutter
+                if (existing && existing.view === editorView) {
+                    editorView.dispatch({
+                        effects: existing.compartment.reconfigure(commentGutterIndicator(ranges)),
+                    });
+                } else {
+                    const compartment = new Compartment();
+                    commentGutterCompartments.set(cellId, { compartment, view: editorView });
+                    editorView.dispatch({
+                        effects: StateEffect.appendConfig.of(
+                            compartment.of(commentGutterIndicator(ranges))
+                        ),
+                    });
+                }
+            } else if (existing && editorView && existing.view === editorView) {
+                // Remove gutter for this cell
                 editorView.dispatch({
-                    effects: existing.compartment.reconfigure(commentGutterIndicator(ranges)),
-                });
-            } else {
-                const compartment = new Compartment();
-                commentGutterCompartments.set(cellId, { compartment, view: editorView });
-                editorView.dispatch({
-                    effects: StateEffect.appendConfig.of(
-                        compartment.of(commentGutterIndicator(ranges))
-                    ),
+                    effects: existing.compartment.reconfigure([]),
                 });
             }
-        } else if (existing && editorView && existing.view === editorView) {
-            // Remove gutter for this cell
-            editorView.dispatch({
-                effects: existing.compartment.reconfigure([]),
-            });
         }
 
-        // Handle output comment left border + click to edit
-        const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
-        if (outputWrapper) {
+        // Handle output comment left border + click to edit (code outputs or rendered markdown)
+        const outputCommentHost =
+            cell instanceof CodeCell
+                ? (cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null)
+                : cell instanceof MarkdownCell
+                  ? (cell.node.querySelector('.jp-MarkdownOutput') as HTMLElement | null)
+                  : null;
+
+        if (outputCommentHost) {
             // Remove any previous click handler
-            const prevHandler = (outputWrapper as any).__commentIndicatorClick;
+            const prevHandler = (outputCommentHost as any).__commentIndicatorClick;
             if (prevHandler) {
-                outputWrapper.removeEventListener('click', prevHandler);
-                delete (outputWrapper as any).__commentIndicatorClick;
+                outputCommentHost.removeEventListener('click', prevHandler);
+                delete (outputCommentHost as any).__commentIndicatorClick;
             }
 
             if (outputCommentCellIds.has(cellId)) {
-                outputWrapper.classList.add('comment-indicator-active');
+                outputCommentHost.classList.add('comment-indicator-active');
 
                 // Add click handler to edit the comment
                 const matchingComment = comments.find(c => {
@@ -460,7 +494,7 @@ function updateCommentIndicators(
                     const handler = (e: Event): void => {
                         // Only handle clicks on the border area (left 3px)
                         const mouseEvent = e as MouseEvent;
-                        const wrapperRect = outputWrapper.getBoundingClientRect();
+                        const wrapperRect = outputCommentHost.getBoundingClientRect();
                         if (mouseEvent.clientX > wrapperRect.left + 10) {
                             return;
                         }
@@ -482,11 +516,11 @@ function updateCommentIndicators(
                             });
                         });
                     };
-                    outputWrapper.addEventListener('click', handler);
-                    (outputWrapper as any).__commentIndicatorClick = handler;
+                    outputCommentHost.addEventListener('click', handler);
+                    (outputCommentHost as any).__commentIndicatorClick = handler;
                 }
             } else {
-                outputWrapper.classList.remove('comment-indicator-active');
+                outputCommentHost.classList.remove('comment-indicator-active');
             }
         }
     }

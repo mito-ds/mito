@@ -23,6 +23,11 @@ jest.mock('../../Extensions/NotebookViewMode/documentReactiveOrigin', () => {
   };
 });
 
+jest.mock('../../Extensions/Comments/CommentsPlugin', () => ({
+  mountOutputCommentButtonOnHost: jest.fn(() => null)
+}));
+
+import type { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import type { Kernel } from '@jupyterlab/services';
 import { Signal } from '@lumino/signaling';
@@ -96,6 +101,10 @@ function createMockNotebookPanel(id: string): NotebookPanel {
   return panel;
 }
 
+const mockJupyterApp = {
+  commands: { execute: jest.fn() }
+} as unknown as JupyterFrontEnd;
+
 function createMockDependencies(panel: NotebookPanel) {
   const currentChangedCallbacks: Array<() => void> = [];
   const mockNotebookTracker = {
@@ -128,7 +137,8 @@ describe('NotebookViewModeManager', () => {
     const deps = createMockDependencies(panel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     manager.setupNotebookPanel(panel);
@@ -141,7 +151,8 @@ describe('NotebookViewModeManager', () => {
     const deps = createMockDependencies(panel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     manager.setMode('Document');
@@ -156,7 +167,8 @@ describe('NotebookViewModeManager', () => {
     const deps = createMockDependencies(firstPanel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     manager.setMode('Document');
@@ -193,7 +205,8 @@ describe('NotebookViewModeManager document reactive lifecycle (runAllCellsStrict
     const deps = createMockDependencies(panel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
     expect(manager.getMode()).toBe('Notebook');
 
@@ -207,7 +220,8 @@ describe('NotebookViewModeManager document reactive lifecycle (runAllCellsStrict
     const deps = createMockDependencies(panel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     manager.setMode('Document');
@@ -224,7 +238,8 @@ describe('NotebookViewModeManager document reactive lifecycle (runAllCellsStrict
     const deps = createMockDependencies(panel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     manager.setMode('Document');
@@ -241,7 +256,8 @@ describe('NotebookViewModeManager document reactive lifecycle (runAllCellsStrict
     const deps = createMockDependencies(firstPanel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     manager.setMode('Document');
@@ -261,7 +277,8 @@ describe('NotebookViewModeManager document reactive lifecycle (runAllCellsStrict
     const deps = createMockDependencies(panel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     manager.setMode('Document');
@@ -278,7 +295,8 @@ describe('NotebookViewModeManager document reactive lifecycle (runAllCellsStrict
     const deps = createMockDependencies(panel);
     const manager = new NotebookViewModeManager(
       deps.mockNotebookTracker,
-      deps.mockStreamlitPreviewManager
+      deps.mockStreamlitPreviewManager,
+      mockJupyterApp
     );
 
     findCodeCellIndexForWidgetModelIdMock.mockReturnValue(null);

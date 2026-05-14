@@ -66,6 +66,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
   private _modeChanged = new Signal<this, NotebookViewMode>(this);
   private _notebookTracker: INotebookTracker;
   private _streamlitPreviewManager: IStreamlitPreviewManager;
+  private readonly _app: JupyterFrontEnd;
   private _activePreviewId: string | null = null;
   private _activeIframe: IFrameWidget | null = null;
   private _activePlaceholder: PlaceholderWidget | null = null;
@@ -81,10 +82,12 @@ export class NotebookViewModeManager implements INotebookViewMode {
 
   constructor(
     notebookTracker: INotebookTracker,
-    streamlitPreviewManager: IStreamlitPreviewManager
+    streamlitPreviewManager: IStreamlitPreviewManager,
+    app: JupyterFrontEnd
   ) {
     this._notebookTracker = notebookTracker;
     this._streamlitPreviewManager = streamlitPreviewManager;
+    this._app = app;
 
     notebookTracker.currentChanged.connect(() => {
       this._onCurrentNotebookChanged();
@@ -244,11 +247,16 @@ export class NotebookViewModeManager implements INotebookViewMode {
     panel.content.node.classList.add(DOCUMENT_MODE_CSS_CLASS);
     this._attachDocumentModeCellDblclickGuard(panel);
     this._disposeDocumentModeViewCodeButtons();
-    this._documentModeViewCodeButtons = new DocumentModeViewCodeButtons(panel, (cellId: string) => {
-      this.setMode('Notebook');
-      setActiveCellByIDInNotebookPanel(panel, cellId);
-      scrollToCell(panel, cellId, undefined, 'center');
-    });
+    this._documentModeViewCodeButtons = new DocumentModeViewCodeButtons(
+      panel,
+      this._app,
+      this._notebookTracker,
+      (cellId: string) => {
+        this.setMode('Notebook');
+        setActiveCellByIDInNotebookPanel(panel, cellId);
+        scrollToCell(panel, cellId, undefined, 'center');
+      }
+    );
     this._documentModeViewCodeButtons.attach();
     this._disposeDocumentReactiveRunner();
     this._documentReactiveRunner = new DocumentReactiveRunner(panel, () => this._mode === 'Document');
@@ -446,7 +454,8 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
   ): INotebookViewMode => {
     const manager = new NotebookViewModeManager(
       notebookTracker,
-      streamlitPreviewManager
+      streamlitPreviewManager,
+      app
     );
     const getActiveNotebookPanel = (): NotebookPanel | null => {
       const widget = shell.currentWidget;

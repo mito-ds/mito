@@ -4,22 +4,26 @@
  */
 
 /**
- * In Document mode, adds a hover "View code" control on each code cell output so users
- * can jump to Notebook mode at that cell without relying on double-click (which was too
- * easy to trigger accidentally).
+ * In Document mode, adds hover "View code" (and output-style "Comment" for markdown)
+ * on code outputs and rendered markdown so users can jump to Notebook mode or comment
+ * for the AI. Not injected in Notebook mode — output comments for code cells are
+ * hidden outside Document mode via Comments.css.
  */
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { CodeCell } from '@jupyterlab/cells';
-import { NotebookPanel } from '@jupyterlab/notebook';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IDisposable } from '@lumino/disposable';
+import { mountOutputCommentButtonOnHost } from '../Comments/CommentsPlugin';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CodeIcon from '../../icons/CodeIcon';
 
 const VIEW_CODE_BUTTON_CLASS = 'document-mode-view-code-button-container';
 const VIEW_CODE_OUTPUT_HOVER_CLASS = 'document-mode-view-code-output-container';
-const OUTPUT_MUTATION_SELECTOR = '.jp-Cell-outputWrapper, .jp-Cell-outputArea, .jp-OutputArea-output';
+const OUTPUT_MUTATION_SELECTOR =
+  '.jp-Cell-outputWrapper, .jp-Cell-outputArea, .jp-OutputArea-output, .jp-MarkdownOutput, .jp-MarkdownCell';
 
 interface DocumentViewCodeButtonProps {
   onClick: () => void;
@@ -44,7 +48,12 @@ function isRelevantOutputMutationNode(node: Node): boolean {
     return false;
   }
 
-  if (node.classList.contains(VIEW_CODE_BUTTON_CLASS) || node.closest(`.${VIEW_CODE_BUTTON_CLASS}`)) {
+  if (
+    node.classList.contains(VIEW_CODE_BUTTON_CLASS) ||
+    node.closest(`.${VIEW_CODE_BUTTON_CLASS}`) ||
+    node.classList.contains('output-comment-button-container') ||
+    node.closest('.output-comment-button-container')
+  ) {
     return false;
   }
 
@@ -57,15 +66,25 @@ function hasRelevantOutputMutation(mutations: MutationRecord[]): boolean {
 
 export class DocumentModeViewCodeButtons implements IDisposable {
   private readonly _panel: NotebookPanel;
+  private readonly _app: JupyterFrontEnd;
+  private readonly _notebookTracker: INotebookTracker;
   private readonly _onViewCodeForCell: (cellId: string) => void;
   private readonly _roots = new Map<HTMLElement, Root>();
+  private readonly _markdownCommentRoots = new Map<HTMLElement, Root>();
   private _observer: MutationObserver | null = null;
   private _disposePanelHook: (() => void) | null = null;
   private _injectScheduled = false;
   private _isDisposed = false;
 
-  constructor(panel: NotebookPanel, onViewCodeForCell: (cellId: string) => void) {
+  constructor(
+    panel: NotebookPanel,
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker,
+    onViewCodeForCell: (cellId: string) => void
+  ) {
     this._panel = panel;
+    this._app = app;
+    this._notebookTracker = notebookTracker;
     this._onViewCodeForCell = onViewCodeForCell;
   }
 
@@ -118,6 +137,13 @@ export class DocumentModeViewCodeButtons implements IDisposable {
     });
     this._roots.clear();
 
+    this._markdownCommentRoots.forEach((root, host) => {
+      root.unmount();
+      host.querySelector('.output-comment-button-container')?.remove();
+      host.classList.remove('output-comment-output-container');
+    });
+    this._markdownCommentRoots.clear();
+
     wrappersToClean.forEach((w) => {
       w.classList.remove(VIEW_CODE_OUTPUT_HOVER_CLASS);
     });
@@ -127,23 +153,17 @@ export class DocumentModeViewCodeButtons implements IDisposable {
     return this._isDisposed;
   }
 
-  private _injectViewCodeButton(cell: CodeCell): void {
-    const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
-    if (!outputWrapper) {
+  private _injectViewCodeButtonOnHost(host: HTMLElement, cellId: string): void {
+    if (host.querySelector(`.${VIEW_CODE_BUTTON_CLASS}`)) {
       return;
     }
 
-    if (outputWrapper.querySelector(`.${VIEW_CODE_BUTTON_CLASS}`)) {
-      return;
-    }
-
-    outputWrapper.style.position = 'relative';
-    outputWrapper.classList.add(VIEW_CODE_OUTPUT_HOVER_CLASS);
+    host.style.position = 'relative';
+    host.classList.add(VIEW_CODE_OUTPUT_HOVER_CLASS);
 
     const container = document.createElement('div');
     container.className = VIEW_CODE_BUTTON_CLASS;
 
-    const cellId = cell.model.id;
     const root = createRoot(container);
     this._roots.set(container, root);
     root.render(
@@ -154,7 +174,34 @@ export class DocumentModeViewCodeButtons implements IDisposable {
       />
     );
 
-    outputWrapper.appendChild(container);
+    host.appendChild(container);
+  }
+
+  private _injectCodeCellViewCode(cell: CodeCell): void {
+    const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
+    if (!outputWrapper) {
+      return;
+    }
+    this._injectViewCodeButtonOnHost(outputWrapper, cell.model.id);
+  }
+
+  private _injectMarkdownDocumentActions(cell: MarkdownCell): void {
+    const host = cell.node.querySelector('.jp-MarkdownOutput') as HTMLElement | null;
+    if (!host) {
+      return;
+    }
+
+    this._injectViewCodeButtonOnHost(host, cell.model.id);
+
+    const commentRoot = mountOutputCommentButtonOnHost(
+      host,
+      cell.model.id,
+      this._app,
+      this._notebookTracker
+    );
+    if (commentRoot) {
+      this._markdownCommentRoots.set(host, commentRoot);
+    }
   }
 
   private _pruneStaleRoots(): void {
@@ -168,6 +215,15 @@ export class DocumentModeViewCodeButtons implements IDisposable {
         }
       }
     }
+
+    for (const [host, root] of [...this._markdownCommentRoots.entries()]) {
+      if (!this._panel.content.node.contains(host)) {
+        root.unmount();
+        host.querySelector('.output-comment-button-container')?.remove();
+        host.classList.remove('output-comment-output-container');
+        this._markdownCommentRoots.delete(host);
+      }
+    }
   }
 
   private _injectAll(): void {
@@ -177,7 +233,9 @@ export class DocumentModeViewCodeButtons implements IDisposable {
     this._pruneStaleRoots();
     for (const cell of this._panel.content.widgets) {
       if (cell instanceof CodeCell && cell.outputArea?.model.length) {
-        this._injectViewCodeButton(cell);
+        this._injectCodeCellViewCode(cell);
+      } else if (cell instanceof MarkdownCell) {
+        this._injectMarkdownDocumentActions(cell);
       }
     }
   }
