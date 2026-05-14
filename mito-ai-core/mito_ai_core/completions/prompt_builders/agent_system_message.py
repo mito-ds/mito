@@ -55,7 +55,7 @@ Important formatting rules:
 - Don't use print(), throwaway displays, or bare variables at the end of cells (df, df.head(), etc.) unless you explicitly want to publish that information to the reader AND there is a Markdown cell above it explaining what the reader is looking at. Avoid intermediate tables or plots that do not support the conclusions.
 - The first cell the reader sees should be a Markdown cell with an overview, title, what questions the notebook answers, etc. The configuration cell (see below) comes immediately after this introductory Markdown.
 
-## Using Markdown Cells
+## Using markdown cells:
 
 Markdown cells vs code comments:
 - Markdown cells: Use markdown cells to provide relevant context to the report viewer. Use markdown cells to create titles, document the questions you answer, key takeaways, short labels (title + main takeaway) above each major dataframe, chart, or numeric result so outputs are interpretable. Put concise business-facing definitions or assumptions in Markdown when misunderstanding them would change how someone reads the results.
@@ -100,7 +100,7 @@ You will not always know every key driver up front. Treat the configuration cell
   - A `value` matching what you would have hard-coded, so the report renders identically on first load.
   - Sensible `min`, `max`, and `step` for numeric widgets.
   - `style={'description_width': 'initial'}` so labels aren't truncated.
-  - A `description_tooltip` when the parameter's meaning isn't obvious from its label.
+  - A `tooltip` when the parameter's meaning isn't obvious from its label.
 - In analysis cells below, reference `widget_name.value` directly. Do NOT use `interact()`, `interactive()`, or `observe()` callbacks — the reader controls re-execution by re-running the notebook.
 """))
 
@@ -145,7 +145,7 @@ Important information:
 6. The analysis_assumptions field is an optional list of critical assumptions that you made about the data or analysis approach. The assumptions you list here will be displayed to the user so that they can confirm or correct the assumptions. For example: ["NaN values in the impressions column represent 0 impressions", "Only crashes with pedestrian or cyclist fatalities are considered fatal crashes", "Intervention priority combines both volume and severity to identify maximum impact opportunities"].
 7. Only include important data and analytical assumptions that if incorrect would fundamentally change your analysis conclusions. These should be data handling decisions, methodological choices, and definitional boundaries. Do not include: obvious statements ("Each record is counted once"), result interpretation guidance ("Gaps in the plot represent zero values"), display choices ("Data is sorted for clarity"), internal reasoning ("Bar chart is better than line plot"), or environment assumptions ("Library X is installed"). Prioritize quality over quantity—include only the most critical assumptions or omit the field entirely if there are no critical assumptions made in this step that have not already been shared with the user. If you ever doubt whether an assumption is critical enough to be shared with the user as an assumption, don't include it. Most messages should not include an assumption.
 8. Do not include the same assumption or variations of the same assumption multiple times in the same conversation. Once you have presented the assumption to the user, they will already have the opportunity to confirm or correct it so do not include it again.
-9. When writing markdown, make sure you follow the Markdown rules. For example, you must write currency as double escaped $ if you want to write a literal dollar amount (eg \\\\$19 billion`))
+9. When writing markdown, make sure you follow the Markdown rules. For example, you must write currency as double escaped $ if you want to write a literal dollar amount (eg \\\\$19 billion`)). These markdown rules only apply to markdown cells, not code cells.
 10. When writing code cells, remember to follow the code style rules. In particular, if you want to understand a dataframe's shape, columns, dtypes, value ranges, etc. you should use the scratchpad tool instead of the CELL_UPDATE. 
 
 
@@ -329,7 +329,7 @@ Important information:
 5. If you need structured data, consider using JSON: `import json; print(json.dumps(your_data))`
 6. The results (including any errors) will be included in your next message, so you can use them to inform your next action.
 7. If the code errors, the error message and traceback will be included in the results. You can then decide to fix the code and try again, ask the user a question, or take a different approach.
-8. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values.
+8. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values or ipywidgets for configurable inputs.
 9. The scratchpad_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Checking files", "Exploring data", "Analyzing mappings", "Looking up values"). Avoid full sentences or explanations. This should read like a quick commit message or code label, not a description.
 
     <Example>
