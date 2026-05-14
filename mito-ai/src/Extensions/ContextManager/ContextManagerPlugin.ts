@@ -38,6 +38,8 @@ export interface IContextManager {
 export class ContextManager implements IContextManager {
     private notebookContexts: Map<string, NotebookContext> = new Map();
     private notebookTracker: INotebookTracker;
+    private initializedNotebookPanels: WeakSet<NotebookPanel> = new WeakSet();
+    private dirtyNotebooks: Set<string> = new Set();
 
     constructor(app: JupyterFrontEnd, notebookTracker: INotebookTracker) {
         this.notebookTracker = notebookTracker;
@@ -88,32 +90,51 @@ export class ContextManager implements IContextManager {
         // which files are available.
         const updatedFiles = await getFiles(app, notebookPanel);
         this.updateNotebookFiles(notebookPanel.id, updatedFiles);
+
+        // Avoid registering duplicate listeners when the same notebook panel becomes active again.
+        if (this.initializedNotebookPanels.has(notebookPanel)) {
+            return;
+        }
+        this.initializedNotebookPanels.add(notebookPanel);
     
-        // Listen for kernel restart or shut down events and clear the variables for this notebook
-        notebookPanel.context.sessionContext.statusChanged.connect((sender, status) => {
+        // Listen for kernel status changes:
+        //  - On restart/terminate/unknown: clear variables for this notebook
+        //  - On idle: if the notebook has been marked dirty by a recent execute_input,
+        //    refresh variables and files once and clear the dirty flag. This batches
+        //    context refreshes so that "Run All" produces a single refresh after the
+        //    execution queue drains, rather than one refresh per executed cell.
+        notebookPanel.context.sessionContext.statusChanged.connect(async (sender, status) => {
             if (status === 'restarting' || status === 'terminating' || status === 'unknown') {
-                // Clear the variables for this specific notebook, but don't clear the files 
+                // Clear the variables for this specific notebook, but don't clear the files
                 // as they have not changed.
                 this.updateNotebookVariables(notebookPanel.id, []); // Clear variables for this specific notebook
+                this.dirtyNotebooks.delete(notebookPanel.id);
+                return;
             }
-        });
-    
-        // Listen to kernel messages
-        notebookPanel.context.sessionContext.iopubMessage.connect(async (sender, msg: KernelMessage.IMessage) => {
-    
-            // Watch for execute_input messages, which indicate is a request to execute code. 
-            // Previosuly, we watched for 'execute_result' messages, but these are only returned
-            // from the kernel when a code cell prints a value to the output cell, which is not what we want.
-            // TODO: Check if there is a race condition where we might end up fetching variables before the 
-            // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
-            // TODO: Eventually we should create a document manager listener so if the user uploads a new file
-            // to jupyter, we can update the available files even if they have not executed a kernel message.
-            if (msg.header.msg_type === 'execute_input') {
+
+            if (status === 'idle' && this.dirtyNotebooks.has(notebookPanel.id)) {
+                // Clear the flag before fetching so concurrent execute_inputs that arrive
+                // during the fetch will re-mark the notebook dirty and trigger another
+                // refresh on the next idle.
+                this.dirtyNotebooks.delete(notebookPanel.id);
 
                 void fetchVariablesAndUpdateState(notebookPanel, this.updateNotebookVariables.bind(this, notebookPanel.id));
 
                 const updatedFiles = await getFiles(app, notebookPanel);
                 this.updateNotebookFiles(notebookPanel.id, updatedFiles);
+            }
+        });
+
+        // Listen to kernel messages
+        notebookPanel.context.sessionContext.iopubMessage.connect((sender, msg: KernelMessage.IMessage) => {
+            // Watch for execute_input messages, which indicate a request to execute code.
+            // Previously we fetched variables synchronously here, but that issued an extra
+            // kernel.requestExecute per executed cell, inflating the kernel queue (e.g. "Run All"
+            // on a 37-cell notebook produced ~74 executions). Instead, mark the notebook
+            // context as dirty and defer the actual refresh until the kernel returns to idle
+            // (handled in the statusChanged listener above).
+            if (msg.header.msg_type === 'execute_input') {
+                this.dirtyNotebooks.add(notebookPanel.id);
             }
         });
     }

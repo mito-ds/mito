@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 import requests  # type: ignore
 
@@ -33,7 +33,11 @@ def get_suggestions_llm_payload(prompt: str) -> Dict[str, Any]:
     return {
         "model": "gpt-4.1",
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 900,
+        # AI Alerts embeds suggested fix code per alert and can return up to
+        # 8 alerts, which pushes the response well past the original 900-token
+        # cap. 2400 leaves comfortable headroom; salvage_truncated_json handles
+        # the rare case where the model still runs over.
+        "max_tokens": 2400,
         "temperature": 0.2,
     }
 
@@ -44,6 +48,51 @@ def strip_json_fences(text: str) -> str:
     if match:
         return match.group(1).strip()
     return stripped
+
+
+def salvage_truncated_json(text: str) -> Optional[str]:
+    """Best-effort recovery of JSON that was truncated mid-response.
+
+    Walks the text tracking string and bracket state, and closes any open
+    brackets at the latest position where the structure was valid. Returns
+    None if no safe truncation point exists. Useful when an LLM response is
+    cut off by max_tokens partway through an array of items.
+    """
+    stack: List[str] = []
+    in_string = False
+    escape = False
+    last_safe_pos = -1
+    last_safe_stack: List[str] = []
+
+    for i, ch in enumerate(text):
+        if escape:
+            escape = False
+            continue
+        if in_string:
+            if ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+
+        if ch == '"':
+            in_string = True
+        elif ch == "{" or ch == "[":
+            stack.append(ch)
+        elif ch == "}" or ch == "]":
+            if not stack:
+                return None
+            opener = stack.pop()
+            if (ch == "}" and opener != "{") or (ch == "]" and opener != "["):
+                return None
+            last_safe_pos = i + 1
+            last_safe_stack = list(stack)
+
+    if last_safe_pos == -1:
+        return None
+
+    closing = "".join("}" if c == "{" else "]" for c in reversed(last_safe_stack))
+    return text[:last_safe_pos] + closing
 
 
 def get_suggestions_from_mito_server(feature_name: str, prompt: str) -> Dict[str, Any]:

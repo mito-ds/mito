@@ -26,6 +26,7 @@ _OPTIONAL_RESPONSE_FIELDS = (
     "answers",
     "scratchpad_code",
     "scratchpad_summary",
+    "mcp_tool_call",
 )
 
 

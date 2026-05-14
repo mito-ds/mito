@@ -217,6 +217,15 @@ function injectOutputCommentButton(
         return;
     }
 
+    const isMitosheetOutput =
+        !!outputWrapper.querySelector('.mito-container, .mito-viewer, .mito-mime-renderer') ||
+        cell.model.sharedModel.getSource().toLowerCase().includes('mitosheet');
+
+    if (isMitosheetOutput) {
+        outputWrapper.querySelector('.output-comment-button-container')?.remove();
+        return;
+    }
+
     // Don't add if already present
     if (outputWrapper.querySelector('.output-comment-button-container')) {
         return;

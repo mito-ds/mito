@@ -37,10 +37,20 @@ def select_correct_model(default_model: str, message_type: MessageType, system: 
     
     return default_model    
 
+
+def supports_temperature_param(model: str) -> bool:
+    """
+    Return True when Anthropic temperature can be sent for this model.
+    """
+    model_lower = model.lower()
+    # Anthropic Opus models reject explicit temperature.
+    return not model_lower.startswith("claude-opus-")
+
+
 def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
     max_tokens: int,
-    temperature: float,
+    temperature: Optional[float],
     system: Union[str, List[TextBlockParam], anthropic.Omit],
     messages: List[MessageParam],
     message_type: MessageType,
@@ -59,10 +69,11 @@ def _prepare_anthropic_request_data_and_headers(
     inner_data: Dict[str, Any] = {
         "model": model,
         "max_tokens": max_tokens,
-        "temperature": temperature,
         "messages": messages,
         "betas": [EXTENDED_CONTEXT_BETA]
     }
+    if temperature is not None:
+        inner_data["temperature"] = temperature
     
     # Add system to inner_data only if it is not anthropic.Omit
     if not isinstance(system, anthropic.Omit):
@@ -87,7 +98,7 @@ def _prepare_anthropic_request_data_and_headers(
 async def get_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
-    temperature: float,
+    temperature: Optional[float],
     system: Union[str, anthropic.Omit],
     messages: List[MessageParam],
     tools: Optional[List[ToolUnionParam]],
@@ -111,7 +122,7 @@ async def get_anthropic_completion_from_mito_server(
 async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
-    temperature: float,
+    temperature: Optional[float],
     system: Union[str, List[TextBlockParam], anthropic.Omit],
     messages: List[MessageParam],
     stream: bool,
@@ -161,13 +172,14 @@ def get_anthropic_completion_function_params(
     
     model = select_correct_model(model, message_type, system, messages)
     
-    provider_data = {
+    provider_data: Dict[str, Any] = {
         "model": model,
         "max_tokens": max_tokens,
-        "temperature": temperature,
         "messages": messages,
         "system": system,
     }
+    if supports_temperature_param(model):
+        provider_data["temperature"] = temperature
     
     # Enable extended context beta when using LARGE_CONTEXT_MODEL
     # This is required for messages exceeding the standard context limit

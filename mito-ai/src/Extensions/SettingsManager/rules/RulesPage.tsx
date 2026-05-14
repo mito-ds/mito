@@ -9,6 +9,7 @@ import { Rule } from './models';
 import { deleteRule, getRule, getRules, setRule, RuleListItem } from '../../../restAPI/RestAPI';
 import { slugifyRuleName, stripFileEnding } from '../../../utils/fileName';
 import '../../../../style/button.css';
+import '../../../../style/SettingsPage.css';
 
 export const RulesPage = (): JSX.Element => {
     const [modalStatus, setModalStatus] = useState<'new rule' | 'edit rule' | undefined>(undefined);
@@ -115,7 +116,7 @@ export const RulesPage = (): JSX.Element => {
                     <b>＋ Add Rule</b>
                 </button>
             </div>
-            <p>Rules provide more context to Ai models to help them follow your preferences, adhere to your organization&apos;s style guides, learn niche topics, and be a better colleague.</p>
+            <p className="settings-page-muted-description">Rules provide more context to AI models to help them follow your preferences, adhere to your organization&apos;s style guides, learn niche topics, and be a better colleague.</p>
 
             {error && <p className="error">{error}</p>}
 

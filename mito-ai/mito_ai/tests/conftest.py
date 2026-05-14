@@ -4,6 +4,8 @@
 import pytest
 import threading
 import time
+from urllib.parse import urlsplit, urlunsplit
+
 from jupyter_server.serverapp import ServerApp
 from traitlets.config import Config
 
@@ -13,7 +15,9 @@ TOKEN = "test-token"
 def jp_server_config(token_fixture):
     """Configure the Jupyter server for testing."""
     config = Config()
-    config.ServerApp.jpserver_extensions = {"mito_ai": True}
+    # Mito tests do not need LSP; disabling avoids slow subprocess autodetection on
+    # Windows (jupyter_lsp spawns many check_output calls during server startup).
+    config.ServerApp.jpserver_extensions = {"mito_ai": True, "jupyter_lsp": False}
     # Disable password requirement for testing
     config.ServerApp.password = ""
     # Set the token for testing
@@ -45,8 +49,15 @@ def jp_serverapp(jp_server_config, tmp_path):
 
 @pytest.fixture
 def jp_base_url(jp_serverapp):
-    """Get the base URL of the Jupyter server."""
-    return jp_serverapp.connection_url 
+    """Get the base URL of the Jupyter server (no trailing slash on the path).
+
+    Tests use ``jp_base_url + "/mito-ai/..."``; Jupyter's ``connection_url`` ends
+    with ``/``, which would produce ``//mito-ai/...`` and 404. Normalize with
+    ``urllib.parse`` rather than string ``rstrip`` so only the path component changes.
+    """
+    parts = urlsplit(jp_serverapp.connection_url)
+    path = parts.path.rstrip("/")
+    return urlunsplit((parts.scheme, parts.netloc, path, parts.query, parts.fragment))
 
 @pytest.fixture
 def token_fixture():

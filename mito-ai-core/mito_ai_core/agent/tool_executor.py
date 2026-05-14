@@ -11,7 +11,7 @@ object whose methods match the signatures below satisfies the contract.
 
 from __future__ import annotations
 
-from typing import List, Optional, Protocol, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 from mito_ai_core.agent.types import AgentContext, ToolResult
 from mito_ai_core.completions.models import CellUpdate
@@ -185,5 +185,30 @@ class ToolExecutor(Protocol):
             Required edit instruction describing the desired app changes.
         message:
             The agent's reasoning/context text for the action.
+        """
+        ...
+
+    async def execute_mcp_tool(
+        self,
+        ctx: AgentContext,
+        mcp_server_id: str,
+        tool_name: str,
+        arguments: Dict[str, Any],
+        message: str,
+    ) -> ToolResult:
+        """Execute a configured MCP tool.
+
+        Parameters
+        ----------
+        ctx:
+            Current agent context.
+        mcp_server_id:
+            UUID of the configured MCP server in ``~/.mito/mcp/servers.json``.
+        tool_name:
+            MCP tool name exposed by that server.
+        arguments:
+            JSON arguments object to pass to the tool call.
+        message:
+            Agent's reasoning/context for the call.
         """
         ...

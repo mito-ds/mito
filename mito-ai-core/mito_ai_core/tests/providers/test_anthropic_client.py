@@ -16,7 +16,7 @@ DUMMY_IMAGE_DATA_URL = (
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgMBAp9l9AAAAABJRU5ErkJggg=="
 )
 
-def test_mixed_text_and_image():
+def test_mixed_text_and_image() -> None:
     messages: List[ChatCompletionMessageParam] = [
         ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant."),
         ChatCompletionUserMessageParam(role="user", content=[
@@ -46,7 +46,7 @@ def test_mixed_text_and_image():
     assert source["type"] == "base64"
     assert source["media_type"] == "image/png"
 
-def test_no_system_instructions_only_content():
+def test_no_system_instructions_only_content() -> None:
     messages: List[ChatCompletionMessageParam] = [
         ChatCompletionUserMessageParam(role="user", content="Hello!"),
         ChatCompletionAssistantMessageParam(role="assistant", content="Hi, how can I help you?")
@@ -60,7 +60,7 @@ def test_no_system_instructions_only_content():
     assert anthropic_messages[1]["role"] == "assistant"
     assert anthropic_messages[1]["content"] == "Hi, how can I help you?"
 
-def test_system_instructions_and_content():
+def test_system_instructions_and_content() -> None:
     messages: List[ChatCompletionMessageParam] = [
         ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant."),
         ChatCompletionUserMessageParam(role="user", content="What is the weather today?")
@@ -72,7 +72,7 @@ def test_system_instructions_and_content():
     assert anthropic_messages[0]["role"] == "user"
     assert anthropic_messages[0]["content"] == "What is the weather today?"
 
-def test_multiple_system_messages():
+def test_multiple_system_messages() -> None:
     messages: List[ChatCompletionMessageParam] = [
         ChatCompletionSystemMessageParam(role="system", content="First system message."),
         ChatCompletionSystemMessageParam(role="system", content="Second system message."),
@@ -86,7 +86,7 @@ def test_multiple_system_messages():
     assert anthropic_messages[0]["role"] == "user"
     assert anthropic_messages[0]["content"] == "Hello!"
 
-def test_empty_message_content():
+def test_empty_message_content() -> None:
     messages: List[ChatCompletionMessageParam] = [
         cast(ChatCompletionMessageParam, {"role": "user"}),  # Missing content
         ChatCompletionAssistantMessageParam(role="assistant", content="Hi!")
@@ -546,7 +546,7 @@ def test_caching_system_prompt_scenarios(messages, expected_system_type, expecte
     (5, 1),  # 5 messages, cache at index 1 (5 - 3 - 1 = 1)
     (10, 6),  # 10 messages, cache at index 6 (10 - 3 - 1 = 6)
 ])
-def test_caching_conversation_history(message_count, expected_cache_boundary, monkeypatch):
+def test_caching_conversation_history(message_count, expected_cache_boundary, monkeypatch) -> None:
     """Test that conversation history is cached at the keep_recent boundary for different message counts."""
     
     # Mock MAX_TRIM_THRESHOLD to use a fixed value for testing
@@ -581,7 +581,7 @@ def test_caching_conversation_history(message_count, expected_cache_boundary, mo
             else:
                 assert "cache_control" not in str(message)
 
-def test_caching_with_mixed_content():
+def test_caching_with_mixed_content() -> None:
     """Test caching with mixed text and image content."""
     messages: List[ChatCompletionMessageParam] = [
         ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant."),

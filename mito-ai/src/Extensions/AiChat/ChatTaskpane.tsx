@@ -1021,6 +1021,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <IconButton
                         icon={<settingsIcon.react />}
                         title="Mito AI Settings"
+                        className="icon-button-hover"
                         onClick={() => {
                             void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
@@ -1031,11 +1032,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <IconButton
                         icon={<addIcon.react />}
                         title={`Start New Chat (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E)`}
+                        className="icon-button-hover"
                         onClick={async () => { await startNewChat() }}
                     />
                     <DropdownMenu
                         trigger={
-                            <button className="icon-button" title="Chat Threads" onClick={fetchChatThreads}>
+                            <button className="icon-button icon-button-hover" title="Chat Threads" onClick={fetchChatThreads}>
                                 <historyIcon.react />
                             </button>
                         }

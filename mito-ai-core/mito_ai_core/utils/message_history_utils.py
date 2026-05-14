@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import Any, Dict, List, Optional
 from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai_core.agent.types import CompletionProvider
@@ -16,6 +17,7 @@ async def append_agent_system_message(
     provider: CompletionProvider,
     thread_id: ThreadID,
     enable_get_cell_output: bool,
+    mcp_tools: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
 
     # If the system message already exists, do nothing
@@ -25,7 +27,10 @@ async def append_agent_system_message(
     ):
         return
 
-    system_message_prompt = create_agent_system_message_prompt(enable_get_cell_output)
+    system_message_prompt = create_agent_system_message_prompt(
+        enable_get_cell_output,
+        mcp_tools,
+    )
 
     system_message: ChatCompletionMessageParam = {
         "role": "system",

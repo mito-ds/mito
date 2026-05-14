@@ -984,6 +984,8 @@ export interface UIState {
     gridColumnEnterAnimation?: { sheetIndex: number; columnIndex: number };
     /** Transient: column indices playing delete exit before backend delete */
     gridColumnExitAnimation?: { sheetIndex: number; columnIndices: number[] };
+    /** Transient: request to scroll a column into view; consumed by EndoGrid */
+    pendingColumnScroll?: { sheetIndex: number; columnIndex: number };
     /** AI-suggested ghost columns shown at the end of the active sheet */
     suggestedColumns?: {
         sheetIndex: number;

@@ -59,6 +59,7 @@ class AgentRunner:
             "ask_user_question",
             "create_streamlit_app",
             "edit_streamlit_app",
+            "mcp_tool_call",
         }
     )
 
@@ -119,6 +120,7 @@ class AgentRunner:
             self._provider,
             ctx.thread_id,
             self._config.enable_get_cell_output,
+            ctx.mcp_tools,
         )
 
         prompt = create_agent_execution_prompt(ctx, user_input)
@@ -223,6 +225,7 @@ class AgentRunner:
                 answers=None,
                 scratchpad_code=None,
                 scratchpad_summary=None,
+                mcp_tool_call=None,
             )
         return AgentRunResult(
             final_response=last_response,
@@ -320,6 +323,45 @@ class AgentRunner:
             return await self._tool_executor.edit_streamlit_app(
                 ctx,
                 response.streamlit_app_prompt,
+                response.message,
+            )
+
+        if rtype == "mcp_tool_call":
+            if response.mcp_tool_call is None:
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message=(
+                        "Agent returned mcp_tool_call but mcp_tool_call payload is null."
+                    ),
+                )
+            raw_arguments = response.mcp_tool_call.arguments
+            try:
+                loaded = json.loads(raw_arguments) if raw_arguments else {}
+            except Exception as e:
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message=(
+                        "Invalid arguments for mcp_tool_call: arguments must be valid JSON "
+                        f"object string. Parser error: {e}"
+                    ),
+                )
+
+            if not isinstance(loaded, dict):
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message=(
+                        "Invalid arguments for mcp_tool_call: expected a JSON object "
+                        f"but received {type(loaded).__name__}."
+                    ),
+                )
+            return await self._tool_executor.execute_mcp_tool(
+                ctx,
+                response.mcp_tool_call.mcp_server_id,
+                response.mcp_tool_call.tool_name,
+                loaded,
                 response.message,
             )
 

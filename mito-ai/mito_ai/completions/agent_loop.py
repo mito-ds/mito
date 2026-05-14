@@ -16,6 +16,7 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai_core.completions.ai_optimized_message import create_ai_optimized_message
 from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
+from mito_ai.mcp.utils import get_available_mcp_tools
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import (
     AgentExecutionMetadata,
@@ -147,6 +148,7 @@ async def start_agent_loop(
         files=metadata.files,
         is_chrome_browser=metadata.isChromeBrowser,
         additional_context=metadata.additionalContext,
+        mcp_tools=await get_available_mcp_tools(),
     )
 
     # --- callbacks to persist messages ---
