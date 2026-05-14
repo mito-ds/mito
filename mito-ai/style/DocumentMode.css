@@ -77,3 +77,18 @@
 .jp-Notebook.jp-mod-mito-document-mode .jp-OutputArea-promptOverlay {
   display: none !important;
 }
+
+/*
+ * Document mode: hide warning / stderr streams so the page reads like a clean
+ * report. Python warnings use stderr; Mito wraps many in .mito-warning-block.
+ * Keep outputs that include the augmented error UI (.error-mime-renderer-container)
+ * so tracebacks and "Fix Error in AI Chat" still show.
+ */
+.jp-Notebook.jp-mod-mito-document-mode
+  .lm-Widget.jp-OutputArea-output:has(.mito-warning-block),
+.jp-Notebook.jp-mod-mito-document-mode
+  .lm-Widget.jp-OutputArea-output:has(
+    [data-mime-type='application/vnd.jupyter.stderr']
+  ):not(:has(.error-mime-renderer-container)) {
+  display: none !important;
+}
