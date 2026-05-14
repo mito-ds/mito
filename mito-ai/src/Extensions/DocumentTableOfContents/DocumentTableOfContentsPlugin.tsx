@@ -26,7 +26,9 @@ const mountForPanel = (
       return;
     }
 
-    const model = tocRegistry.getModel(panel) as TableOfContents.Model | undefined;
+    const model = tocRegistry.getModel(
+      panel as unknown as Parameters<ITableOfContentsRegistry['getModel']>[0]
+    ) as TableOfContents.Model | undefined;
     if (!model) {
       return;
     }
@@ -63,7 +65,11 @@ const DocumentTableOfContentsPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:document-table-of-contents',
   description: 'Notion-style table of contents overlay for document mode',
   autoStart: true,
-  requires: [INotebookTracker, ITableOfContentsRegistry, INotebookViewMode],
+  requires: [
+    INotebookTracker,
+    ITableOfContentsRegistry,
+    INotebookViewMode
+  ] as JupyterFrontEndPlugin<void>['requires'],
   activate: (
     _app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
