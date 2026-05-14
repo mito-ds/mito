@@ -45,7 +45,11 @@ const mountForPanel = (
 
     const root: Root = createRoot(host);
     root.render(
-      <DocumentTableOfContents model={model} viewMode={viewMode} />
+      <DocumentTableOfContents
+        model={model}
+        viewMode={viewMode}
+        panel={panel}
+      />
     );
 
     panel.disposed.connect(() => {

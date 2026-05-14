@@ -5,22 +5,55 @@
 
 import React, { useEffect, useState } from 'react';
 import { TableOfContents } from '@jupyterlab/toc';
+import { INotebookHeading } from '@jupyterlab/notebook';
+import { NotebookPanel } from '@jupyterlab/notebook';
 import { INotebookViewMode, NotebookViewMode } from '../NotebookViewMode/NotebookViewModePlugin';
 
 interface IDocumentTableOfContentsProps {
   model: TableOfContents.Model;
   viewMode: INotebookViewMode;
+  panel: NotebookPanel;
 }
+
+// The active heading is the last heading whose cell top has scrolled
+// past this offset from the top of the notebook scroll container.
+const ACTIVE_HEADING_OFFSET_PX = 100;
+
+const computeActiveHeadingFromScroll = (
+  headings: TableOfContents.IHeading[],
+  scrollContainer: HTMLElement
+): TableOfContents.IHeading | null => {
+  if (headings.length === 0) {
+    return null;
+  }
+  const threshold =
+    scrollContainer.getBoundingClientRect().top + ACTIVE_HEADING_OFFSET_PX;
+
+  let active: TableOfContents.IHeading | null = null;
+  for (const heading of headings) {
+    const cell = (heading as INotebookHeading).cellRef;
+    const cellNode = cell?.node;
+    if (!cellNode || !document.body.contains(cellNode)) {
+      continue;
+    }
+    const rect = cellNode.getBoundingClientRect();
+    if (rect.top <= threshold) {
+      active = heading;
+    }
+  }
+  return active ?? headings[0] ?? null;
+};
 
 const DocumentTableOfContents: React.FC<IDocumentTableOfContentsProps> = ({
   model,
-  viewMode
+  viewMode,
+  panel
 }) => {
   const [headings, setHeadings] = useState<TableOfContents.IHeading[]>(
     model.headings
   );
   const [activeHeading, setActiveHeading] =
-    useState<TableOfContents.IHeading | null>(model.activeHeading);
+    useState<TableOfContents.IHeading | null>(null);
   const [mode, setMode] = useState<NotebookViewMode>(viewMode.getMode());
   const [isHovered, setIsHovered] = useState(false);
 
@@ -28,26 +61,51 @@ const DocumentTableOfContents: React.FC<IDocumentTableOfContentsProps> = ({
     const onHeadingsChanged = (): void => {
       setHeadings([...model.headings]);
     };
-    const onActiveHeadingChanged = (
-      _: TableOfContents.Model,
-      h: TableOfContents.IHeading | null
-    ): void => {
-      setActiveHeading(h);
-    };
     const onModeChanged = (_: INotebookViewMode, m: NotebookViewMode): void => {
       setMode(m);
     };
 
     model.headingsChanged.connect(onHeadingsChanged);
-    model.activeHeadingChanged.connect(onActiveHeadingChanged);
     viewMode.modeChanged.connect(onModeChanged);
 
     return () => {
       model.headingsChanged.disconnect(onHeadingsChanged);
-      model.activeHeadingChanged.disconnect(onActiveHeadingChanged);
       viewMode.modeChanged.disconnect(onModeChanged);
     };
   }, [model, viewMode]);
+
+  useEffect(() => {
+    const scrollContainer = panel.content.outerNode;
+    let rafId: number | null = null;
+
+    const recompute = (): void => {
+      rafId = null;
+      setActiveHeading(
+        computeActiveHeadingFromScroll(model.headings, scrollContainer)
+      );
+    };
+
+    const onScroll = (): void => {
+      if (rafId !== null) {
+        return;
+      }
+      rafId = requestAnimationFrame(recompute);
+    };
+
+    scrollContainer.addEventListener('scroll', onScroll, { passive: true });
+    scrollContainer.addEventListener('scrollend', onScroll, { passive: true });
+    model.headingsChanged.connect(recompute);
+    recompute();
+
+    return () => {
+      scrollContainer.removeEventListener('scroll', onScroll);
+      scrollContainer.removeEventListener('scrollend', onScroll);
+      model.headingsChanged.disconnect(recompute);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [panel, model]);
 
   if (mode !== 'Document' || headings.length === 0) {
     return null;
@@ -58,13 +116,7 @@ const DocumentTableOfContents: React.FC<IDocumentTableOfContentsProps> = ({
   };
 
   const isActive = (heading: TableOfContents.IHeading): boolean => {
-    if (!activeHeading) {
-      return false;
-    }
-    return (
-      activeHeading.text === heading.text &&
-      activeHeading.level === heading.level
-    );
+    return activeHeading === heading;
   };
 
   return (
