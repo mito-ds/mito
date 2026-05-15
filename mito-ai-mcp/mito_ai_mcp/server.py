@@ -43,24 +43,33 @@ mcp = FastMCP(name=SERVER_NAME, instructions=SERVER_INSTRUCTIONS)
 request_agent_execution_manager = RequestAgentExecutionManager()
 
 
-@mcp.tool(
-    name="run_data_analyst",
-    description=(
-        "Use for data analysis requests in notebook or spreadsheet workflows. "
-        "Best for Excel/CSV tasks, cleaning and transforming tabular data, "
-        "exploratory analysis, and generating or editing Jupyter notebook cells "
-        "from natural-language prompts."
-    ),
-    # As a workaround to file system access issues, we tried to get claude to pass the absolute path
-    # to the files to the server, but we then got permission errors.
-#   description=(
-#         """Run data analysis in a Jupyter notebook. Use for Excel/CSV tasks, cleaning tabular data, exploratory analysis, and generating notebook cells from natural language.
-# CRITICAL: If the user references a file that the data analysis is supposed to use
-# you must pass its absolute path to the file on the user's computer in the prompt. Do not use relative paths, or mnt paths. The run_data_analysis function won't have access to those.
-# If you don't have an absolute path, elicit the user for the full path(s) before calling this function. """
-#     ),
-)
-async def run_data_analyst(prompt: str, mcp_context: Context) -> dict[str, Any]:
+@mcp.tool()
+async def convert_excel_to_python(prompt: str, mcp_context: Context) -> dict[str, Any]:
+    """
+    Convert an Excel spreadsheet (.xlsx, .xls) to equivalent Python and pandas code in a Jupyter notebook. 
+    Use when the user wants to migrate, automate, or reproduce Excel formulas, sheets, or workbook logic in Python.
+    """
+    return await _run_data_analyst(prompt, mcp_context)
+
+
+@mcp.tool()
+async def create_data_visualization(prompt: str, mcp_context: Context) -> dict[str, Any]:
+    """
+    Create a data visualization from tabular data.
+    """
+    return await _run_data_analyst(prompt, mcp_context)
+
+
+@mcp.tool()
+async def run_data_analysis(prompt: str, mcp_context: Context) -> dict[str, Any]:
+    """
+    Use for data analysis requests in notebook or spreadsheet workflows.
+    Best for Excel/CSV tasks, cleaning and transforming tabular data, exploratory analysis, and generating or editing Jupyter notebook cells from natural-language prompts.
+    """
+    return await _run_data_analyst(prompt, mcp_context)
+
+
+async def _run_data_analyst(prompt: str, mcp_context: Context) -> dict[str, Any]:
     """Run a one-shot Mito AI analysis and return text plus artifact metadata."""
     progress_step = 0
     logger.info("Detecting ask-user mode for run_data_analyst request")
