@@ -13,9 +13,9 @@ import pytest
 
 from mito_ai_core.agent import AgentRunResult, ToolResult
 from mito_ai_core.completions.models import AgentResponse
+from mito_ai_mcp import data_analyst
 from mito_ai_mcp import request_agent_execution
-from mito_ai_mcp import server as mcp_server
-from mito_ai_mcp.server import run_data_analyst
+from mito_ai_mcp.data_analyst import run_data_analyst
 from mito_ai_mcp.utils.client_capabilities import detect_ask_user_mode
 
 class FakeMcpContext:
@@ -154,7 +154,7 @@ async def test_run_data_analyst_wires_callbacks_progress_and_final_text(monkeypa
     monkeypatch.setattr(request_agent_execution, "save_notebook", lambda nb, path: None)
     monkeypatch.setattr(request_agent_execution, "cells_to_notebook", lambda cells: {"cells": cells})
     monkeypatch.setattr(
-        mcp_server,
+        data_analyst,
         "_resolve_notebook_output_path",
         lambda _roots: "/tmp/test-mcp-notebook.ipynb",
     )
@@ -208,7 +208,7 @@ async def test_run_data_analyst_uses_first_writable_root_for_notebook_path(
             artifact_paths=[metadata.notebook_path],
         )
 
-    monkeypatch.setattr(mcp_server.request_agent_execution_manager, "run_prompt", fake_run_prompt)
+    monkeypatch.setattr(data_analyst.request_agent_execution_manager, "run_prompt", fake_run_prompt)
     ctx = FakeMcpContextWithRoots(tmp_path)
 
     response = await run_data_analyst("Use the notebook root", mcp_context=ctx)
@@ -251,7 +251,7 @@ async def test_run_data_analyst_leaves_kernel_cwd_unset_without_writable_roots(
             artifact_paths=[metadata.notebook_path],
         )
 
-    monkeypatch.setattr(mcp_server.request_agent_execution_manager, "run_prompt", fake_run_prompt)
+    monkeypatch.setattr(data_analyst.request_agent_execution_manager, "run_prompt", fake_run_prompt)
     ctx = FakeMcpContext()
 
     await run_data_analyst("Use defaults", mcp_context=ctx)
