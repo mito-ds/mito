@@ -27,8 +27,16 @@
   },
   "tools": [
     {
-      "name": "run_data_analyst",
-      "description": "Run one-shot Mito AI analysis for Excel/CSV workflows, EDA, and Jupyter notebook edits."
+      "name": "convert_excel_to_python",
+      "description": "Convert an Excel spreadsheet (.xlsx, .xls) to equivalent Python and pandas code in a Jupyter notebook. Use when the user wants to migrate, automate, or reproduce Excel formulas, sheets, or workbook logic in Python."
+    },
+    {
+      "name": "create_data_visualization",
+      "description": "Create a data visualization from tabular data."
+    },
+    {
+      "name": "run_data_analysis",
+      "description": "Use for data analysis requests in notebook or spreadsheet workflows. Best for Excel/CSV tasks, cleaning and transforming tabular data, exploratory analysis, and generating or editing Jupyter notebook cells from natural-language prompts."
     }
   ],
   "compatibility": {
