@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import { mountOutputAction, unmountOutputAction } from '../OutputActions/outputActionsToolbar';
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
@@ -147,7 +147,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private notebookTracker: INotebookTracker;
     private app: JupyterFrontEnd;
     private openChartWizard: (chartData?: ChartWizardData) => void;
-    private reactRoot: Root | null = null;
+    private _outputWrapper: HTMLElement | null = null;
 
     constructor(
         app: JupyterFrontEnd,
@@ -166,37 +166,35 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
      * Render the original image and append the Chart Wizard button.
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        // Clean up any existing React root before creating a new one
-        if (this.reactRoot) {
-            this.reactRoot.unmount();
-            this.reactRoot = null;
-        }
+        this._unmountChartWizardAction();
 
-        const chartWizardDiv = document.createElement('div');
-        chartWizardDiv.className = 'chart-wizard-button-container';
         const originalNode = this.originalRenderer.node;
-
-        // Store the root reference so we can unmount it later
-        this.reactRoot = createRoot(chartWizardDiv);
-        this.reactRoot.render(
-            <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
-        );
-
-        this.node.style.position = 'relative';
-        this.node.classList.add('chart-wizard-output-container');
-        this.node.appendChild(chartWizardDiv);
         await this.originalRenderer.renderModel(model);
+        this.node.classList.add('chart-wizard-output-container');
         this.node.appendChild(originalNode);
+
+        this._outputWrapper = this.node.closest('.jp-Cell-outputWrapper') as HTMLElement | null;
+        if (this._outputWrapper) {
+            mountOutputAction(
+                this._outputWrapper,
+                'chartWizard',
+                <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
+            );
+        }
+    }
+
+    private _unmountChartWizardAction(): void {
+        if (this._outputWrapper) {
+            unmountOutputAction(this._outputWrapper, 'chartWizard');
+        }
+        this._outputWrapper = null;
     }
 
     /**
      * Dispose of the widget and clean up the React root.
      */
     dispose(): void {
-        if (this.reactRoot) {
-            this.reactRoot.unmount();
-            this.reactRoot = null;
-        }
+        this._unmountChartWizardAction();
         super.dispose();
     }
 

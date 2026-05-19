@@ -42,11 +42,10 @@ test.describe.parallel('Chart Wizard', () => {
         const chartOutputContainer = page.locator('.chart-wizard-output-container').first();
         await expect(chartOutputContainer).toBeVisible({ timeout: 10000 });
 
-        // Hover over the chart output to make the button visible
-        await chartOutputContainer.hover();
+        const outputWrapper = chartOutputContainer.locator('xpath=ancestor::div[contains(@class,"jp-Cell-outputWrapper")]');
+        await outputWrapper.hover();
 
-        // Wait for the Chart Wizard button to become visible (opacity changes on hover)
-        const chartWizardButton = page.locator('.chart-wizard-button-container').getByRole('button', { name: 'Chart Wizard' });
+        const chartWizardButton = outputWrapper.locator('.mito-output-action-slot-chartWizard').getByRole('button', { name: 'Chart Wizard' });
         await expect(chartWizardButton).toBeVisible();
 
         // Click the Chart Wizard button

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { createRoot, type Root } from 'react-dom/client';
+import { type Root } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
@@ -21,6 +21,11 @@ import {
 import { getCellNumberById } from '../../utils/cellReferences';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CommentIcon from '../../icons/CommentIcon';
+import {
+    hasOutputActionSlot,
+    mountOutputAction,
+    unmountOutputAction,
+} from '../OutputActions/outputActionsToolbar';
 
 import '../../../style/Comments.css';
 
@@ -206,21 +211,25 @@ const OutputCommentButton: React.FC<OutputCommentButtonProps> = ({ onClick }) =>
     );
 };
 
+export function shouldMountOutputCommentButton(
+    isDocumentMode: boolean,
+    isMitosheetOutput: boolean,
+): boolean {
+    if (isMitosheetOutput && !isDocumentMode) {
+        return false;
+    }
+    return true;
+}
+
 export function mountOutputCommentButtonOnHost(
     host: HTMLElement,
     cellId: string,
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
 ): Root | null {
-    if (host.querySelector('.output-comment-button-container')) {
+    if (hasOutputActionSlot(host, 'comment')) {
         return null;
     }
-
-    host.style.position = 'relative';
-    host.classList.add('output-comment-output-container');
-
-    const commentBtnDiv = document.createElement('div');
-    commentBtnDiv.className = 'output-comment-button-container';
 
     const handleClick = (): void => {
         const notebookPanel = notebookTracker.currentWidget;
@@ -229,7 +238,8 @@ export function mountOutputCommentButtonOnHost(
         }
 
         const cellNumber = getCellNumberById(cellId, notebookPanel) || 0;
-        const btnRect = commentBtnDiv.getBoundingClientRect();
+        const commentSlot = host.querySelector('.mito-output-action-slot-comment') as HTMLElement | null;
+        const btnRect = (commentSlot ?? host).getBoundingClientRect();
 
         showCommentPopover(
             btnRect,
@@ -252,11 +262,7 @@ export function mountOutputCommentButtonOnHost(
         );
     };
 
-    const root = createRoot(commentBtnDiv);
-    root.render(<OutputCommentButton onClick={handleClick} />);
-
-    host.appendChild(commentBtnDiv);
-    return root;
+    return mountOutputAction(host, 'comment', <OutputCommentButton onClick={handleClick} />);
 }
 
 /**
@@ -283,8 +289,8 @@ function injectOutputCommentButton(
         !!outputWrapper.querySelector('.mito-container, .mito-viewer, .mito-mime-renderer') ||
         cell.model.sharedModel.getSource().toLowerCase().includes('mitosheet');
 
-    if (isMitosheetOutput && !isDocumentMode) {
-        outputWrapper.querySelector('.output-comment-button-container')?.remove();
+    if (!shouldMountOutputCommentButton(isDocumentMode, isMitosheetOutput)) {
+        unmountOutputAction(outputWrapper, 'comment');
         return;
     }
 
@@ -308,7 +314,10 @@ function setupOutputCommentButtons(
         }
 
         // Ignore mutations produced by our own injection.
-        if (node.classList.contains('output-comment-button-container') || node.closest('.output-comment-button-container')) {
+        if (
+            node.classList.contains('mito-output-actions-toolbar') ||
+            node.closest('.mito-output-actions-toolbar')
+        ) {
             return false;
         }
 
