@@ -11,6 +11,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
+import { Message } from '@lumino/messaging';
 import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
 import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
@@ -148,6 +149,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private app: JupyterFrontEnd;
     private openChartWizard: (chartData?: ChartWizardData) => void;
     private _outputWrapper: HTMLElement | null = null;
+    private _renderedModel: IRenderMime.IMimeModel | null = null;
 
     constructor(
         app: JupyterFrontEnd,
@@ -167,20 +169,48 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
         this._unmountChartWizardAction();
+        this._renderedModel = null;
 
         const originalNode = this.originalRenderer.node;
         await this.originalRenderer.renderModel(model);
         this.node.classList.add('chart-wizard-output-container');
         this.node.appendChild(originalNode);
 
-        this._outputWrapper = this.node.closest('.jp-Cell-outputWrapper') as HTMLElement | null;
-        if (this._outputWrapper) {
-            mountOutputAction(
-                this._outputWrapper,
-                'chartWizard',
-                <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
-            );
+        this._renderedModel = model;
+        // OutputArea calls renderModel before insertWidget, so the wrapper may not
+        // be an ancestor yet. Mount after attach (see onAfterAttach).
+        this._syncChartWizardAction();
+    }
+
+    protected onAfterAttach(msg: Message): void {
+        super.onAfterAttach(msg);
+        this._syncChartWizardAction();
+    }
+
+    private _findOutputWrapper(): HTMLElement | null {
+        return (
+            (this.node.closest('.jp-Cell-outputWrapper') as HTMLElement | null) ??
+            (this.node.closest('.jp-CodeCell')?.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null)
+        );
+    }
+
+    private _syncChartWizardAction(): void {
+        if (this.isDisposed || !this._renderedModel || !this.node.isConnected) {
+            return;
         }
+
+        const wrapper = this._findOutputWrapper();
+        if (!wrapper) {
+            return;
+        }
+
+        this._outputWrapper = wrapper;
+        const model = this._renderedModel;
+        mountOutputAction(
+            wrapper,
+            'chartWizard',
+            <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
+        );
     }
 
     private _unmountChartWizardAction(): void {
@@ -195,6 +225,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
      */
     dispose(): void {
         this._unmountChartWizardAction();
+        this._renderedModel = null;
         super.dispose();
     }
 
