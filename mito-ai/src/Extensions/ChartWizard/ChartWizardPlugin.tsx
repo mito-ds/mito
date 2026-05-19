@@ -19,18 +19,7 @@ import TextAndIconButton from '../../components/TextAndIconButton';
 import MagicWand from '../../icons/MagicWand';
 import { logEvent } from '../../restAPI/RestAPI';
 import { setActiveCellByIDInNotebookPanel } from '../../utils/notebook';
-import { INotebookViewMode } from '../NotebookViewMode/NotebookViewModePlugin';
 import '../../../style/ChartWizardPlugin.css'
-
-/**
- * Whether opening Chart Wizard should set CodeCell.inputHidden on the source cell.
- * Document mode already hides inputs via CSS; inputHidden shows collapsed cell chrome.
- */
-export function shouldCollapseCellInputForChartWizard(
-    notebookViewMode: INotebookViewMode | null | undefined
-): boolean {
-    return notebookViewMode?.getMode() !== 'Document';
-}
 
 export interface ChartWizardData {
     sourceCode: string;
@@ -62,14 +51,13 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito-ai:chart-wizard',
     autoStart: true,
     requires: [IRenderMimeRegistry, ICommandPalette, INotebookTracker],
-    optional: [ILayoutRestorer, INotebookViewMode],
+    optional: [ILayoutRestorer],
     activate: (
         app: JupyterFrontEnd,
         rendermime: IRenderMimeRegistry,
         palette: ICommandPalette,
         notebookTracker: INotebookTracker,
-        restorer: ILayoutRestorer | null,
-        notebookViewMode: INotebookViewMode | null
+        restorer: ILayoutRestorer | null
     ): void => {
         // Create the Chart Wizard widget
         const widget = new ChartWizardWidget();
@@ -148,8 +136,7 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
                         app,
                         originalRenderer,
                         notebookTracker,
-                        openChartWizard,
-                        notebookViewMode
+                        openChartWizard
                     );
                 }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
@@ -166,7 +153,6 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private notebookTracker: INotebookTracker;
     private app: JupyterFrontEnd;
     private openChartWizard: (chartData?: ChartWizardData) => void;
-    private _notebookViewMode: INotebookViewMode | null;
     private _outputWrapper: HTMLElement | null = null;
     private _renderedModel: IRenderMime.IMimeModel | null = null;
 
@@ -174,15 +160,13 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         app: JupyterFrontEnd,
         originalRenderer: IRenderMime.IRenderer,
         notebookTracker: INotebookTracker,
-        openChartWizard: (chartData?: ChartWizardData) => void,
-        notebookViewMode: INotebookViewMode | null
+        openChartWizard: (chartData?: ChartWizardData) => void
     ) {
         super();
         this.originalRenderer = originalRenderer;
         this.notebookTracker = notebookTracker;
         this.app = app;
         this.openChartWizard = openChartWizard;
-        this._notebookViewMode = notebookViewMode;
     }
 
     /**
@@ -290,9 +274,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         // Set the cell as active before collapsing and scrolling
         setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
 
-        if (shouldCollapseCellInputForChartWizard(this._notebookViewMode)) {
-            cellWidget.inputHidden = true;
-        }
+        cellWidget.inputHidden = true;
 
         // Scroll to the top of the cell
         void notebookPanel.content.scrollToCell(cellWidget, 'start');

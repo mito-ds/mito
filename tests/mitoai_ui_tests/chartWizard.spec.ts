@@ -104,30 +104,4 @@ test.describe.parallel('Chart Wizard', () => {
         await waitForIdle(page);
         await expect(chartWizardWidget).toBeHidden();
     });
-
-    test('Chart Wizard in Document mode does not collapse source cell input', async ({ page }) => {
-        await page.notebook.setCell(0, 'code', CHART_CODE);
-        await runCell(page, 0);
-        await waitForIdle(page);
-
-        const chartOutputContainer = page.locator('.chart-wizard-output-container').first();
-        await expect(chartOutputContainer).toBeVisible({ timeout: 10000 });
-
-        const documentTab = page.locator('.mode-switcher-segment').filter({ hasText: 'Document' });
-        await documentTab.click();
-        await waitForIdle(page);
-
-        const codeCell = page.locator('.jp-CodeCell').filter({ has: chartOutputContainer });
-        const outputWrapper = chartOutputContainer.locator('xpath=ancestor::div[contains(@class,"jp-Cell-outputWrapper")]');
-        await outputWrapper.hover();
-
-        const chartWizardButton = outputWrapper.locator('.mito-output-action-slot-chartWizard').getByRole('button', { name: 'Chart Wizard' });
-        await chartWizardButton.click();
-        await waitForIdle(page);
-
-        await expect(codeCell).not.toHaveClass(/jp-mod-noInput/);
-
-        const chartWizardWidget = page.locator('[id="mito-ai-chart-wizard"]');
-        await expect(chartWizardWidget).toBeVisible({ timeout: 5000 });
-    });
 });
