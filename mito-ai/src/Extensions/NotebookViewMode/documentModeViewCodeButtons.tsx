@@ -6,22 +6,24 @@
 /**
  * In Document mode, adds hover "View code" (and output-style "Comment" for markdown)
  * on code outputs and rendered markdown so users can jump to Notebook mode or comment
- * for the AI. Not injected in Notebook mode — output comments for code cells are
- * hidden outside Document mode via Comments.css.
+ * for the AI.
  */
 
 import React from 'react';
-import { createRoot, type Root } from 'react-dom/client';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IDisposable } from '@lumino/disposable';
 import { mountOutputCommentButtonOnHost } from '../Comments/CommentsPlugin';
+import {
+  hasOutputActionSlot,
+  mountOutputAction,
+  OUTPUT_ACTIONS_TOOLBAR_CLASS,
+  unmountOutputAction,
+} from '../OutputActions/outputActionsToolbar';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CodeIcon from '../../icons/CodeIcon';
 
-const VIEW_CODE_BUTTON_CLASS = 'document-mode-view-code-button-container';
-const VIEW_CODE_OUTPUT_HOVER_CLASS = 'document-mode-view-code-output-container';
 const OUTPUT_MUTATION_SELECTOR =
   '.jp-Cell-outputWrapper, .jp-Cell-outputArea, .jp-OutputArea-output, .jp-MarkdownOutput, .jp-MarkdownCell';
 
@@ -49,10 +51,8 @@ function isRelevantOutputMutationNode(node: Node): boolean {
   }
 
   if (
-    node.classList.contains(VIEW_CODE_BUTTON_CLASS) ||
-    node.closest(`.${VIEW_CODE_BUTTON_CLASS}`) ||
-    node.classList.contains('output-comment-button-container') ||
-    node.closest('.output-comment-button-container')
+    node.classList.contains(OUTPUT_ACTIONS_TOOLBAR_CLASS) ||
+    node.closest(`.${OUTPUT_ACTIONS_TOOLBAR_CLASS}`)
   ) {
     return false;
   }
@@ -69,8 +69,8 @@ export class DocumentModeViewCodeButtons implements IDisposable {
   private readonly _app: JupyterFrontEnd;
   private readonly _notebookTracker: INotebookTracker;
   private readonly _onViewCodeForCell: (cellId: string) => void;
-  private readonly _roots = new Map<HTMLElement, Root>();
-  private readonly _markdownCommentRoots = new Map<HTMLElement, Root>();
+  private readonly _viewCodeHosts = new Set<HTMLElement>();
+  private readonly _markdownCommentHosts = new Set<HTMLElement>();
   private _observer: MutationObserver | null = null;
   private _disposePanelHook: (() => void) | null = null;
   private _injectScheduled = false;
@@ -125,28 +125,15 @@ export class DocumentModeViewCodeButtons implements IDisposable {
       this._disposePanelHook = null;
     }
 
-    const wrappersToClean = new Set<HTMLElement>();
-    const entries = [...this._roots.entries()];
-    entries.forEach(([container, root]) => {
-      const parent = container.parentElement;
-      if (parent) {
-        wrappersToClean.add(parent);
-      }
-      root.unmount();
-      container.remove();
-    });
-    this._roots.clear();
+    for (const host of this._viewCodeHosts) {
+      unmountOutputAction(host, 'viewCode');
+    }
+    this._viewCodeHosts.clear();
 
-    this._markdownCommentRoots.forEach((root, host) => {
-      root.unmount();
-      host.querySelector('.output-comment-button-container')?.remove();
-      host.classList.remove('output-comment-output-container');
-    });
-    this._markdownCommentRoots.clear();
-
-    wrappersToClean.forEach((w) => {
-      w.classList.remove(VIEW_CODE_OUTPUT_HOVER_CLASS);
-    });
+    for (const host of this._markdownCommentHosts) {
+      unmountOutputAction(host, 'comment');
+    }
+    this._markdownCommentHosts.clear();
   }
 
   get isDisposed(): boolean {
@@ -154,27 +141,20 @@ export class DocumentModeViewCodeButtons implements IDisposable {
   }
 
   private _injectViewCodeButtonOnHost(host: HTMLElement, cellId: string): void {
-    if (host.querySelector(`.${VIEW_CODE_BUTTON_CLASS}`)) {
+    if (hasOutputActionSlot(host, 'viewCode')) {
       return;
     }
 
-    host.style.position = 'relative';
-    host.classList.add(VIEW_CODE_OUTPUT_HOVER_CLASS);
-
-    const container = document.createElement('div');
-    container.className = VIEW_CODE_BUTTON_CLASS;
-
-    const root = createRoot(container);
-    this._roots.set(container, root);
-    root.render(
+    mountOutputAction(
+      host,
+      'viewCode',
       <DocumentViewCodeButton
         onClick={() => {
           this._onViewCodeForCell(cellId);
         }}
       />
     );
-
-    host.appendChild(container);
+    this._viewCodeHosts.add(host);
   }
 
   private _injectCodeCellViewCode(cell: CodeCell): void {
@@ -200,28 +180,22 @@ export class DocumentModeViewCodeButtons implements IDisposable {
       this._notebookTracker
     );
     if (commentRoot) {
-      this._markdownCommentRoots.set(host, commentRoot);
+      this._markdownCommentHosts.add(host);
     }
   }
 
-  private _pruneStaleRoots(): void {
-    for (const [container, root] of [...this._roots.entries()]) {
-      if (!this._panel.content.node.contains(container)) {
-        const parent = container.parentElement;
-        root.unmount();
-        this._roots.delete(container);
-        if (parent) {
-          parent.classList.remove(VIEW_CODE_OUTPUT_HOVER_CLASS);
-        }
+  private _pruneStaleHosts(): void {
+    for (const host of [...this._viewCodeHosts]) {
+      if (!this._panel.content.node.contains(host)) {
+        unmountOutputAction(host, 'viewCode');
+        this._viewCodeHosts.delete(host);
       }
     }
 
-    for (const [host, root] of [...this._markdownCommentRoots.entries()]) {
+    for (const host of [...this._markdownCommentHosts]) {
       if (!this._panel.content.node.contains(host)) {
-        root.unmount();
-        host.querySelector('.output-comment-button-container')?.remove();
-        host.classList.remove('output-comment-output-container');
-        this._markdownCommentRoots.delete(host);
+        unmountOutputAction(host, 'comment');
+        this._markdownCommentHosts.delete(host);
       }
     }
   }
@@ -230,7 +204,7 @@ export class DocumentModeViewCodeButtons implements IDisposable {
     if (this._isDisposed) {
       return;
     }
-    this._pruneStaleRoots();
+    this._pruneStaleHosts();
     for (const cell of this._panel.content.widgets) {
       if (cell instanceof CodeCell && cell.outputArea?.model.length) {
         this._injectCodeCellViewCode(cell);

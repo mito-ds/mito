@@ -125,28 +125,3 @@
   ):not(:has(.error-mime-renderer-container)) {
   display: none !important;
 }
-
-/*
- * Document mode: "View code" on output hover (same pattern as output comment button;
- * right offset matches Chart Wizard so it sits left of Comment).
- */
-.document-mode-view-code-button-container {
-  position: absolute;
-  top: 8px;
-  right: 118px;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.document-mode-view-code-output-container:hover .document-mode-view-code-button-container {
-  opacity: 1;
-}
-
-/*
- * When Chart Wizard is present in the same output wrapper, shift further left so the
- * two controls do not overlap (Chart Wizard is positioned from the chart widget).
- */
-.jp-Cell-outputWrapper:has(.chart-wizard-button-container) .document-mode-view-code-button-container {
-  right: 240px;
-}
