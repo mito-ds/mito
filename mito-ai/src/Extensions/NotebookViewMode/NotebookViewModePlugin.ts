@@ -41,6 +41,36 @@ export type NotebookViewMode = 'Notebook' | 'Document' | 'App';
 export const DOCUMENT_MODE_CSS_CLASS = 'jp-mod-mito-document-mode';
 const MITO_TOOLBAR_PLUGIN_ID = 'mito_ai:toolbar-buttons';
 
+/** Split panes opened beside the notebook (Chart Wizard today; add IDs here as we add more). */
+const NOTEBOOK_SIDE_PANEL_WIDGET_IDS = new Set(['mito-ai-chart-wizard']);
+
+/**
+ * Which notebook the mode switcher and toolbar refer to.
+ *
+ * Use cases:
+ * - User is editing the notebook → shell focus is that notebook.
+ * - User opened Chart Wizard and clicked into it → shell focus is Chart Wizard, but we still
+ *   mean the notebook that owns the chart (notebookTracker), so Document stays selected.
+ * - User is on the Launcher or another tab → no notebook.
+ */
+export function getNotebookPanelForToolbar(
+  shell: ILabShell,
+  notebookTracker: INotebookTracker
+): NotebookPanel | null {
+  const current = shell.currentWidget;
+  if (current instanceof NotebookPanel) {
+    return current;
+  }
+  if (
+    current &&
+    NOTEBOOK_SIDE_PANEL_WIDGET_IDS.has(current.id) &&
+    notebookTracker.currentWidget
+  ) {
+    return notebookTracker.currentWidget;
+  }
+  return null;
+}
+
 export const INotebookViewMode = new Token<INotebookViewMode>(
   'mito-ai:INotebookViewMode',
   'Token for the NotebookViewMode service that manages Notebook/Document/App view mode'
@@ -457,10 +487,8 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       streamlitPreviewManager,
       app
     );
-    const getActiveNotebookPanel = (): NotebookPanel | null => {
-      const widget = shell.currentWidget;
-      return widget instanceof NotebookPanel ? widget : null;
-    };
+    const getActiveNotebookPanel = (): NotebookPanel | null =>
+      getNotebookPanelForToolbar(shell, notebookTracker);
     const getCurrentMainAreaWidget = (): Widget | null => {
       const mainAreaWidgets = Array.from(shell.widgets('main'));
       return (
@@ -535,18 +563,21 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       });
     };
 
+    // User switched to a different notebook tab.
     notebookTracker.currentChanged.connect((_, panel) => {
       scheduleToolbarBind(panel);
     });
 
+    // User clicked the notebook or Chart Wizard (focus moved); keep Document/Notebook mode as-is.
     shell.currentChanged.connect(() => {
       const panel = getActiveNotebookPanel();
       if (!panel) {
-        toolbarWidget.setMode('Notebook');
+        toolbarWidget.setMode(manager.getMode());
         scheduleToolbarBind(null);
         return;
       }
-      manager.syncToCurrentNotebook();
+      scheduleToolbarBind(panel);
+      toolbarWidget.setMode(manager.getMode());
     });
     shell.layoutModified.connect(() => {
       toolbarWidget.refreshCurrentWidgetState(getActiveNotebookPanel());

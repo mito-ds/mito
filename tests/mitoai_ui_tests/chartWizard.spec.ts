@@ -60,6 +60,10 @@ test.describe.parallel('Chart Wizard', () => {
         const hasWidget = await chartWizardWidget.count() > 0;
         expect(hasTab || hasWidget).toBeTruthy();
 
+        // Notebook mode: opening Chart Wizard collapses the source cell input (jp-mod-noInput).
+        const codeCell = page.locator('.jp-CodeCell').filter({ has: chartOutputContainer });
+        await expect(codeCell).toHaveClass(/jp-mod-noInput/);
+
         // Wait for the Chart Wizard content to load
         await chartWizardWidget.waitFor({ state: 'visible', timeout: 5000 });
 
@@ -99,5 +103,31 @@ test.describe.parallel('Chart Wizard', () => {
         await closeButton.click();
         await waitForIdle(page);
         await expect(chartWizardWidget).toBeHidden();
+    });
+
+    test('Chart Wizard in Document mode does not collapse source cell input', async ({ page }) => {
+        await page.notebook.setCell(0, 'code', CHART_CODE);
+        await runCell(page, 0);
+        await waitForIdle(page);
+
+        const chartOutputContainer = page.locator('.chart-wizard-output-container').first();
+        await expect(chartOutputContainer).toBeVisible({ timeout: 10000 });
+
+        const documentTab = page.locator('.mode-switcher-segment').filter({ hasText: 'Document' });
+        await documentTab.click();
+        await waitForIdle(page);
+
+        const codeCell = page.locator('.jp-CodeCell').filter({ has: chartOutputContainer });
+        const outputWrapper = chartOutputContainer.locator('xpath=ancestor::div[contains(@class,"jp-Cell-outputWrapper")]');
+        await outputWrapper.hover();
+
+        const chartWizardButton = outputWrapper.locator('.mito-output-action-slot-chartWizard').getByRole('button', { name: 'Chart Wizard' });
+        await chartWizardButton.click();
+        await waitForIdle(page);
+
+        await expect(codeCell).not.toHaveClass(/jp-mod-noInput/);
+
+        const chartWizardWidget = page.locator('[id="mito-ai-chart-wizard"]');
+        await expect(chartWizardWidget).toBeVisible({ timeout: 5000 });
     });
 });
