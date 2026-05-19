@@ -14,6 +14,11 @@
   display: none !important;
 }
 
+/* Hide entire input region, including collapsed Chart Wizard / jp-mod-noInput chrome */
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-inputWrapper {
+  display: none !important;
+}
+
 /* Hide any collapser/header for code cells in document mode */
 .jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-header {
   display: none !important;

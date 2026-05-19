@@ -60,6 +60,10 @@ test.describe.parallel('Chart Wizard', () => {
         const hasWidget = await chartWizardWidget.count() > 0;
         expect(hasTab || hasWidget).toBeTruthy();
 
+        // Notebook mode: opening Chart Wizard collapses the source cell input (jp-mod-noInput).
+        const codeCell = page.locator('.jp-CodeCell').filter({ has: chartOutputContainer });
+        await expect(codeCell).toHaveClass(/jp-mod-noInput/);
+
         // Wait for the Chart Wizard content to load
         await chartWizardWidget.waitFor({ state: 'visible', timeout: 5000 });
 

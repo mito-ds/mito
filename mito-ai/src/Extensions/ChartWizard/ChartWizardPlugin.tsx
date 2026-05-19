@@ -132,7 +132,12 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
                 mimeTypes: ['image/png'],
                 createRenderer: (options: IRenderMime.IRendererOptions) => {
                     const originalRenderer = factory.createRenderer(options);
-                    return new AugmentedImageRenderer(app, originalRenderer, notebookTracker, openChartWizard);
+                    return new AugmentedImageRenderer(
+                        app,
+                        originalRenderer,
+                        notebookTracker,
+                        openChartWizard
+                    );
                 }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
@@ -269,7 +274,6 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         // Set the cell as active before collapsing and scrolling
         setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
 
-        // Collapse the code cell when opening the chart wizard
         cellWidget.inputHidden = true;
 
         // Scroll to the top of the cell
