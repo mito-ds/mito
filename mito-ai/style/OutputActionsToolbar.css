@@ -27,3 +27,21 @@
 .mito-output-action-slot {
   display: flex;
 }
+
+/* Lock output overlay buttons to a consistent size regardless of host. */
+.mito-output-actions-toolbar .text-and-icon-button {
+  font-size: 14px;
+  line-height: 1;
+  padding: 5px 10px;
+}
+
+.mito-output-actions-toolbar .text-and-icon-button__icon {
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.mito-output-actions-toolbar .text-and-icon-button__icon > svg {
+  height: 14px;
+  width: auto;
+}

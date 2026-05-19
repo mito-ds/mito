@@ -22,35 +22,7 @@ import {
 } from '../../Extensions/Comments/CommentsPlugin';
 import TextAndIconButton from '../../components/TextAndIconButton';
 
-import '../../../style/OutputActionsToolbar.css';
-
 export const DOCUMENT_MODE_CLASS = 'jp-mod-mito-document-mode';
-export const FORCE_HOVER_CLASS = 'mito-output-actions-host--test-hover';
-
-const testHoverStyle = document.createElement('style');
-testHoverStyle.textContent = `
-  .mito-output-actions-host {
-    position: relative;
-  }
-  .mito-output-actions-toolbar {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 10;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    justify-content: flex-end;
-    opacity: 0;
-  }
-  .mito-output-actions-host.${FORCE_HOVER_CLASS} .mito-output-actions-toolbar {
-    opacity: 1 !important;
-  }
-`;
-if (!document.head.querySelector('[data-mito-output-actions-test-hover]')) {
-  testHoverStyle.setAttribute('data-mito-output-actions-test-hover', 'true');
-  document.head.appendChild(testHoverStyle);
-}
 
 export type HostType = 'markdown' | 'codeOutput';
 
