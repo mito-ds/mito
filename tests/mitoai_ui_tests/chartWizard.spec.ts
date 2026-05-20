@@ -60,9 +60,10 @@ test.describe.parallel('Chart Wizard', () => {
         const hasWidget = await chartWizardWidget.count() > 0;
         expect(hasTab || hasWidget).toBeTruthy();
 
-        // Notebook mode: opening Chart Wizard collapses the source cell input (jp-mod-noInput).
+        // Notebook mode: opening Chart Wizard collapses the source cell input (input placeholder).
         const codeCell = page.locator('.jp-CodeCell').filter({ has: chartOutputContainer });
-        await expect(codeCell).toHaveClass(/jp-mod-noInput/);
+        await expect(codeCell.locator('.jp-InputPlaceholder')).toBeVisible();
+        await expect(codeCell.locator('.jp-Placeholder-content[title="Click to expand"]')).toBeVisible();
 
         // Wait for the Chart Wizard content to load
         await chartWizardWidget.waitFor({ state: 'visible', timeout: 5000 });
