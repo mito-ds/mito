@@ -5,8 +5,22 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { SettingsWidget } from './SettingsWidget';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+
+const SETTINGS_WIDGET_ID = 'mito-ai-settings';
+
+function getNotebookIdBeforeSettings(
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker
+): string | null {
+    const current = app.shell.currentWidget;
+    if (current instanceof NotebookPanel) {
+        return current.id;
+    }
+    return notebookTracker.currentWidget?.id ?? null;
+}
 
 export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
 export const COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION = 'mito-ai:open-settings-subscription';
@@ -19,7 +33,7 @@ const SettingsManagerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     id: 'mito-ai:settings-manager',
     description: 'Mito AI settings manager',
     autoStart: true,
-    requires: [ICommandPalette, IContextManager],
+    requires: [ICommandPalette, IContextManager, INotebookTracker],
     optional: [ILayoutRestorer],
     activate: _activate
 }
@@ -28,13 +42,26 @@ function _activate(
     app: JupyterFrontEnd,
     palette: ICommandPalette,
     contextManager: IContextManager,
+    notebookTracker: INotebookTracker,
     restorer: ILayoutRestorer | null
 ): WidgetTracker {
+    let previousNotebookId: string | null = null;
+
+    const closeSettings = (): void => {
+        const notebookId = previousNotebookId;
+        if (widget && !widget.isDisposed) {
+            widget.close();
+        }
+        if (notebookId) {
+            app.shell.activateById(notebookId);
+        }
+    };
+
     // Create a widget creator function
     const newWidget = (initialTab?: 'database' | 'mcp' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): MainAreaWidget => {
-        const content = new SettingsWidget(contextManager, initialTab);
+        const content = new SettingsWidget(contextManager, initialTab, closeSettings);
         const widget = new MainAreaWidget({ content });
-        widget.id = 'mito-ai-settings';
+        widget.id = SETTINGS_WIDGET_ID;
         widget.title.label = 'Mito AI Settings';
         widget.title.closable = true;
         return widget;
@@ -49,6 +76,10 @@ function _activate(
 
     // Reusable function to open settings with a specific tab
     const openSettingsWithTab = (initialTab?: 'database' | 'mcp' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): void => {
+        if (app.shell.currentWidget?.id !== SETTINGS_WIDGET_ID) {
+            previousNotebookId = getNotebookIdBeforeSettings(app, notebookTracker);
+        }
+
         // Dispose the old widget and create a new one with the specified tab
         if (widget && !widget.isDisposed) {
             widget.dispose();
