@@ -12,6 +12,45 @@
     box-sizing: border-box;
 }
 
+.chart-wizard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.chart-wizard-header h2 {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.chart-wizard-close-button {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--jp-content-font-color2);
+    cursor: pointer;
+}
+
+.chart-wizard-close-button:hover {
+    background: var(--jp-layout-color2);
+    color: var(--jp-content-font-color0);
+}
+
+.chart-wizard-close-button:focus-visible {
+    outline: 2px solid var(--jp-input-active-border-color);
+    outline-offset: 2px;
+}
+
 .chart-wizard-input-row {
     display: flex;
     flex-direction: column;

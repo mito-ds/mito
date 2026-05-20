@@ -5,7 +5,7 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/cellMetadata';
 import { getSetting } from '../../restAPI/RestAPI';
@@ -69,15 +69,6 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             }
         });
 
-        commands.addCommand('toolbar-button:preview-as-streamlit', {
-            label: 'App Mode',
-            caption: 'Preview notebook as app and turn on App Mode',
-            className: 'text-button-mito-ai button-base button-blue button-small',
-            execute: async () => {
-                void app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT);
-            },
-        });
-
         // Check if the beta mode is enabled. After checking, tell Jupyter to 
         // re-evaluate convert-to-streamlit visibility now that we have had the 
         // opportunity to set the mito-ai:beta-mode-enabled command if beta mode is enabled.
@@ -85,7 +76,6 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             if (value === 'true') {
                 commands.addCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED, { execute: () => { /* no-op */ } });
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
-                commands.notifyCommandChanged('toolbar-button:preview-as-streamlit');
             }
         }).catch(error => {
             console.error('Error checking beta mode:', error);

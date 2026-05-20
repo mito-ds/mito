@@ -4,13 +4,14 @@
  */
 
 import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import { mountOutputAction, unmountOutputAction } from '../OutputActions/outputActionsToolbar';
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
+import { Message } from '@lumino/messaging';
 import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
 import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
@@ -131,7 +132,12 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
                 mimeTypes: ['image/png'],
                 createRenderer: (options: IRenderMime.IRendererOptions) => {
                     const originalRenderer = factory.createRenderer(options);
-                    return new AugmentedImageRenderer(app, originalRenderer, notebookTracker, openChartWizard);
+                    return new AugmentedImageRenderer(
+                        app,
+                        originalRenderer,
+                        notebookTracker,
+                        openChartWizard
+                    );
                 }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
@@ -147,7 +153,8 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private notebookTracker: INotebookTracker;
     private app: JupyterFrontEnd;
     private openChartWizard: (chartData?: ChartWizardData) => void;
-    private reactRoot: Root | null = null;
+    private _outputWrapper: HTMLElement | null = null;
+    private _renderedModel: IRenderMime.IMimeModel | null = null;
 
     constructor(
         app: JupyterFrontEnd,
@@ -166,37 +173,64 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
      * Render the original image and append the Chart Wizard button.
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        // Clean up any existing React root before creating a new one
-        if (this.reactRoot) {
-            this.reactRoot.unmount();
-            this.reactRoot = null;
+        this._unmountChartWizardAction();
+        this._renderedModel = null;
+
+        const originalNode = this.originalRenderer.node;
+        await this.originalRenderer.renderModel(model);
+        this.node.classList.add('chart-wizard-output-container');
+        this.node.appendChild(originalNode);
+
+        this._renderedModel = model;
+        // OutputArea calls renderModel before insertWidget, so the wrapper may not
+        // be an ancestor yet. Mount after attach (see onAfterAttach).
+        this._syncChartWizardAction();
+    }
+
+    protected onAfterAttach(msg: Message): void {
+        super.onAfterAttach(msg);
+        this._syncChartWizardAction();
+    }
+
+    private _findOutputWrapper(): HTMLElement | null {
+        return (
+            (this.node.closest('.jp-Cell-outputWrapper') as HTMLElement | null) ??
+            (this.node.closest('.jp-CodeCell')?.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null)
+        );
+    }
+
+    private _syncChartWizardAction(): void {
+        if (this.isDisposed || !this._renderedModel || !this.node.isConnected) {
+            return;
         }
 
-        const chartWizardDiv = document.createElement('div');
-        chartWizardDiv.className = 'chart-wizard-button-container';
-        const originalNode = this.originalRenderer.node;
+        const wrapper = this._findOutputWrapper();
+        if (!wrapper) {
+            return;
+        }
 
-        // Store the root reference so we can unmount it later
-        this.reactRoot = createRoot(chartWizardDiv);
-        this.reactRoot.render(
+        this._outputWrapper = wrapper;
+        const model = this._renderedModel;
+        mountOutputAction(
+            wrapper,
+            'chartWizard',
             <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
         );
+    }
 
-        this.node.style.position = 'relative';
-        this.node.classList.add('chart-wizard-output-container');
-        this.node.appendChild(chartWizardDiv);
-        await this.originalRenderer.renderModel(model);
-        this.node.appendChild(originalNode);
+    private _unmountChartWizardAction(): void {
+        if (this._outputWrapper) {
+            unmountOutputAction(this._outputWrapper, 'chartWizard');
+        }
+        this._outputWrapper = null;
     }
 
     /**
      * Dispose of the widget and clean up the React root.
      */
     dispose(): void {
-        if (this.reactRoot) {
-            this.reactRoot.unmount();
-            this.reactRoot = null;
-        }
+        this._unmountChartWizardAction();
+        this._renderedModel = null;
         super.dispose();
     }
 
@@ -240,7 +274,6 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         // Set the cell as active before collapsing and scrolling
         setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
 
-        // Collapse the code cell when opening the chart wizard
         cellWidget.inputHidden = true;
 
         // Scroll to the top of the cell

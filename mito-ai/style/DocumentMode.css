@@ -1,0 +1,132 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Document mode: hide code cell input areas so only markdown and outputs are visible.
+ * Applied when the notebook has class jp-mod-mito-document-mode.
+ */
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-InputArea {
+  display: none !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-InputPrompt {
+  display: none !important;
+}
+
+/* Hide entire input region, including collapsed Chart Wizard / jp-mod-noInput chrome */
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-inputWrapper {
+  display: none !important;
+}
+
+/* Hide any collapser/header for code cells in document mode */
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-header {
+  display: none !important;
+}
+
+/* Hide cell number labels in document mode */
+.jp-Notebook.jp-mod-mito-document-mode .jp-Cell-header::before {
+  content: "" !important;
+  display: none !important;
+}
+
+/* Match code cells: the header exists only for the cell label in our theme; hide it in document mode. */
+.jp-Notebook.jp-mod-mito-document-mode .jp-MarkdownCell .jp-Cell-header {
+  display: none !important;
+}
+
+/*
+ * Hide cell toolbar buttons in document mode, except the AI agent's
+ * Accept/Reject buttons. Mirrors the existing carve-out in base.css for
+ * `.jp-toolbar-overlap` so the agent flow keeps working from document mode.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-cell-toolbar {
+  display: flex !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-cell-toolbar
+  > *:not([data-jp-item-name='accept-code']):not(
+    [data-jp-item-name='reject-code']
+  ) {
+  display: none !important;
+}
+
+/*
+ * Hide the `Out[N]:` execution-number text on code-cell outputs in
+ * document mode. Use `visibility: hidden` (not `display: none`) so the
+ * 64px prompt column is preserved and outputs keep their existing left
+ * edge — which is also where rendered markdown sits, so alignment between
+ * markdown content and code outputs is preserved automatically.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-OutputPrompt {
+  visibility: hidden;
+}
+
+/*
+ * In document mode, don't show the active markdown-cell border treatment.
+ * This keeps selected markdown cells looking like part of a continuous doc.
+ */
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-MarkdownCell.jp-mod-active
+  .jp-MarkdownOutput {
+  border-color: transparent;
+}
+
+/*
+ * Hide markdown heading collapse buttons in document mode so the notebook
+ * reads like a clean document without collapser affordances.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-collapseHeadingButton {
+  display: none !important;
+}
+
+/*
+ * Document mode: markdown reads as one continuous document. CellNumbering
+ * reserves top padding on .jp-Cell and .jp-MarkdownOutput for the cell label;
+ * in document mode that label is hidden, so the padding reads as a large gap
+ * before every new markdown cell. NotebookMarkdown also adds margin-top on
+ * h2/h3 for in-cell section breaks — strip that when the heading is the first
+ * block in a cell so "## ..." at a cell boundary matches single-cell rhythm.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-MarkdownCell.jp-Cell {
+  padding-top: 0 !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-MarkdownCell .jp-MarkdownOutput {
+  min-height: 0 !important;
+  padding-top: 0 !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-MarkdownCell
+  .jp-RenderedHTMLCommon
+  > h2:first-child,
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-MarkdownCell
+  .jp-RenderedHTMLCommon
+  > h3:first-child {
+  margin-top: 0;
+}
+
+/*
+ * Hide output gutter collapser overlay in document mode.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-OutputArea-promptOverlay {
+  display: none !important;
+}
+
+/*
+ * Document mode: hide warning / stderr streams so the page reads like a clean
+ * report. Python warnings use stderr; Mito wraps many in .mito-warning-block.
+ * Keep outputs that include the augmented error UI (.error-mime-renderer-container)
+ * so tracebacks and "Fix Error in AI Chat" still show.
+ */
+.jp-Notebook.jp-mod-mito-document-mode
+  .lm-Widget.jp-OutputArea-output:has(.mito-warning-block),
+.jp-Notebook.jp-mod-mito-document-mode
+  .lm-Widget.jp-OutputArea-output:has(
+    [data-mime-type='application/vnd.jupyter.stderr']
+  ):not(:has(.error-mime-renderer-container)) {
+  display: none !important;
+}

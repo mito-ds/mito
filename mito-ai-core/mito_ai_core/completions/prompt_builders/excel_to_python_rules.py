@@ -17,13 +17,15 @@ You will follow a test-driven workflow: implement incrementally, validate each s
 
 ## Configuration cell at the top
 
-**You must create one main code cell at the very top of the notebook** (after any setup/imports) that holds all configurable inputs in one place. Examples of what belongs there:
+Follow the same **Configuration cell** pattern as in the Reader-facing notebooks section of this prompt: a short Markdown cell titled "Configuration" (or similar), then **one** code cell that defines **all** scenario inputs as **ipywidgets**.
 
-- Dates: e.g. `beg_date`, `end_date`
-- Rates and numeric assumptions: e.g. `interest_rate`, `number_of_periods`, `growth_rate`, `inflation_rate`
-- Any other hardcoded values from the Excel file that a user might want to change to run scenarios
+In that single code cell, expose every user-changeable input from the Excel model (examples: date ranges, rates, period counts, growth or inflation assumptions, entity IDs, any other values you identified as scenario drivers). For each widget:
 
-In that cell, assign clear variable names and add brief comments if helpful. **Hardcode the values directly**. Do not read them from the Excel file at runtime. For example, write `initial_investment = 100`, not `initial_investment = float(ws_v["B1"].value)`. Make sure that the value you hardcode is the same as the value in the Excel file, otherwise your checks will fail.
+- Set **`value`** (and any bounds like `min` / `max` / `step`) from the values you read while exploring the Excel file in scratchpad. On first run, the notebook must reproduce Excel's results, so defaults must match the workbook.
+- Do **not** read configuration from the Excel file inside the notebook at runtime (no `openpyxl` or path to the `.xlsx` in the configuration cell to fill widgets). Literal defaults in the widget constructors are fine — you copy the numbers you already observed during conversion.
+- Give each widget a clear variable name (e.g. `interest_rate_widget`). In all analysis cells below, use **`widget_name.value`** only — never a duplicate plain constant for the same input.
+
+Example shape (defaults must match your Excel ground truth): `initial_investment_widget = widgets.FloatText(value=100, description="Initial investment ($)", ...)`, then use `initial_investment_widget.value` in formulas — not a separate `initial_investment = 100`.
 
 ## Check variables
 
@@ -60,7 +62,7 @@ Continue using the **SCRATCHPAD tool** to inspect the workbook and identify the 
 
 - **Outputs:** What does this spreadsheet ultimately produce? Which cells, ranges, or sheets represent the final results?
 - **Source Data:** What data does the workbook rely on? ie: a big table of data that the workbook relies on, you should load the data into a Dataframe. You can use multiple dataframes. 
-- **Configuration Options:**  What are the inputs that the user can change to run different scenarios? ie: beginning_date, interest_rate, number_of_periods, etc. these inputs should all go into the single configuration cell at the top so the user can change them to run different scenarios.
+- **Configuration Options:** What are the inputs that the user can change to run different scenarios? (e.g. beginning_date, interest_rate, number_of_periods.) Each must become an ipywidget in the single configuration code cell at the top, with **default `value` matching the Excel workbook**, so the user can change widgets and re-run the whole notebook.
 
 Be specific — reference sheet names, cell ranges, and describe what each represents.
 
@@ -76,12 +78,12 @@ It might take you several scratchpad iterations to build the full dependency cha
 
 Write a Markdown cell containing:
 
-1. **A todo list** with one item per logical step you need to implement, ordered so that dependencies come first. Use checkbox syntax so you can mark items as complete. The first implementation step should be creating the configuration cell:
+1. **A todo list** with one item per logical step you need to implement, ordered so that dependencies come first. Use checkbox syntax so you can mark items as complete. After the final-checks placeholder cell, the next implementation step is the Configuration Markdown + ipywidgets code cell:
 
    - [ ] Create a single code cell at the very bottom of the notebook containing all `mito_final_check_<description>` variables, one per final output. Initialize each to `False` with a comment showing the comparison it will eventually perform. For example: `mito_final_check_net_income = False  # Will validate: abs(net_income - <expected>) < 0.01`. This cell must always remain the last cell in the notebook. As you implement each output, come back and replace `False` with the actual validation expression.
-   - [ ] Create configuration cell at top (all configuration options: e.g. beg_date, end_date, interest_rate, number_of_periods, etc.)
+   - [ ] Create the Configuration Markdown + single configuration **code** cell at the top (all scenario inputs as ipywidgets; defaults match Excel; analysis will use `.value`).
    - [ ] Load input data
-   - [ ] Compute X from configuration options and input data
+   - [ ] Compute X from `widget_name.value` and input data
    - [ ] Compute Y from X
    - [ ] <add the rest of the steps here>
    - [ ] Compute final output from Z
@@ -95,7 +97,7 @@ This is the core of your work. For each item on your todo list, follow this cycl
 
 1. Write a Markdown cell explaining what Excel logic you are about to convert and how you intend to implement it in Python. Reference the specific formulas from the Excel file.
 2. Write a code cell that implements that logic.
-3. In a new code cell after the implementation cell, create `mito_check_<description>` variables that compare your computed result to the expected value from the Excel file. For example: `mito_check_interest_calculation = abs(interest - 4500.0) < 0.01`.
+3. In a new code cell after the implementation cell, create `mito_check_<description>` variables that compare your computed result to the expected value from the Excel file. For example: `mito_check_interest_calculation = abs(interest - 4500.0) < 0.01` where `interest` was computed using the configuration widgets' `.value` so the check reflects the same defaults as Excel.
 4. If this step produces one of the final outputs, also update the corresponding `mito_final_check_*` line in the final checks cell — the last cell in the notebook — replacing the `False` placeholder with the actual comparison. Do not move or reorder that cell; it must always remain the very last cell.
 5. **Rerun the entire notebook from top to bottom.** Do not just run the current cell. Rerun everything so you can catch regressions from earlier steps.
 6. Check the kernel variables: every `mito_check_*` variable must be `True`. If any `mito_check_*` is `False`, you have a regression or a bug — fix it before proceeding. You can ignore `mito_final_check_*` variables that are `False` since those are only expected to pass once the entire conversion is complete.
@@ -110,7 +112,7 @@ Once every todo item is checked off, rerun the entire notebook from top to botto
 
 ## Rules
 
-- **One configuration cell at the top with hardcoded values.** All user-changeable inputs (dates, rates, periods, and any other scenario inputs) must live in a single code cell at the top of the notebook as plain hardcoded assignments (e.g. `interest_rate = 0.05`). Do not read configuration values from the Excel file at runtime. 
+- **One configuration code cell at the top with ipywidgets.** All user-changeable inputs (dates, rates, periods, and any other scenario inputs) must be defined as widgets in that single cell; **default widget values must match the Excel file** so checks pass on first load. Do not read configuration from the Excel file inside the notebook at runtime. Analysis cells reference **`widget_name.value`** only (see Reader-facing notebooks — Configuration cell).
 - **Formulas are the source of truth.** Always read the Excel formulas to understand logic. Do not guess the logic from data values alone.
 - **Rerun from top after every step.** After each implementation step, rerun the entire notebook from top to bottom. Check that every `mito_check_*` variable is `True` before moving on. Never just run the current cell in isolation.
 - **`mito_check_*` blocks progress; `mito_final_check_*` does not.** A failing `mito_check_*` variable means something is broken — fix it before proceeding. A failing `mito_final_check_*` variable is expected until the full conversion is complete and should not block you.

@@ -1,0 +1,47 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-output-actions-host {
+  position: relative;
+}
+
+.mito-output-actions-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.mito-output-actions-host:hover .mito-output-actions-toolbar {
+  opacity: 1;
+}
+
+.mito-output-action-slot {
+  display: flex;
+}
+
+/* Lock output overlay buttons to a consistent size regardless of host. */
+.mito-output-actions-toolbar .text-and-icon-button {
+  font-size: 14px;
+  line-height: 1;
+  padding: 5px 10px;
+}
+
+.mito-output-actions-toolbar .text-and-icon-button__icon {
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.mito-output-actions-toolbar .text-and-icon-button__icon > svg {
+  height: 14px;
+  width: auto;
+}

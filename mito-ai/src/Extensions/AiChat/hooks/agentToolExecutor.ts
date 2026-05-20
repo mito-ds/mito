@@ -6,7 +6,7 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeCell } from '@jupyterlab/cells';
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugin';
+import { INotebookViewMode } from '../../NotebookViewMode/NotebookViewModePlugin';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import type { Variable } from '../../ContextManager/VariableInspector';
 import { getFullErrorMessageFromTraceback } from '../../ErrorMimeRenderer/errorUtils';
@@ -34,7 +34,7 @@ interface IAgentToolExecutorProps {
     agentResponse: AgentResponse;
     app: JupyterFrontEnd;
     notebookPanel: NotebookPanel;
-    streamlitPreviewManager: IStreamlitPreviewManager;
+    notebookViewMode: INotebookViewMode;
     contextManager: IContextManager;
     setLoadingStatus: (status: LoadingStatus) => void;
     addAIMessageFromResponseAndUpdateState: (
@@ -59,7 +59,7 @@ export const executeAgentTool = async ({
     agentResponse,
     app,
     notebookPanel,
-    streamlitPreviewManager,
+    notebookViewMode,
     contextManager,
     setLoadingStatus,
     addAIMessageFromResponseAndUpdateState,
@@ -227,8 +227,7 @@ export const executeAgentTool = async ({
         }
         case 'create_streamlit_app': {
             const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || '';
-            const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(
-                app,
+            const streamlitPreviewResponse = await notebookViewMode.openPreviewAndSwitchToAppMode(
                 notebookPanel,
                 createStreamlitAppPrompt
             );
@@ -256,19 +255,7 @@ export const executeAgentTool = async ({
                 };
             }
 
-            let streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(
-                app,
-                notebookPanel
-            );
-            if (streamlitPreviewResponse.type === 'error') {
-                return {
-                    success: false,
-                    toolType: 'edit_streamlit_app',
-                    errorMessage: streamlitPreviewResponse.message,
-                };
-            }
-
-            streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(
+            const streamlitPreviewResponse = await notebookViewMode.editPreviewAndSwitchToAppMode(
                 agentResponse.streamlit_app_prompt,
                 notebookPanel
             );
