@@ -19,6 +19,26 @@ import { ITranslator } from '@jupyterlab/translation';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { enableLineNumbersIfNeeded } from '../../utils/lineNumbers';
 import { MitoPalettes } from './palettes';
+import {
+  OPTO_THEME_BODY_ATTR,
+  OPTO_THEME_BODY_VALUE
+} from './optoPalette';
+
+const MITO_THEME_NAMES = ['Mito Light', 'Mito Dark', 'Opto'] as const;
+
+const isMitoThemeName = (themeName: string | null): boolean =>
+  themeName !== null &&
+  (MITO_THEME_NAMES as readonly string[]).includes(themeName);
+
+const setOptoBodyAttribute = (active: boolean): void => {
+  if (active) {
+    document.body.setAttribute(OPTO_THEME_BODY_ATTR, OPTO_THEME_BODY_VALUE);
+  } else if (
+    document.body.getAttribute(OPTO_THEME_BODY_ATTR) === OPTO_THEME_BODY_VALUE
+  ) {
+    document.body.removeAttribute(OPTO_THEME_BODY_ATTR);
+  }
+};
 
 /**
  * Updates cell numbers for all cells in a notebook.
@@ -82,15 +102,15 @@ function setupCellNumbering(notebookPanel: NotebookPanel): (() => void) | null {
 }
 
 /**
- * A plugin for the Mito Themes (Light and Dark).
- * 
- * Registers both Mito Light and Mito Dark themes.
- * Cell numbering and hidden default toolbar buttons apply when either Mito
- * theme is active.
+ * A plugin for the Mito Themes (Light, Dark, and Opto).
+ *
+ * Registers Mito Light, Mito Dark, and Opto themes.
+ * Cell numbering and hidden default toolbar buttons apply when any Mito theme
+ * is active.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'mito_ai:themes',
-  description: 'Adds the Mito Light and Dark themes.',
+  description: 'Adds the Mito Light, Dark, and Opto themes.',
   requires: [IThemeManager, ITranslator, INotebookTracker],
   activate: (
     app: JupyterFrontEnd,
@@ -107,6 +127,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Store connections for cleanup
     let lightWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
     let darkWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
+    let optoWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
     
     // Store cell numbering cleanup functions for each notebook
     const cellNumberingCleanups = new Map<NotebookPanel, () => void>();
@@ -167,6 +188,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       } else if (themeName === 'Mito Dark') {
         darkWidgetAddedConnection = widgetAddedHandler;
         notebookTracker.widgetAdded.connect(darkWidgetAddedConnection);
+      } else if (themeName === 'Opto') {
+        optoWidgetAddedConnection = widgetAddedHandler;
+        notebookTracker.widgetAdded.connect(optoWidgetAddedConnection);
       }
     };
 
@@ -181,6 +205,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
         notebookTracker.widgetAdded.disconnect(darkWidgetAddedConnection);
         darkWidgetAddedConnection = null;
       }
+      if (optoWidgetAddedConnection) {
+        notebookTracker.widgetAdded.disconnect(optoWidgetAddedConnection);
+        optoWidgetAddedConnection = null;
+      }
+
+      setOptoBodyAttribute(false);
 
       // Remove from all existing notebooks
       notebookTracker.forEach(widget => {
@@ -198,6 +228,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isLight: true,
       themeScrollbars: false,
       load: async () => {
+        setOptoBodyAttribute(false);
         // Set CSS variables for light theme before loading CSS
         palettes.setColorsLight();
         // Load theme CSS (hides default buttons, applies light theme variables)
@@ -218,6 +249,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isLight: false,
       themeScrollbars: false,
       load: async () => {
+        setOptoBodyAttribute(false);
         // Set CSS variables for dark theme before loading CSS
         palettes.setColorsDark();
         // Load theme CSS (hides default buttons, applies dark theme variables)
@@ -227,6 +259,23 @@ const plugin: JupyterFrontEndPlugin<void> = {
       },
       unload: async () => {
         // Remove line numbers and cell numbering from all notebooks
+        removeThemeEnhancementsFromAllNotebooks();
+      }
+    });
+
+    // Register Opto theme (institutional green light theme)
+    manager.register({
+      name: 'Opto',
+      displayName: trans.__('Opto'),
+      isLight: true,
+      themeScrollbars: false,
+      load: async () => {
+        palettes.setColorsOpto();
+        setOptoBodyAttribute(true);
+        await manager.loadCSS(style);
+        addThemeEnhancementsToAllNotebooks('Opto');
+      },
+      unload: async () => {
         removeThemeEnhancementsFromAllNotebooks();
       }
     });
@@ -250,8 +299,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         return;
       }
 
-      const isMitoTheme = themeName === 'Mito Light' || themeName === 'Mito Dark';
-      if (isMitoTheme) {
+      if (isMitoThemeName(themeName)) {
         // Already a Mito theme, don't change - this ensures user's Mito theme preference is preserved
         return;
       }

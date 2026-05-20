@@ -49,13 +49,13 @@ const TOOLBAR_HOVER_VARIABLE_NAME = '--mito-toolbar-hover';
 CSS Variable Values
 
 */
-const DEFAULT_HIGHLIGHT = 'var(--mito-purple)';
-const DEFAULT_HIGHLIGHT_MEDIUM = 'var(--mito-medium-purple)';
-const DEFAULT_HIGHLIGHT_LIGHT = 'var(--mito-light-purple)';
-const DEFAULT_HIGHLIGHT_VERY_LIGHT = 'var(--mito-very-light-purple)';
+let DEFAULT_HIGHLIGHT = 'var(--mito-purple)';
+let DEFAULT_HIGHLIGHT_MEDIUM = 'var(--mito-medium-purple)';
+let DEFAULT_HIGHLIGHT_LIGHT = 'var(--mito-light-purple)';
+let DEFAULT_HIGHLIGHT_VERY_LIGHT = 'var(--mito-very-light-purple)';
 
-const DEFAULT_TEXT_MEDIUM = 'var(--mito-medium-gray)';
-const DEFAULT_TEXT_LIGHT = 'var(--mito-light-gray)';
+let DEFAULT_TEXT_MEDIUM = 'var(--mito-medium-gray)';
+let DEFAULT_TEXT_LIGHT = 'var(--mito-light-gray)';
 
 let DEFAULT_TEXT = 'var(--mito-gray)';
 let DEFAULT_BACKGROUND = 'var(--mito-white)';
@@ -75,14 +75,20 @@ if (isInVSCodeNotebookOutput()) {
     DEFAULT_BACKGROUND_DEFAULT = 'var(--vscode-dropdown-background)';
     DEFAULT_BACKGROUND_DEFAULT_HOVER = 'var(--vscode-list-hoverBackground)';
 } else if (isInJupyterLabOrNotebook()) {
-
+    // Follow the active JupyterLab / Mito theme (Mito Light, Mito Dark, Opto, etc.)
     DEFAULT_TEXT = 'var(--jp-content-font-color1)';
+    DEFAULT_TEXT_MEDIUM = 'var(--jp-content-font-color2)';
+    DEFAULT_TEXT_LIGHT = 'var(--jp-content-font-color3)';
     DEFAULT_BACKGROUND = 'var(--jp-layout-color1)';
     DEFAULT_BACKGROUND_OFF = 'var(--jp-layout-color2)';
     DEFAULT_BACKGROUND_HIGHLIGHT = 'var(--jp-input-background)';
     TOOLBAR_HOVER_BACKGROUND = 'var(--jp-layout-color3)';
-    DEFAULT_BACKGROUND_DEFAULT = 'var(--jp-layout-color3)';
-    DEFAULT_BACKGROUND_DEFAULT_HOVER = 'var(--jp-layout-color4)';
+    DEFAULT_BACKGROUND_DEFAULT = 'var(--jp-brand-color3)';
+    DEFAULT_BACKGROUND_DEFAULT_HOVER = 'var(--jp-brand-color2)';
+    DEFAULT_HIGHLIGHT = 'var(--jp-brand-color1)';
+    DEFAULT_HIGHLIGHT_MEDIUM = 'var(--jp-brand-color2)';
+    DEFAULT_HIGHLIGHT_LIGHT = 'var(--jp-brand-color3)';
+    DEFAULT_HIGHLIGHT_VERY_LIGHT = 'var(--jp-brand-color4)';
 }
 
 

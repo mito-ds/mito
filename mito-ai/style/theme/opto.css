@@ -1,0 +1,125 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+/*-----------------------------------------------------------------------------
+| Opto theme — typography, accents, and calm institutional styling
+| Active when body has data-mito-theme="opto"
+|----------------------------------------------------------------------------*/
+
+body[data-mito-theme='opto'] {
+  /* Mitosheet base tokens (see mitosheet/css/sitewide/opto-theme.css) */
+  --mito-purple: var(--mito-opto-green-primary, #0f4a3f);
+  --mito-medium-purple: var(--mito-opto-green-secondary, #7fb8a8);
+  --mito-light-purple: var(--mito-opto-green-tertiary, #d4e8e0);
+  --mito-very-light-purple: #e8f4f0;
+
+  /* Map legacy purple/blue tokens to Opto greens for chat & UI components */
+  --purple-900: var(--mito-opto-green-primary, #0f4a3f);
+  --purple-700: var(--mito-opto-green-primary, #0f4a3f);
+  --purple-600: var(--mito-opto-green-secondary, #7fb8a8);
+  --purple-500: var(--mito-opto-green-secondary, #7fb8a8);
+  --purple-400: var(--mito-opto-green-tertiary, #d4e8e0);
+  --purple-300: var(--mito-opto-green-tertiary, #d4e8e0);
+  --blue-300: var(--mito-opto-green-tertiary, #d4e8e0);
+  --blue-400: #c5ddd6;
+  --blue-700: var(--mito-opto-green-primary, #0f4a3f);
+  --blue-900: var(--mito-opto-green-primary, #0f4a3f);
+
+  /* DataFrame output viewer (mitosheet) */
+  --mito-viewer-purple: var(--mito-opto-green-primary, #0f4a3f);
+  --mito-viewer-purple-medium: var(--mito-opto-green-secondary, #7fb8a8);
+  --mito-viewer-purple-light: var(--mito-opto-green-tertiary, #d4e8e0);
+  --mito-viewer-selection-fill: color-mix(
+    in srgb,
+    var(--mito-opto-green-primary, #0f4a3f) 12%,
+    transparent
+  );
+
+  /* Typography — Inter, restrained weights */
+  --jp-ui-font-family: 'Inter', system-ui, -apple-system, blinkmacsystemfont,
+    'Segoe UI', helvetica, arial, sans-serif;
+  --jp-content-font-family: var(--jp-ui-font-family);
+  --jp-ui-font-size1: 14px;
+  --jp-content-font-size1: 14px;
+  --jp-content-line-height: 1.55;
+  --jp-content-heading-font-weight: 400;
+  --jp-border-radius: 8px;
+
+  /* Calm state colors — neutral grays, no aggressive reds/oranges */
+  --jp-warn-color0: #6b6b6b;
+  --jp-warn-color1: #6b6b6b;
+  --jp-warn-color2: #9a9a9a;
+  --jp-warn-color3: #e8e8e5;
+  --jp-error-color0: #6b6b6b;
+  --jp-error-color1: #6b6b6b;
+  --jp-error-color2: #9a9a9a;
+  --jp-error-color3: #f2f2ef;
+  --jp-success-color0: var(--mito-opto-green-primary, #0f4a3f);
+  --jp-success-color1: var(--mito-opto-green-primary, #0f4a3f);
+  --jp-success-color2: var(--mito-opto-green-secondary, #7fb8a8);
+  --jp-success-color3: var(--mito-opto-green-tertiary, #d4e8e0);
+  --jp-accent-color0: var(--mito-opto-green-primary, #0f4a3f);
+  --jp-accent-color1: var(--mito-opto-green-primary, #0f4a3f);
+  --jp-accent-color2: var(--mito-opto-green-secondary, #7fb8a8);
+  --jp-accent-color3: var(--mito-opto-green-tertiary, #d4e8e0);
+
+  --jp-warn-color-normal: #6b6b6b;
+  --jp-warn-color-hover: #4a4a4a;
+  --jp-warn-color-active: #3a3a3a;
+}
+
+/* Page titles — large, regular weight */
+body[data-mito-theme='opto'] .jp-Toolbar h1,
+body[data-mito-theme='opto'] .jp-MarkdownHeading,
+body[data-mito-theme='opto'] .jp-Dialog-title {
+  font-family: var(--jp-ui-font-family);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--mito-opto-text-primary, #1a1a1a);
+}
+
+/* Section headers */
+body[data-mito-theme='opto'] h2,
+body[data-mito-theme='opto'] h3,
+body[data-mito-theme='opto'] .jp-Dialog h2 {
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--mito-opto-text-primary, #1a1a1a);
+}
+
+/* Data labels */
+body[data-mito-theme='opto'] .text-sm,
+body[data-mito-theme='opto'] .jp-InputArea-prompt {
+  font-size: 12px;
+  color: var(--mito-opto-text-secondary, #6b6b6b);
+}
+
+/* Softer stderr styling */
+body[data-mito-theme='opto']
+  .lm-Widget.jp-OutputArea-output:has(
+    [data-mime-type='application/vnd.jupyter.stderr']
+  ):not(:has(.mito-warning-block)) {
+  border-color: var(--mito-opto-border, #e8e8e5) !important;
+  background-color: var(--mito-opto-canvas, #fafaf7) !important;
+}
+
+body[data-mito-theme='opto']
+  .lm-Widget.jp-OutputArea-output:has(
+    [data-mime-type='application/vnd.jupyter.stderr']
+  ):not(:has(.mito-warning-block))::before {
+  color: var(--mito-opto-text-secondary, #6b6b6b);
+}
+
+/* Rounded inputs and cells */
+body[data-mito-theme='opto'] .jp-InputArea-editor {
+  border-radius: 8px !important;
+}
+
+body[data-mito-theme='opto'] .jp-Notebook:not(.jp-mod-editMode) .jp-Cell.jp-mod-active {
+  border-radius: 8px !important;
+}

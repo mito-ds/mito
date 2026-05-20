@@ -83,7 +83,6 @@ import SignUpForm from './SignUpForm';
 import { getFirstMessage } from './FirstMessage';
 import ChatInput, { ContextItemAIOptimized } from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
 
 // Internal imports - Hooks
@@ -1154,19 +1153,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     setAgentReviewStatus={setAgentReviewStatus}
                 />
             </div>
-            {displayOptimizedChatHistory.length === 0 && !ghCopilot.copilotBlocksChat && (
-                <div className="suggestions-container">
-                    <ScrollableSuggestions
-                        onSelectSuggestion={(prompt) => {
-                            if (agentModeEnabled) {
-                                void agentExecution.startAgentExecution(prompt, setAgentReviewStatus);
-                            } else {
-                                void sendChatInputMessage(prompt);
-                            }
-                        }}
-                    />
-                </div>
-            )}
             <div className={`connected-input-container ${nextSteps.length > 0 ? 'has-next-steps' : ''}`}>
                 {nextSteps.length > 0 && (
                     <NextStepsPills

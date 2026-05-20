@@ -64,13 +64,24 @@
 }
 
 /*
- * In document mode, don't show the active markdown-cell border treatment.
- * This keeps selected markdown cells looking like part of a continuous doc.
+ * In document mode, hide cell selection chrome so the notebook reads as one
+ * continuous document (no outline on the active Jupyter cell or dataframe cells).
  */
+.jp-Notebook.jp-mod-mito-document-mode .jp-Cell.jp-mod-active {
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .jp-Notebook.jp-mod-mito-document-mode
   .jp-MarkdownCell.jp-mod-active
   .jp-MarkdownOutput {
-  border-color: transparent;
+  border-color: transparent !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode .mito-viewer__body-cell--range-fill {
+  box-shadow: none !important;
 }
 
 /*
