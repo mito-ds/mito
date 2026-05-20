@@ -3,6 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import React from 'react';
 import { flushSync } from 'react-dom';
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -23,6 +25,20 @@ import {
 import TextAndIconButton from '../../components/TextAndIconButton';
 
 export const DOCUMENT_MODE_CLASS = 'jp-mod-mito-document-mode';
+
+let outputActionsToolbarStylesInjected = false;
+
+/** Jest mocks CSS imports; inject real toolbar rules for layout assertions. */
+export function ensureOutputActionsToolbarStyles(): void {
+  if (outputActionsToolbarStylesInjected) {
+    return;
+  }
+  const cssPath = path.join(__dirname, '../../../style/OutputActionsToolbar.css');
+  const style = document.createElement('style');
+  style.textContent = fs.readFileSync(cssPath, 'utf8');
+  document.head.appendChild(style);
+  outputActionsToolbarStylesInjected = true;
+}
 
 export type HostType = 'markdown' | 'codeOutput';
 

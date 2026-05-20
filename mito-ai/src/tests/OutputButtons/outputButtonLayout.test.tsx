@@ -7,6 +7,7 @@ import {
   applyScenarioInjection,
   buildOutputHostFixture,
   cleanupFixture,
+  ensureOutputActionsToolbarStyles,
   OUTPUT_ACTIONS_TOOLBAR_CLASS,
 } from './outputButtonTestUtils';
 
@@ -14,6 +15,9 @@ const TOOLBAR_TOP_OFFSET_PX = 8;
 const TOOLBAR_RIGHT_OFFSET_PX = 8;
 
 describe('output overlay button layout', () => {
+  beforeAll(() => {
+    ensureOutputActionsToolbarStyles();
+  });
   it('L1: single toolbar on wrapper; buttons not under chart node', () => {
     const fixture = buildOutputHostFixture({
       isDocumentMode: true,
