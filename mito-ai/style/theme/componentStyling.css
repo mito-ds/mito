@@ -52,7 +52,7 @@
     box-shadow: 0 0 0 1px var(--jp-brand-color1) !important;
 }
 
-.jp-Notebook.jp-mod-mito-document-mode .jp-Cell.jp-mod-active {
+.jp-Notebook.jp-mod-mito-document-mode .jp-Cell.jp-mod-active { 
     border: none !important;
     box-shadow: none !important;
 }

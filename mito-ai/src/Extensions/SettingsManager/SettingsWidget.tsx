@@ -13,6 +13,7 @@ import { ProfilerPage } from './profiler/ProfilerPage';
 import { SubscriptionPage } from './subscription/SubscriptionPage';
 import { MCPPage } from './mcp/MCPPage';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+import XMarkIcon from '../../icons/XMark';
 import '../../../style/SettingsWidget.css';
 
 const TABS_CONFIG = (contextManager: IContextManager) => ({
@@ -50,9 +51,10 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
 interface AppProps {
     contextManager: IContextManager;
     initialTab?: keyof ReturnType<typeof TABS_CONFIG>;
+    onClose: () => void;
 }
 
-const App = ({ contextManager, initialTab = 'general' }: AppProps): JSX.Element => {
+const App = ({ contextManager, initialTab = 'general', onClose }: AppProps): JSX.Element => {
     const [activeTab, setActiveTab] = useState<keyof ReturnType<typeof TABS_CONFIG>>(initialTab);
     const tabsConfig = TABS_CONFIG(contextManager);
 
@@ -63,6 +65,15 @@ const App = ({ contextManager, initialTab = 'general' }: AppProps): JSX.Element 
 
     return (
         <div className="settings-widget">
+            <button
+                type="button"
+                className="settings-close-button"
+                aria-label="Close settings"
+                title="Close"
+                onClick={onClose}
+            >
+                <XMarkIcon fill="currentColor" width="14" height="14" />
+            </button>
             <div className="settings-layout">
                 <div className="settings-sidebar">
                     <nav>
@@ -90,15 +101,27 @@ const App = ({ contextManager, initialTab = 'general' }: AppProps): JSX.Element 
 export class SettingsWidget extends ReactWidget {
     private contextManager: IContextManager;
     private initialTab?: keyof ReturnType<typeof TABS_CONFIG>;
+    private onClose: () => void;
 
-    constructor(contextManager: IContextManager, initialTab?: keyof ReturnType<typeof TABS_CONFIG>) {
+    constructor(
+        contextManager: IContextManager,
+        initialTab?: keyof ReturnType<typeof TABS_CONFIG>,
+        onClose?: () => void
+    ) {
         super();
         this.contextManager = contextManager;
         this.initialTab = initialTab;
+        this.onClose = onClose ?? (() => undefined);
         this.addClass('jp-ReactWidget');
     }
 
     render(): JSX.Element {
-        return <App contextManager={this.contextManager} initialTab={this.initialTab} />;
+        return (
+            <App
+                contextManager={this.contextManager}
+                initialTab={this.initialTab}
+                onClose={this.onClose}
+            />
+        );
     }
 }
