@@ -118,7 +118,7 @@ The system consists of multiple JupyterLab plugins that work together:
 - React JSX support with ES2018 target
 
 ### Python Configuration  
-- Python 3.9+ required
+- Python 3.10+ required
 - pytest 8.3.4 for testing with asyncio support
 - mypy for static type checking with strict settings
 - SQLAlchemy for database operations
