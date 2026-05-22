@@ -16,6 +16,7 @@ from mitosheet.api.get_all_params_for_step_type import get_all_params_for_step_t
 from mitosheet.api.get_ai_completion import get_ai_completion
 from mitosheet.api.get_chart_suggestions import get_chart_suggestions
 from mitosheet.api.get_column_suggestions import get_column_suggestions
+from mitosheet.api.get_data_alerts import get_data_alerts
 from mitosheet.api.get_available_snowflake_options_and_defaults import \
     get_available_snowflake_options_and_defaults
 from mitosheet.api.get_code_snippets import get_code_snippets
@@ -239,6 +240,8 @@ def handle_api_event(
             result = get_chart_suggestions(params, steps_manager)
         elif event["type"] == "get_column_suggestions":
             result = get_column_suggestions(params, steps_manager)
+        elif event["type"] == "get_data_alerts":
+            result = get_data_alerts(params, steps_manager)
         elif event["type"] == "get_parameterizable_params":
             result = get_parameterizable_params(params, steps_manager)
         elif event["type"] == "get_pr_url_of_new_pr":

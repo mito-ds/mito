@@ -26,6 +26,8 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
         for context in additional_context
         if context.get("type") == "dataframe_viewer_selection"
     ]
+    selected_code_comments = [context["value"] for context in additional_context if context.get("type") == "code_comment"]
+    selected_output_comments = [context["value"] for context in additional_context if context.get("type") == "output_comment"]
 
     # STEP 2: Create a list of strings (instructions) for each context type
     context_parts = []
@@ -85,6 +87,54 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
             context_parts.append(
                 "The user has selected the following lines of code to focus on:\n"
                 + "\n\n".join(line_selection_strs)
+            )
+
+    if len(selected_code_comments) > 0:
+        code_comment_strs = []
+        for comment_json in selected_code_comments:
+            try:
+                info = json.loads(comment_json)
+                cell_number = info.get("cellNumber", "?")
+                start_line = info.get("startLine", 0)
+                end_line = info.get("endLine", 0)
+                selected_code = info.get("selectedCode", "")
+                comment = info.get("comment", "")
+
+                if start_line == end_line:
+                    line_info = f"Cell {cell_number}, line {start_line} (0 indexed)"
+                else:
+                    line_info = f"Cell {cell_number}, lines {start_line}-{end_line} (0 indexed)"
+
+                code_comment_strs.append(
+                    f"{line_info}\n```python\n{selected_code}\n```\nUser's Review Comment: {comment}"
+                )
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+        if code_comment_strs:
+            context_parts.append(
+                "The user has left the following review comments on their code:\n"
+                + "\n\n".join(code_comment_strs)
+            )
+
+    if len(selected_output_comments) > 0:
+        output_comment_strs = []
+        for comment_json in selected_output_comments:
+            try:
+                info = json.loads(comment_json)
+                cell_number = info.get("cellNumber", "?")
+                comment = info.get("comment", "")
+
+                output_comment_strs.append(
+                    f"Cell {cell_number} output\nUser's Review Comment: {comment}"
+                )
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+        if output_comment_strs:
+            context_parts.append(
+                "The user has left the following review comments on cell outputs:\n"
+                + "\n\n".join(output_comment_strs)
             )
 
     if len(selected_dataframe_viewer) > 0:

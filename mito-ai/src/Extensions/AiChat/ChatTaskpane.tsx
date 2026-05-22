@@ -49,7 +49,7 @@ import {
 } from '../../utils/codeDiff';
 import { getActiveCellOutput } from '../../utils/cellOutput';
 import { OperatingSystem } from '../../utils/user';
-import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
+import { INotebookViewMode } from '../NotebookViewMode/NotebookViewModePlugin';
 import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { fetchGithubCopilotLoginStatus, logEvent } from '../../restAPI/RestAPI';
@@ -120,7 +120,7 @@ interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
     contextManager: IContextManager
-    streamlitPreviewManager: IStreamlitPreviewManager
+    notebookViewMode: INotebookViewMode
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient
@@ -144,7 +144,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     renderMimeRegistry,
     contextManager,
-    streamlitPreviewManager,
+    notebookViewMode,
     app,
     operatingSystem,
     websocketClient,
@@ -286,7 +286,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         notebookTracker,
         contextManager,
         app,
-        streamlitPreviewManager,
         chatHistoryManager,
         chatHistoryManagerRef,
         setChatHistoryManager,
@@ -718,7 +717,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         contextManager,
         notebookTracker,
         app,
-        streamlitPreviewManager,
+        notebookViewMode,
         websocketClient,
         documentManager,
         chatHistoryManagerRef,
@@ -916,8 +915,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         /*
-            Register global command for starting a new chat.
-            This can be triggered from anywhere with CMD+K (Mac) or Ctrl+K (Windows/Linux).
+            Register command for starting a new chat.
+            When focus is already in the chat taskpane, Accel+E starts a new chat.
         */
         app.commands.addCommand(COMMAND_MITO_AI_START_NEW_CHAT, {
             label: 'Start New Chat',
@@ -931,8 +930,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         app.commands.addKeyBinding({
             command: COMMAND_MITO_AI_START_NEW_CHAT,
-            keys: ['Accel K'],
-            selector: 'body',
+            keys: ['Accel E'],
+            selector: '.chat-taskpane',
+            preventDefault: true,
         });
     }, []);
 
@@ -1021,6 +1021,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <IconButton
                         icon={<settingsIcon.react />}
                         title="Mito AI Settings"
+                        className="icon-button-hover"
                         onClick={() => {
                             void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
@@ -1030,12 +1031,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <div className="chat-taskpane-header-right">
                     <IconButton
                         icon={<addIcon.react />}
-                        title={`Start New Chat (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}K)`}
+                        title={`Start New Chat (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E)`}
+                        className="icon-button-hover"
                         onClick={async () => { await startNewChat() }}
                     />
                     <DropdownMenu
                         trigger={
-                            <button className="icon-button" title="Chat Threads" onClick={fetchChatThreads}>
+                            <button className="icon-button icon-button-hover" title="Chat Threads" onClick={fetchChatThreads}>
                                 <historyIcon.react />
                             </button>
                         }

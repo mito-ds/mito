@@ -100,3 +100,22 @@
   font-size: 12px;
   padding: 2px 5px;
 }
+
+.button-secondary-toolbar {
+  height: var(--toolbar-element-height);
+  font-size: var(--toolbar-element-font-size);
+  padding: var(--toolbar-element-padding);
+  border-radius: var(--toolbar-element-radius);
+  border: 1px solid var(--mito-theme-toolbar-secondary-btn-border);
+  background: transparent;
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.button-secondary-toolbar:hover {
+  background-color: var(--mito-theme-toolbar-secondary-btn-hover-bg);
+}

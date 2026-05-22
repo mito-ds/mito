@@ -6,25 +6,25 @@
 .mito-run-cell-button-container {
   position: relative;
   display: block;
-  width: 160px;
+  width: 165px;
 }
 
 /* Button group - contains both buttons */
 .mito-run-cell-button-group {
   display: flex;
   align-items: center;
-  height: var(--toolbar-button-height);
+  height: var(--toolbar-element-height);
   width: 100%;
-  border-radius: 4px;
+  border-radius: var(--toolbar-element-radius);
   overflow: hidden;
-  /* Theme-aware button colors set by Mito palettes */
-  background-color: var(--mito-theme-button-background, var(--blue-300));
-  border: 0.5px solid var(--mito-theme-button-border, var(--blue-900));
+  background-color: var(--mito-theme-toolbar-primary-btn-background);
+  border: 1px solid var(--mito-theme-toolbar-primary-btn-border);
+  box-shadow: var(--mito-theme-toolbar-primary-btn-shadow);
   transition: all 0.15s ease;
 }
 
 .mito-run-cell-button-group:hover {
-  background-color: var(--mito-theme-button-hover-background, var(--blue-400));
+  background-color: var(--mito-theme-toolbar-primary-btn-hover-background);
 }
 
 /* Shared button styles */
@@ -35,8 +35,7 @@
   padding: 0;
   border-radius: 0;
   cursor: pointer;
-  /* Theme-aware text color */
-  color: var(--mito-theme-button-text, var(--blue-900));
+  color: var(--mito-theme-toolbar-primary-btn-text);
   font-size: 13px;
   font-weight: 400;
   transition: background-color 0.15s ease;
@@ -52,27 +51,23 @@
 .mito-run-cell-button-main {
   flex: 1;
   gap: 6px;
-  padding: 0 10px;
+  padding: 0 12px;
 }
 
 /* Divider between buttons */
 .mito-run-cell-button-divider {
   width: 1px;
-  height: 14px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--mito-theme-button-border, var(--blue-900)) 20%,
-    var(--mito-theme-button-border, var(--blue-900)) 80%,
-    transparent
-  );
-  opacity: 0.4;
+  height: 100%;
+  background: var(--mito-theme-toolbar-primary-btn-divider);
+  opacity: 1;
   flex-shrink: 0;
 }
 
 /* Dropdown button (right side - chevron) */
 .mito-run-cell-button-dropdown {
-  padding: 0 6px;
+  flex-shrink: 0;
+  width: 28px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,8 +76,8 @@
 
 /* Play icon styling */
 .mito-run-cell-button-main > svg {
-  color: var(--mito-theme-button-text, var(--blue-900));
-  fill: var(--mito-theme-button-text, var(--blue-900));
+  color: var(--mito-theme-toolbar-primary-btn-text);
+  fill: var(--mito-theme-toolbar-primary-btn-text);
   width: 12px;
   height: 12px;
   flex-shrink: 0;
@@ -92,60 +87,63 @@
 .mito-run-cell-button-dropdown svg {
   width: 14px;
   height: 14px;
-  color: var(--mito-theme-button-text, var(--blue-900));
+  color: var(--mito-theme-toolbar-primary-btn-text);
 }
 
 /* Ensure chevron path only uses stroke, not fill */
 .mito-run-cell-button-dropdown svg path {
   fill: none;
-  stroke: currentColor;
+  stroke: currentcolor;
 }
 
 .mito-run-cell-button-text {
   white-space: nowrap;
-  color: var(--mito-theme-button-text, var(--blue-900));
+  color: var(--mito-theme-toolbar-primary-btn-text);
+  font-weight: 500;
+}
+
+.mito-run-cell-dropdown-item-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block; /* Remove inline spacing */
+  margin: 0 auto; /* Center the icon within the fixed width container */
+  color: var(--jp-ui-font-color1);
 }
 
 /* Running state - applied to the group */
 .mito-run-cell-button-running {
-  border-color: var(--green-900);
+  border-color: var(--mito-theme-toolbar-primary-btn-border);
 }
 
 .mito-run-cell-button-running .mito-run-cell-button,
 .mito-run-cell-button-running .mito-run-cell-button-dropdown {
-  background-color: var(--green-300);
-  color: var(--green-900);
+  background-color: var(--mito-theme-toolbar-primary-btn-background);
+  color: var(--mito-theme-toolbar-primary-btn-text);
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-dropdown:hover {
-  background-color: var(--green-500);
+  background-color: var(--mito-theme-toolbar-primary-btn-hover-background);
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-divider {
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--green-900) 20%,
-    var(--green-900) 80%,
-    transparent
-  );
-  opacity: 0.5;
+  background: var(--mito-theme-toolbar-primary-btn-divider);
+  opacity: 1;
 }
 
 /* LoadingCircle styling when running */
 .mito-run-cell-button-running .mito-run-cell-button-main > svg {
-  color: var(--green-900);
-  fill: var(--green-900);
+  color: var(--mito-theme-toolbar-primary-btn-text);
+  fill: var(--mito-theme-toolbar-primary-btn-text);
   width: 16px;
   height: 16px;
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-text {
-  color: var(--green-900);
+  color: var(--mito-theme-toolbar-primary-btn-text);
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-dropdown svg {
-  color: var(--green-900);
+  color: var(--mito-theme-toolbar-primary-btn-text);
 }
 
 .mito-run-cell-dropdown-menu {
@@ -156,10 +154,57 @@
   background-color: var(--jp-layout-color1);
   border: 1px solid var(--jp-layout-color2);
   border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   min-width: 200px;
   white-space: nowrap;
   padding: 4px 0;
+}
+
+.mito-run-cell-status-popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 1000;
+  width: 260px;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--mito-theme-toolbar-menu-border);
+  border-radius: 10px;
+  background: var(--mito-theme-toolbar-menu-background);
+  box-shadow: var(--mito-theme-toolbar-menu-shadow);
+}
+
+.mito-run-cell-status-popup-row {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--mito-theme-toolbar-primary-text);
+  font-size: 12.5px;
+}
+
+.mito-run-cell-status-popup-row + .mito-run-cell-status-popup-row {
+  border-top: 1px solid var(--mito-theme-toolbar-divider);
+  border-radius: 0;
+}
+
+.mito-run-cell-status-popup-label {
+  color: var(--mito-theme-toolbar-muted-text);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mito-run-cell-status-popup-value {
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .mito-run-cell-dropdown-section {
@@ -168,7 +213,7 @@
 }
 
 .mito-run-cell-dropdown-section-header {
-  padding: 6px 12px 4px 12px;
+  padding: 6px 12px 4px;
   font-size: 11px;
   font-weight: 600;
   color: var(--jp-ui-font-color2);
@@ -212,14 +257,6 @@
   line-height: 0; /* Remove extra line height for better alignment */
 }
 
-.mito-run-cell-dropdown-item-icon svg {
-  width: 16px;
-  height: 16px;
-  display: block; /* Remove inline spacing */
-  margin: 0 auto; /* Center the icon within the fixed width container */
-  color: var(--jp-ui-font-color1); 
-}
-
 .mito-run-cell-dropdown-item-label {
   flex: 1;
 }
@@ -229,16 +266,4 @@
   font-size: 11px;
   margin-left: 10px;
   opacity: 0.7;
-}
-
-/* Position the button widget on the right side of the toolbar */
-.jp-Notebook-toolbar .mito-run-cell-button-widget {
-  margin-left: auto;
-  order: 9999; /* Ensure it appears last */
-}
-
-/* Ensure toolbar uses flexbox for proper alignment */
-.jp-Notebook-toolbar {
-  display: flex;
-  align-items: center;
 }

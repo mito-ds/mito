@@ -15,7 +15,12 @@ class NotebookSection(PromptSection):
     
     def __init__(self, cells: Optional[List[AIOptimizedCell]]):
         self.cells = cells
-        self.content = json.dumps(self._normalize_cells(cells), indent=2)
+        cells_json = json.dumps(self._normalize_cells(cells), indent=2)
+        self.content = (
+            'Each cell\'s "index" is its position from the top of the notebook: '
+            "0 = first cell at the top of the notebook, then 1, 2, ... (lower index = earlier in the notebook).\n\n"
+            f"{cells_json}"
+        )
         self.name = "Notebook"
 
     @staticmethod

@@ -16,6 +16,8 @@ import {
   GPT_4_1_MODEL_NAME,
   GPT_5_2_DISPLAY_NAME,
   GPT_5_2_MODEL_NAME,
+  GPT_5_5_DISPLAY_NAME,
+  GPT_5_5_MODEL_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
   GEMINI_3_FLASH_DISPLAY_NAME,
   GEMINI_3_1_PRO_DISPLAY_NAME,
@@ -66,6 +68,16 @@ const MODEL_MAPPINGS: ModelMapping[] = [
   {
     displayName: GPT_5_2_DISPLAY_NAME,
     fullName: GPT_5_2_MODEL_NAME,
+    type: 'fast',
+    goodFor: [...GOOD_FOR_FAST],
+    provider: 'OpenAI',
+    tokenLimit: '400K',
+    speed: 'Fast',
+    complexityHandling: 'Medium'
+  },
+  {
+    displayName: GPT_5_5_DISPLAY_NAME,
+    fullName: GPT_5_5_MODEL_NAME,
     type: 'fast',
     goodFor: [...GOOD_FOR_FAST],
     provider: 'OpenAI',

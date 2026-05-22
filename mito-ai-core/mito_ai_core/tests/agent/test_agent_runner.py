@@ -180,6 +180,23 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="Edited Streamlit app preview")
 
+    async def execute_mcp_tool(
+        self,
+        ctx: AgentContext,
+        mcp_server_id: str,
+        tool_name: str,
+        arguments: Dict[str, Any],
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("execute_mcp_tool", {
+            "ctx": ctx,
+            "mcp_server_id": mcp_server_id,
+            "tool_name": tool_name,
+            "arguments": arguments,
+            "message": message,
+        }))
+        return ToolResult(success=True, output="MCP tool executed")
+
 
 class FailingCellUpdateToolExecutor(FakeToolExecutor):
     """Tool executor that always fails CELL_UPDATE dispatch."""

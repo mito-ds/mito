@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Notion-style restyle of rendered markdown cells.
+ * Scoped to `.jp-MarkdownCell .jp-RenderedHTMLCommon` so DataFrame outputs,
+ * IPython.display.HTML/Markdown outputs in code cells, and the chat panel
+ * are all left at their existing styling.
+ */
+
+/* Headings: bump weights and add breathing room above sections.
+   Sizes are intentionally untouched. */
+.jp-MarkdownCell .jp-RenderedHTMLCommon h1 {
+    font-weight: 700;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon h2,
+.jp-MarkdownCell .jp-RenderedHTMLCommon h3,
+.jp-MarkdownCell .jp-RenderedHTMLCommon h4,
+.jp-MarkdownCell .jp-RenderedHTMLCommon h5,
+.jp-MarkdownCell .jp-RenderedHTMLCommon h6 {
+    font-weight: 600;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon h2 {
+    margin-top: 2em;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon h3 {
+    margin-top: 1.5em;
+}
+
+/* Inline code: Mito-purple pill. Mirrors the chat-panel pattern in
+   MarkdownMessage.css so light and dark themes inherit a working palette. */
+.jp-MarkdownCell .jp-RenderedHTMLCommon :not(pre) > code {
+    background-color: var(--purple-300);
+    color: var(--purple-700);
+    border-radius: 3px;
+    padding: 1px 4px;
+}
+
+/* Lists: tighter indent and per-item breathing room.
+   Glyph stack only applies to <ul>; <ol> uses default numbering. */
+.jp-MarkdownCell .jp-RenderedHTMLCommon ul,
+.jp-MarkdownCell .jp-RenderedHTMLCommon ol {
+    padding-left: 28px;
+    margin-block: 0.75em;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon ul {
+    list-style-type: disc;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon ul ul {
+    list-style-type: circle;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon ul ul ul {
+    list-style-type: square;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon li {
+    margin-block: 4px;
+}
+
+/* Tables: clean borders, padded cells, zebra rows. */
+.jp-MarkdownCell .jp-RenderedHTMLCommon table {
+    border-collapse: collapse;
+    border: none;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon th,
+.jp-MarkdownCell .jp-RenderedHTMLCommon td {
+    padding: 8px 12px;
+    text-align: left;
+    border: none;
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon th {
+    font-weight: 600;
+    border-bottom: 1px solid var(--jp-border-color2);
+}
+
+.jp-MarkdownCell .jp-RenderedHTMLCommon tbody tr:nth-child(even) {
+    background-color: var(--jp-rendermime-table-row-background);
+}
+
+/* Blockquotes: purple left rule with softer body text. */
+.jp-MarkdownCell .jp-RenderedHTMLCommon blockquote {
+    border-left: 3px solid var(--purple-300);
+    color: var(--jp-content-font-color2);
+    padding-left: 16px;
+    margin-left: 0;
+}
+
+/* Hide the collapser caret on rendered markdown cells so the document
+   feels chrome-less. Add equivalent left padding so rendered content
+   stays horizontally aligned with where the cell input/output begins. */
+.jp-MarkdownCell.jp-mod-rendered .jp-Collapser {
+    display: none;
+}
+
+.jp-MarkdownCell.jp-mod-rendered .jp-RenderedHTMLCommon {
+    padding-left: var(--jp-cell-collapser-width);
+}

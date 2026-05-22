@@ -1,0 +1,102 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mode-switcher-container {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: 0;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  padding: 2px;
+  border: 1px solid var(--mito-theme-toolbar-divider);
+  border-radius: 8px;
+  background: var(--mito-theme-toolbar-control-background);
+}
+
+.mode-switcher-segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 26px;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: 12.5px;
+  line-height: 1;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  min-width: 0;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease;
+}
+
+.mode-switcher-segment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.mode-switcher-segment-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mode-switcher-segment.selected {
+  color: var(--mito-theme-toolbar-accent-text);
+  background: var(--mito-theme-toolbar-control-active-background);
+  border-radius: 7px;
+  box-shadow: var(--mito-theme-toolbar-control-active-shadow);
+  font-weight: 600;
+}
+
+.mode-switcher-segment.selected .mode-switcher-segment-icon {
+  color: var(--mito-theme-toolbar-accent-text);
+}
+
+.mode-switcher-segment.unselected {
+  color: var(--mito-theme-toolbar-secondary-text);
+  font-weight: 500;
+}
+
+.mode-switcher-segment.unselected:hover {
+  color: var(--mito-theme-toolbar-accent-hover-text);
+  background: var(--mito-theme-toolbar-control-hover-background);
+}
+
+.mode-switcher-segment.unselected .mode-switcher-segment-icon {
+  color: inherit;
+}
+
+.mode-switcher-segment:focus-visible {
+  outline: 2px solid var(--mito-theme-toolbar-focus-outline);
+  outline-offset: 2px;
+}
+
+.mode-switcher-segment:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.mode-switcher-segment:disabled:hover {
+  color: var(--mito-theme-toolbar-secondary-text);
+  background: transparent;
+}

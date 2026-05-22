@@ -1,0 +1,9 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.settings-page-muted-description {
+    margin: 4px 0 12px 0;
+    color: var(--jp-ui-font-color2);
+}

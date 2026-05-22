@@ -23,6 +23,7 @@ evals/reports/
 
 # Other 
 mito-ai-mcp/*.mcpb
+mito-ai-mcp/*.ipynb
 
 ## General
 .DS_Store

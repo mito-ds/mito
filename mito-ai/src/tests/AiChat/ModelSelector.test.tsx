@@ -12,6 +12,7 @@ import {
   GPT_4_1_DISPLAY_NAME, 
   GPT_4_1_MODEL_NAME,
   GPT_5_2_MODEL_NAME,
+  GPT_5_5_MODEL_NAME,
   CLAUDE_HAIKU_MODEL_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
   GEMINI_3_1_PRO_MODEL_NAME,
@@ -42,6 +43,7 @@ describe('ModelSelector', () => {
         models: [
           GPT_4_1_MODEL_NAME,
           GPT_5_2_MODEL_NAME,
+          GPT_5_5_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_1_PRO_MODEL_NAME,
@@ -101,6 +103,7 @@ describe('ModelSelector', () => {
         models: [
           GPT_4_1_MODEL_NAME,
           GPT_5_2_MODEL_NAME,
+          GPT_5_5_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_1_PRO_MODEL_NAME,

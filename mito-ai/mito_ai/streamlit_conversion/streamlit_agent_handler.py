@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
+import re
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders
 from mito_ai_core.provider_manager import ProviderManager
@@ -121,6 +122,8 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
             raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
         
         streamlit_code = await update_existing_streamlit_code(notebook_code, existing_streamlit_code, streamlit_app_prompt, provider) 
+
+    streamlit_code = _ensure_streamlit_import(streamlit_code)
        
     # Then, after creating/updating the app, validate that the new code runs 
     errors = validate_app(streamlit_code, notebook_path)
@@ -128,6 +131,7 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
     while len(errors) > 0 and tries < 5:
         for error in errors:
             streamlit_code = await correct_error_in_generation(error, streamlit_code, provider)
+            streamlit_code = _ensure_streamlit_import(streamlit_code)
         
         errors = validate_app(streamlit_code, notebook_path)
         
@@ -144,3 +148,19 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
     # Finally, update the app.py file with the new code
     create_app_file(app_path, streamlit_code)
     log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, streamlit_app_prompt)
+
+
+def _ensure_streamlit_import(streamlit_code: str) -> str:
+    """
+    Add `import streamlit as st` when generated forgot the import.
+    """
+
+    has_streamlit_alias_import = re.search(
+        r'^\s*import\s+streamlit\s+as\s+st\b',
+        streamlit_code,
+        re.MULTILINE
+    )
+    if has_streamlit_alias_import:
+        return streamlit_code
+
+    return f'import streamlit as st\n\n{streamlit_code.lstrip()}'

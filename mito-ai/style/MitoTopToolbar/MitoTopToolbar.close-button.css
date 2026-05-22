@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-top-toolbar-close-widget {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  z-index: 2;
+}
+
+.mito-top-toolbar-left-close-widget {
+  margin-left: 1px;
+  margin-right: 2px;
+}
+
+.mito-top-toolbar-close-button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--mito-theme-toolbar-muted-text);
+  cursor: pointer;
+}
+
+.mito-top-toolbar-close-button:hover {
+  background: var(--mito-theme-toolbar-control-hover-background);
+  color: var(--mito-theme-toolbar-primary-text);
+}
+
+.mito-top-toolbar-close-button:focus-visible {
+  outline: 2px solid var(--mito-theme-toolbar-focus-outline);
+  outline-offset: 2px;
+}

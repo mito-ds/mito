@@ -9,6 +9,7 @@ import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
 import DatabaseIcon from '../icons/DatabaseIcon';
 import PhotoIcon from '../icons/PhotoIcon';
+import CommentIcon from '../icons/CommentIcon';
 import { highlightCodeCell, getCellByID, scrollToCell, highlightLinesOfCodeInCodeCell } from '../utils/notebook';
 
 interface SelectedContextContainerProps {
@@ -52,6 +53,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         icon = <CodeIcon />;
     } else if (type === 'dataframe_viewer_selection') {
         icon = <CodeIcon />;
+    } else if (type === 'code_comment' || type === 'output_comment') {
+        icon = <CommentIcon />;
     }
 
     const handleClick = (): void => {
@@ -79,27 +82,37 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             setTimeout(() => {
                 highlightCodeCell(notebookTracker, value);
             }, 500);
-        } else if (type === 'line_selection' && notebookTracker && value) {
-            // Handle line selection context click - scroll to and highlight selected lines
+        } else if ((type === 'line_selection' || type === 'code_comment') && notebookTracker && value) {
+            // Scroll to and highlight the selected/commented lines
             try {
-                const selectionInfo = JSON.parse(value);
+                const info = JSON.parse(value);
                 const currentWidget = notebookTracker.currentWidget;
                 if (currentWidget) {
-                    // Scroll to the cell, positioning based on the start line
-                    // Lines are stored 0-indexed, matching the citation format
-                    scrollToCell(currentWidget, selectionInfo.cellId, selectionInfo.startLine, 'center');
-                    // Highlight the selected lines
+                    scrollToCell(currentWidget, info.cellId, info.startLine, 'center');
                     setTimeout(() => {
-                        // Re-check currentWidget inside the callback since it may have changed
                         const widget = notebookTracker.currentWidget;
                         if (widget) {
                             highlightLinesOfCodeInCodeCell(
                                 widget,
-                                selectionInfo.cellId,
-                                selectionInfo.startLine,
-                                selectionInfo.endLine
+                                info.cellId,
+                                info.startLine,
+                                info.endLine
                             );
                         }
+                    }, 500);
+                }
+            } catch {
+                // Ignore JSON parse errors
+            }
+        } else if (type === 'output_comment' && notebookTracker && value) {
+            // Handle output comment click - scroll to the cell
+            try {
+                const commentInfo = JSON.parse(value);
+                const currentWidget = notebookTracker.currentWidget;
+                if (currentWidget) {
+                    scrollToCell(currentWidget, commentInfo.cellId, undefined, 'center');
+                    setTimeout(() => {
+                        highlightCodeCell(notebookTracker, commentInfo.cellId);
                     }, 500);
                 }
             } catch {
@@ -130,6 +143,20 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             return `The AI will be able to access the ${title} database connection`;
         } else if (type === 'dataframe_viewer_selection') {
             return 'The AI will see the values you selected in the DataFrame output viewer';
+        } else if (type === 'code_comment') {
+            try {
+                const info = JSON.parse(value || '{}');
+                return info.comment || 'Comment on code';
+            } catch {
+                return 'Comment on code';
+            }
+        } else if (type === 'output_comment') {
+            try {
+                const info = JSON.parse(value || '{}');
+                return info.comment || 'Comment on output';
+            } catch {
+                return 'Comment on output';
+            }
         }
         return "This context will be included in your message to help the AI understand what you're working with";
     };

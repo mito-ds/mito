@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Stack widgets in JupyterLab's top area vertically so the Mito toolbar
+   sits below the menu bar instead of sharing its row. JupyterLab's default
+   `contain: style size` prevents the top panel from growing with its
+   children, so disable containment for this top-area multi-row layout. */
+#jp-top-panel {
+  align-items: stretch;
+  contain: none !important;
+  flex-direction: column;
+  min-height: calc(var(--jp-private-menubar-height, 28px) + 52px) !important;
+}
+
+/* JupyterLab's first-party logo and top bar are useful in the default
+   horizontal top area, but become extra rows once we stack the top panel. */
+[id='jp-MainLogo'],
+#jp-top-bar {
+  display: none !important;
+}
+
+/* The Mito toolbar's notebook dropdown replaces JupyterLab's document tab bar.
+   Do not hide the dock tab bar with `display: none` plus a translated document:
+   Lumino still reserves the tab bar's layout height, which leaves a matching
+   blank strip at the bottom of the active document. Collapse the tab bar's box
+   instead so Lumino measures it at 0px and gives that height to the document. */
+#jp-main-dock-panel .lm-DockPanel-tabBar {
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+}
+
+.mito-top-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 52px;
+  height: 52px;
+  min-height: 52px;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--jp-layout-color1);
+}

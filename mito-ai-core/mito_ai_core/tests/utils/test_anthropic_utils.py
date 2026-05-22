@@ -5,7 +5,12 @@ import pytest
 import anthropic
 from typing import List, Dict, Any, Tuple, Union, cast
 from anthropic.types import MessageParam, ToolUnionParam, ToolParam
-from mito_ai_core.clients.anthropic_utils import ANTHROPIC_TIMEOUT, _prepare_anthropic_request_data_and_headers
+from mito_ai_core.clients.anthropic_utils import (
+    ANTHROPIC_TIMEOUT,
+    _prepare_anthropic_request_data_and_headers,
+    get_anthropic_completion_function_params,
+    supports_temperature_param,
+)
 from mito_ai_core.completions.models import MessageType
 from mito_ai_core.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai_core.utils.db import get_user_field
@@ -29,7 +34,7 @@ def mock_user_functions(monkeypatch):
     monkeypatch.setattr("mito_ai_core.utils.server_limits.set_user_field", mock_set_field)
 
 
-def test_basic_request_preparation():
+def test_basic_request_preparation() -> None:
     """Test basic request preparation with minimal parameters"""
     model = "claude-3-sonnet"
     max_tokens = 100
@@ -66,7 +71,7 @@ def test_basic_request_preparation():
     assert "system" not in inner_data
 
 
-def test_system_message_handling():
+def test_system_message_handling() -> None:
     """Test handling of system message when provided"""
     system = "You are a helpful assistant"
     messages: List[MessageParam] = [{"role": "user", "content": "Hello"}]
@@ -86,7 +91,7 @@ def test_system_message_handling():
     assert data["data"]["system"] == system
 
 
-def test_tools_and_tool_choice():
+def test_tools_and_tool_choice() -> None:
     """Test handling of tools and tool_choice parameters"""
     tools = cast(List[ToolUnionParam], [{
         "type": "function",
@@ -160,3 +165,33 @@ def test_missing_user_info(monkeypatch):
 
     assert data["email"] is None
     assert data["user_id"] is None 
+
+
+def test_supports_temperature_param_for_anthropic_models() -> None:
+    assert supports_temperature_param("claude-sonnet-4-5-20250929") is True
+    assert supports_temperature_param("claude-haiku-4-5-20251001") is True
+    assert supports_temperature_param("claude-opus-4-7") is False
+
+
+def test_get_anthropic_completion_function_params_omits_temperature_for_opus() -> None:
+    provider_data = get_anthropic_completion_function_params(
+        message_type=MessageType.CHAT,
+        model="claude-opus-4-7",
+        messages=[{"role": "user", "content": "Hello"}],
+        max_tokens=100,
+        system=anthropic.Omit(),
+        temperature=0,
+    )
+    assert "temperature" not in provider_data
+
+
+def test_get_anthropic_completion_function_params_keeps_temperature_for_sonnet() -> None:
+    provider_data = get_anthropic_completion_function_params(
+        message_type=MessageType.CHAT,
+        model="claude-sonnet-4-5-20250929",
+        messages=[{"role": "user", "content": "Hello"}],
+        max_tokens=100,
+        system=anthropic.Omit(),
+        temperature=0,
+    )
+    assert provider_data["temperature"] == 0

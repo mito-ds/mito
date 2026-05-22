@@ -102,7 +102,11 @@ def test_notebook_section_normalizes_cells_with_required_fields() -> None:
 
     section = SectionRegistry.Notebook(cells)
 
-    assert json.loads(section.content) == [
+    assert section.content.startswith(
+        'Each cell\'s "index" is its position from the top of the notebook:'
+    )
+    _, json_part = section.content.split("\n\n", 1)
+    assert json.loads(json_part) == [
         {
             "index": 0,
             "id": "cell-1",

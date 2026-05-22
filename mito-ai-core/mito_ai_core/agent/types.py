@@ -96,6 +96,9 @@ class AgentContext:
     additional_context: Optional[List[Dict[str, str]]] = None
     """Extra structured context (e.g. selections, images) from the client."""
 
+    mcp_tools: Optional[List[Dict[str, Any]]] = None
+    """Available MCP tools grouped by configured server."""
+
 
 @runtime_checkable
 class CompletionProvider(Protocol):
