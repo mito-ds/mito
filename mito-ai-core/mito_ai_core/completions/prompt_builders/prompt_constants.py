@@ -71,6 +71,11 @@ LaTeX (inside `$...$` / `$$...$$`):
 - If generating markdown programmatically in Python, use raw strings (r"...") or double-escape backslashes (\\\\frac) to avoid broken syntax.
 - Stray underscores outside math delimiters can break rendering — keep `_` inside `$...$` only.
 - Avoid mixing LaTeX display blocks inside HTML tags in the same cell.
+
+Inline values in markdown cells (do not use in message component of CELL_UPDATE or FINISHED_TASK):
+- When you want to add dynamic values to a markdown cell, you can use the {eval} syntax which will evaluate a Python expression. For example: "Peak sales were {eval}`sales_df['amount'].max()` in {eval}`sales_df.loc[sales_df['amount'].idxmax(), 'month']`."
+- ONLY use this in markdown cells (cell_update.code with cell_type markdown). NEVER use {eval} in tool message fields (CELL_UPDATE message, FINISHED_TASK message, etc.) — those render in the chat taskpane and will not evaluate.
+- Variables must already exist from prior code cells.
 """
 
 CITATION_RULES = """
