@@ -121,6 +121,20 @@
 }
 
 /*
+ * Document mode: keep the same vertical gap after code outputs as after markdown
+ * cells. CellNumbering adds padding-bottom: 20px on .jp-MarkdownOutput; code
+ * outputs had none, so code ↔ markdown transitions looked uneven. Also strip
+ * code cell top padding (header hidden), mirroring markdown cells above.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell.jp-Cell {
+  padding-top: 0 !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-outputWrapper {
+  padding-bottom: 20px !important;
+}
+
+/*
  * Hide output gutter collapser overlay in document mode.
  */
 .jp-Notebook.jp-mod-mito-document-mode .jp-OutputArea-promptOverlay {
