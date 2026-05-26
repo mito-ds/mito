@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import json
 import pytest
 from typing import List, cast
 from openai.types.chat import ChatCompletionMessageParam
@@ -228,6 +229,49 @@ After text."""
     assert "After text." in result
 
 
+def test_trim_message_content_summarizes_variables_before_removing_them() -> None:
+    """Test that older Variables sections keep names/types and cheap scalar values."""
+    content = """Before text.
+
+<Variables>
+[
+  {"name": "df", "type": "pd.DataFrame", "value": {"rows": 10}},
+  {"name": "threshold", "type": "int", "value": 5},
+  {"name": "flag", "type": "bool", "value": true},
+  {"name": "optional", "type": "NoneType", "value": null},
+  {"name": "label", "type": "str", "value": "short label"},
+  {"name": "module", "type": "module", "value": "<module 'pandas' from '/tmp/pandas.py'>"},
+  {"name": "long_text", "type": "str", "value": "This string is intentionally long enough to be dropped from the summarized variables payload."}
+]
+</Variables>
+
+After text."""
+
+    # Fresh messages keep the full variables payload
+    result = trim_message_content(content, message_age=2)
+    variables_payload = result.split("<Variables>", 1)[1].split("</Variables>", 1)[0].strip()
+    assert json.loads(variables_payload)[0]["value"] == {"rows": 10}
+
+    # Older messages summarize bulky values but preserve cheap scalars
+    result = trim_message_content(content, message_age=3)
+    assert "<Variables>" in result
+    variables_payload = result.split("<Variables>", 1)[1].split("</Variables>", 1)[0].strip()
+    assert json.loads(variables_payload) == [
+        {"name": "df", "type": "pd.DataFrame"},
+        {"name": "threshold", "type": "int", "value": 5},
+        {"name": "flag", "type": "bool", "value": True},
+        {"name": "optional", "type": "NoneType", "value": None},
+        {"name": "label", "type": "str", "value": "short label"},
+        {"name": "module", "type": "module"},
+        {"name": "long_text", "type": "str"},
+    ]
+
+    # Very old messages still drop the Variables section entirely
+    result = trim_message_content(content, message_age=6)
+    assert "<Variables>" not in result
+    assert "threshold" not in result
+
+
 def test_trim_message_content_handles_content_without_sections() -> None:
     """Test that trimming preserves content without XML sections."""
     content = "This is a simple message with no sections to trim."
@@ -360,6 +404,45 @@ file2.txt</Files>
     assert isinstance(assistant_content, str)
     assert assistant_content == assistant_message_with_sections
     assert "<Files>" in assistant_content
+
+
+def test_trim_old_messages_summarizes_json_variables_before_final_trim() -> None:
+    """Test the end-to-end history path for summarized Variables sections."""
+    variables_content = """<Variables>
+[
+  {"name": "df", "type": "pd.DataFrame", "value": {"rows": 10}},
+  {"name": "threshold", "type": "int", "value": 5}
+]
+</Variables>"""
+
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": variables_content},
+        {"role": "assistant", "content": "ok"},
+        {"role": "user", "content": variables_content},
+        {"role": "assistant", "content": "ok"},
+        {"role": "user", "content": "most recent"},
+    ]
+
+    result = trim_old_messages(messages)
+
+    # Index 0 has age 4, so Variables should be summarized, not removed.
+    oldest_content = result[0].get("content")
+    assert isinstance(oldest_content, str)
+    assert "<Variables>" in oldest_content
+    oldest_payload = oldest_content.split("<Variables>", 1)[1].split("</Variables>", 1)[0].strip()
+    assert json.loads(oldest_payload) == [
+        {"name": "df", "type": "pd.DataFrame"},
+        {"name": "threshold", "type": "int", "value": 5},
+    ]
+
+    # Index 2 has age 2, so Variables should remain untouched.
+    newer_content = result[2].get("content")
+    assert isinstance(newer_content, str)
+    newer_payload = newer_content.split("<Variables>", 1)[1].split("</Variables>", 1)[0].strip()
+    assert json.loads(newer_payload) == [
+        {"name": "df", "type": "pd.DataFrame", "value": {"rows": 10}},
+        {"name": "threshold", "type": "int", "value": 5},
+    ]
 
 
 def test_trim_old_messages_handles_mixed_content_messages() -> None:
