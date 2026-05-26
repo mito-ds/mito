@@ -14,8 +14,8 @@ def get_streamlit_app_status_str(notebook_id: str, notebook_path: str) -> str:
 
 
 class StreamlitAppStatusSection(PromptSection):
-    """Section for Streamlit app status."""
-    trim_after_messages: int = 3
+    """Section for Streamlit app status in the latest turn."""
+    trim_after_messages: int = 1
     
     def __init__(self, notebook_id: str, notebook_path: str):
         self.notebook_id = notebook_id

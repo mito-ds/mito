@@ -129,14 +129,14 @@ Text after."""
 
 def test_trim_message_content_preserves_sections_with_none_threshold() -> None:
     """Test that sections with trim_after_messages = None are never trimmed."""
-    # ActiveCellIdSection has trim_after_messages = None
     # TaskSection has trim_after_messages = None
+    # RulesSection has trim_after_messages = None
     
     content = """Some text.
 
-<ActiveCellId>cell1</ActiveCellId>
-
 <Task>Your task: Do something</Task>
+
+<Rules>Always be concise.</Rules>
 
 <Files>file1.csv</Files>
 
@@ -145,11 +145,11 @@ More text."""
     # Test with very high message_age
     result = trim_message_content(content, message_age=100)
     
-    # ActiveCellId and Task should remain (threshold = None)
-    assert "<ActiveCellId>" in result
-    assert "cell1" in result
+    # Task and Rules should remain (threshold = None)
     assert "<Task>" in result
     assert "Your task: Do something" in result
+    assert "<Rules>" in result
+    assert "Always be concise." in result
     
     # Files should be removed (threshold = 3)
     assert "<Files>" not in result
@@ -166,9 +166,14 @@ def test_trim_message_content_handles_empty_content() -> None:
 def test_trim_message_content_uses_declared_trim_tag_names() -> None:
     """Test that trimming uses the section's rendered tag name, not its class name."""
 
-    class RuntimeNamedSection(PromptSection):
-        trim_after_messages = 3
-        trim_tag_names = ["Reminder"]
+    RuntimeNamedSection = type(
+        "RuntimeNamedSection",
+        (),
+        {
+            "trim_after_messages": 3,
+            "get_trim_tag_names": classmethod(lambda cls: ["Reminder"]),
+        },
+    )
 
     content = """Before text.
 
@@ -185,6 +190,41 @@ After text."""
     assert "<Reminder>" not in result
     assert "Remember to choose the correct tool" not in result
     assert "Before text." in result
+    assert "After text." in result
+
+
+def test_trim_message_content_trims_ephemeral_sections_aggressively() -> None:
+    """Test that short-lived execution context is trimmed quickly."""
+
+    content = """Before text.
+
+<Reminder>Remember to choose the correct tool to respond with.</Reminder>
+
+<StreamlitAppStatus>The notebook does not have an existing Streamlit app.</StreamlitAppStatus>
+
+<ActiveCellId>active-cell-123</ActiveCellId>
+
+<SelectedContext>The user selected rows 1-5.</SelectedContext>
+
+<Task>Continue working on the user's task until you have finished</Task>
+
+After text."""
+
+    # At age 1, turn-local reminders/state should be trimmed, but selected context survives
+    result = trim_message_content(content, message_age=1)
+    assert "<Reminder>" not in result
+    assert "<StreamlitAppStatus>" not in result
+    assert "<ActiveCellId>" not in result
+    assert "<SelectedContext>" in result
+    assert "<Task>" in result
+
+    # At age 2, selected context should also be trimmed
+    result = trim_message_content(content, message_age=2)
+    assert "<Reminder>" not in result
+    assert "<StreamlitAppStatus>" not in result
+    assert "<ActiveCellId>" not in result
+    assert "<SelectedContext>" not in result
+    assert "<Task>" in result
     assert "After text." in result
 
 

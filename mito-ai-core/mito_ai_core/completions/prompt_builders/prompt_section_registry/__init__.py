@@ -18,6 +18,7 @@ from .rules import RulesSection
 from .task import TaskSection
 from .error_traceback import ErrorTracebackSection
 from .example import ExampleSection
+from .reminder import ReminderSection
 from .generic import GenericSection
 from .base import Prompt, PromptSection
 
@@ -37,6 +38,7 @@ class SectionRegistry:
     Task = TaskSection
     ErrorTraceback = ErrorTracebackSection
     Example = ExampleSection
+    Reminder = ReminderSection
     Generic = GenericSection
 
 

@@ -11,7 +11,7 @@ from mito_ai_core.completions.prompt_builders.prompt_section_registry.base impor
 def create_agent_execution_prompt(context: AgentContext, user_input: str) -> str:
     
     sections: List[PromptSection] = [
-        SG.Generic("Reminder", "Remember to choose the correct tool to respond with."),
+        SG.Reminder("Remember to choose the correct tool to respond with."),
         SG.Rules(context.additional_context),
         SG.StreamlitAppStatus(context.notebook_id, context.notebook_path),
         SG.Files(context.files),

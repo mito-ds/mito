@@ -5,9 +5,9 @@ from .base import PromptSection
 
 
 class ActiveCellIdSection(PromptSection):
-    """Section for the ID of the active code cell."""
+    """Section for the ID of the active code cell in the latest turn."""
 
-    trim_after_messages = None
+    trim_after_messages: int = 1
 
     def __init__(self, active_cell_id: str) -> None:
         self.active_cell_id = active_cell_id
