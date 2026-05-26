@@ -21,6 +21,9 @@ from mito_ai_core.completions.prompt_builders.prompt_section_registry import (
 
 VARIABLES_SUMMARY_AFTER_MESSAGES = 3
 VARIABLES_SHORT_STRING_LIMIT = 80
+NOTEBOOK_SUMMARY_AFTER_MESSAGES = 3
+NOTEBOOK_CONTENT_PREVIEW_LIMIT = 120
+NOTEBOOK_PREFIX_SEPARATOR = "\n\n"
 
 
 def build_section_to_trim_message_index_mapping() -> Dict[str, Optional[int]]:
@@ -108,6 +111,92 @@ def _summarize_variables_sections(
     return content
 
 
+def _summarize_notebook_cell_content(cell_content: Any) -> Any:
+    """Return a compact preview of cell content for older notebook snapshots."""
+    if not isinstance(cell_content, str):
+        return cell_content
+
+    stripped_content = cell_content.strip()
+    if stripped_content == "":
+        return stripped_content
+
+    if len(stripped_content) <= NOTEBOOK_CONTENT_PREVIEW_LIMIT:
+        return stripped_content
+
+    return stripped_content[:NOTEBOOK_CONTENT_PREVIEW_LIMIT] + "..."
+
+
+def _summarize_notebook_payload(notebook_payload: str) -> Optional[str]:
+    """Summarize a serialized Notebook payload while preserving structure."""
+    notebook_prefix = ""
+    notebook_json_payload = notebook_payload.strip()
+
+    if NOTEBOOK_PREFIX_SEPARATOR in notebook_payload:
+        notebook_prefix, notebook_json_payload = notebook_payload.split(
+            NOTEBOOK_PREFIX_SEPARATOR,
+            1,
+        )
+        notebook_prefix = notebook_prefix.strip()
+        notebook_json_payload = notebook_json_payload.strip()
+
+    try:
+        parsed_payload = json.loads(notebook_json_payload)
+    except json.JSONDecodeError:
+        return None
+
+    if not isinstance(parsed_payload, list):
+        return None
+
+    summarized_cells = []
+    for cell in parsed_payload:
+        if not isinstance(cell, dict):
+            return None
+
+        summarized_cells.append(
+            {
+                "index": cell.get("index"),
+                "id": cell.get("id"),
+                "cell_type": cell.get("cell_type"),
+                "content": _summarize_notebook_cell_content(cell.get("content", "")),
+            }
+        )
+
+    summarized_json = json.dumps(summarized_cells, indent=2)
+    if notebook_prefix == "":
+        return summarized_json
+
+    return f"{notebook_prefix}{NOTEBOOK_PREFIX_SEPARATOR}{summarized_json}"
+
+
+def _summarize_notebook_sections(
+    content: str,
+    message_age: int,
+    notebook_threshold: Optional[int],
+) -> str:
+    """Rewrite older Notebook sections into a lightweight summary."""
+    if notebook_threshold is None:
+        return content
+
+    if (
+        message_age < NOTEBOOK_SUMMARY_AFTER_MESSAGES
+        or message_age >= notebook_threshold
+    ):
+        return content
+
+    pattern = r"<Notebook>(.*?)</Notebook>"
+    matches = list(re.finditer(pattern, content, flags=re.DOTALL))
+
+    for match in reversed(matches):
+        summarized_payload = _summarize_notebook_payload(match.group(1).strip())
+        if summarized_payload is None:
+            continue
+
+        replacement = f"<Notebook>\n{summarized_payload}\n</Notebook>"
+        content = content[:match.start()] + replacement + content[match.end():]
+
+    return content
+
+
 def trim_message_content(content: str, message_age: int) -> str:
     """
     Trims sections from XML string based on age and thresholds.
@@ -136,6 +225,11 @@ def trim_message_content(content: str, message_age: int) -> str:
         content,
         message_age,
         section_mapping.get("Variables"),
+    )
+    content = _summarize_notebook_sections(
+        content,
+        message_age,
+        section_mapping.get("Notebook"),
     )
 
     # For other sections, parse and trim based on section_mapping

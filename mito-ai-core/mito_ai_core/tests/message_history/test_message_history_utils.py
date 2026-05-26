@@ -272,6 +272,76 @@ After text."""
     assert "threshold" not in result
 
 
+def test_trim_message_content_summarizes_notebook_before_removing_it() -> None:
+    """Test that older Notebook sections keep structure and truncated previews."""
+    notebook_content = """Each cell's "index" is its position from the top of the notebook: 0 = first cell at the top of the notebook, then 1, 2, ... (lower index = earlier in the notebook).
+
+[
+  {
+    "index": 0,
+    "id": "cell-1",
+    "cell_type": "code",
+    "content": "import pandas as pd\\nlong_variable_name = 'This code cell is intentionally long enough that the summarized notebook view should truncate it after a short preview.'"
+  },
+  {
+    "index": 1,
+    "id": "cell-2",
+    "cell_type": "markdown",
+    "content": "  # Report Title  "
+  },
+  {
+    "index": 2,
+    "id": "cell-3",
+    "cell_type": "code",
+    "content": ""
+  }
+]
+"""
+    content = f"""Before text.
+
+<Notebook>
+{notebook_content}</Notebook>
+
+After text."""
+
+    # Fresh messages keep the full notebook payload
+    result = trim_message_content(content, message_age=2)
+    notebook_payload = result.split("<Notebook>", 1)[1].split("</Notebook>", 1)[0].strip()
+    assert "long_variable_name" in notebook_payload
+    assert '"content": "  # Report Title  "' in notebook_payload
+
+    # Older messages summarize bulky cell bodies but keep notebook structure
+    result = trim_message_content(content, message_age=3)
+    assert "<Notebook>" in result
+    notebook_payload = result.split("<Notebook>", 1)[1].split("</Notebook>", 1)[0].strip()
+    notebook_prefix, notebook_json = notebook_payload.split("\n\n", 1)
+    assert notebook_prefix.startswith('Each cell\'s "index" is its position from the top of the notebook:')
+    summarized_cells = json.loads(notebook_json)
+    assert summarized_cells[0]["index"] == 0
+    assert summarized_cells[0]["id"] == "cell-1"
+    assert summarized_cells[0]["cell_type"] == "code"
+    assert summarized_cells[0]["content"].startswith("import pandas as pd\nlong_variable_name =")
+    assert summarized_cells[0]["content"].endswith("...")
+    assert "truncate it after a short preview" not in summarized_cells[0]["content"]
+    assert summarized_cells[1] == {
+        "index": 1,
+        "id": "cell-2",
+        "cell_type": "markdown",
+        "content": "# Report Title",
+    }
+    assert summarized_cells[2] == {
+        "index": 2,
+        "id": "cell-3",
+        "cell_type": "code",
+        "content": "",
+    }
+
+    # Very old messages still drop the Notebook section entirely
+    result = trim_message_content(content, message_age=6)
+    assert "<Notebook>" not in result
+    assert "cell-1" not in result
+
+
 def test_trim_message_content_handles_content_without_sections() -> None:
     """Test that trimming preserves content without XML sections."""
     content = "This is a simple message with no sections to trim."
@@ -443,6 +513,64 @@ def test_trim_old_messages_summarizes_json_variables_before_final_trim() -> None
         {"name": "df", "type": "pd.DataFrame", "value": {"rows": 10}},
         {"name": "threshold", "type": "int", "value": 5},
     ]
+
+
+def test_trim_old_messages_summarizes_notebook_before_final_trim() -> None:
+    """Test the end-to-end history path for summarized Notebook sections."""
+    notebook_content = """<Notebook>
+Each cell's "index" is its position from the top of the notebook: 0 = first cell at the top of the notebook, then 1, 2, ... (lower index = earlier in the notebook).
+
+[
+  {
+    "index": 0,
+    "id": "cell-1",
+    "cell_type": "code",
+    "content": "print('This notebook cell is intentionally long enough to be truncated in old history snapshots while still preserving a short preview.')"
+  },
+  {
+    "index": 1,
+    "id": "cell-2",
+    "cell_type": "markdown",
+    "content": "# Summary"
+  }
+]
+</Notebook>"""
+
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": notebook_content},
+        {"role": "assistant", "content": "ok"},
+        {"role": "user", "content": notebook_content},
+        {"role": "assistant", "content": "ok"},
+        {"role": "user", "content": "most recent"},
+    ]
+
+    result = trim_old_messages(messages)
+
+    # Index 0 has age 4, so Notebook should be summarized, not removed.
+    oldest_content = result[0].get("content")
+    assert isinstance(oldest_content, str)
+    assert "<Notebook>" in oldest_content
+    oldest_payload = oldest_content.split("<Notebook>", 1)[1].split("</Notebook>", 1)[0].strip()
+    notebook_prefix, notebook_json = oldest_payload.split("\n\n", 1)
+    assert notebook_prefix.startswith('Each cell\'s "index" is its position from the top of the notebook:')
+    summarized_cells = json.loads(notebook_json)
+    assert summarized_cells[0]["index"] == 0
+    assert summarized_cells[0]["id"] == "cell-1"
+    assert summarized_cells[0]["cell_type"] == "code"
+    assert summarized_cells[0]["content"].startswith("print('This notebook cell is intentionally long enough")
+    assert summarized_cells[0]["content"].endswith("...")
+    assert "short preview.')" not in summarized_cells[0]["content"]
+    assert summarized_cells[1] == {
+        "index": 1,
+        "id": "cell-2",
+        "cell_type": "markdown",
+        "content": "# Summary",
+    }
+
+    # Index 2 has age 2, so Notebook should remain untouched.
+    newer_content = result[2].get("content")
+    assert isinstance(newer_content, str)
+    assert "preserving a short preview." in newer_content
 
 
 def test_trim_old_messages_handles_mixed_content_messages() -> None:
