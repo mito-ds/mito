@@ -15,7 +15,7 @@ from mito_ai_core.completions.models import ThreadID
 def test_trim_message_content_removes_sections_based_on_threshold() -> None:
     """Test that sections are removed when message_age >= trim_after_messages threshold."""
     # FilesSection has trim_after_messages = 3
-    # VariablesSection has trim_after_messages = 6
+    # VariablesSection has trim_after_messages = 2
     # NotebookSection has trim_after_messages = 6
     
     content = """Some text before.
@@ -32,8 +32,8 @@ var2 = "string"</Variables>
 
 Some text after."""
 
-    # Test with message_age = 2 (should NOT trim Files, Variables, or Notebook)
-    result = trim_message_content(content, message_age=2)
+    # Test with message_age = 1 (should NOT trim Files, Variables, or Notebook)
+    result = trim_message_content(content, message_age=1)
     assert "<Files>" in result
     assert "file1.csv" in result
     assert "<Variables>" in result
@@ -41,12 +41,21 @@ Some text after."""
     assert "<Notebook>" in result
     assert "cell_type" in result
     
-    # Test with message_age = 3 (should trim Files, but NOT Variables or Notebook)
+    # Test with message_age = 2 (should trim Variables, but NOT Files or Notebook)
+    result = trim_message_content(content, message_age=2)
+    assert "<Files>" in result
+    assert "file1.csv" in result
+    assert "<Variables>" not in result
+    assert "var1 = 1" not in result
+    assert "<Notebook>" in result
+    assert "cell_type" in result
+    
+    # Test with message_age = 3 (should trim Files and Variables, but NOT Notebook)
     result = trim_message_content(content, message_age=3)
     assert "<Files>" not in result
     assert "file1.csv" not in result
-    assert "<Variables>" in result
-    assert "var1 = 1" in result
+    assert "<Variables>" not in result
+    assert "var1 = 1" not in result
     assert "<Notebook>" in result
     assert "cell_type" in result
     
@@ -80,12 +89,12 @@ Some example text here.
 
 Some text after."""
 
-    # Test with message_age = 2 (should NOT trim Example)
+    # Test with message_age = 2 (should NOT trim Example, but Variables are trimmed earlier)
     result = trim_message_content(content, message_age=2)
     assert "<Example" in result
     assert "file1.csv" in result
-    assert "<Variables>" in result
-    assert "var1 = 1" in result
+    assert "<Variables>" not in result
+    assert "var1 = 1" not in result
     
     # Test with message_age = 3 (should trim entire Example including nested tags)
     result = trim_message_content(content, message_age=3)
@@ -198,7 +207,7 @@ def test_trim_old_messages_calculates_message_age_correctly() -> None:
     # - Index 4 (newest): age = 5 - 4 - 1 = 0
     
     # FilesSection has trim_after_messages = 3, so it should be trimmed when age >= 3
-    # VariablesSection has trim_after_messages = 6, so it should be trimmed when age >= 6
+    # VariablesSection has trim_after_messages = 2, so it should be trimmed when age >= 2
     
     messages: List[ChatCompletionMessageParam] = [
         {"role": "user", "content": "Message 0 with <Files>file0.csv</Files> and <Variables>var0</Variables>"},
@@ -210,31 +219,31 @@ def test_trim_old_messages_calculates_message_age_correctly() -> None:
     
     result = trim_old_messages(messages)
     
-    # Message 0 (age=4): Files should be trimmed (4 >= 3), Variables should remain (4 < 6)
+    # Message 0 (age=4): Files and Variables should be trimmed
     content_0 = result[0].get("content")
     assert isinstance(content_0, str)
     assert "<Files>" not in content_0
     assert "file0.csv" not in content_0
-    assert "<Variables>" in content_0
-    assert "var0" in content_0
+    assert "<Variables>" not in content_0
+    assert "var0" not in content_0
     
-    # Message 1 (age=3): Files should be trimmed (3 >= 3), Variables should remain (3 < 6)
+    # Message 1 (age=3): Files and Variables should be trimmed
     content_1 = result[1].get("content")
     assert isinstance(content_1, str)
     assert "<Files>" not in content_1
     assert "file1.csv" not in content_1
-    assert "<Variables>" in content_1
-    assert "var1" in content_1
+    assert "<Variables>" not in content_1
+    assert "var1" not in content_1
     
-    # Message 2 (age=2): Files should remain (2 < 3), Variables should remain (2 < 6)
+    # Message 2 (age=2): Files should remain, Variables should be trimmed
     content_2 = result[2].get("content")
     assert isinstance(content_2, str)
     assert "<Files>" in content_2
     assert "file2.csv" in content_2
-    assert "<Variables>" in content_2
-    assert "var2" in content_2
+    assert "<Variables>" not in content_2
+    assert "var2" not in content_2
     
-    # Message 3 (age=1): Files should remain (1 < 3), Variables should remain (1 < 6)
+    # Message 3 (age=1): Files and Variables should remain
     content_3 = result[3].get("content")
     assert isinstance(content_3, str)
     assert "<Files>" in content_3
@@ -242,7 +251,7 @@ def test_trim_old_messages_calculates_message_age_correctly() -> None:
     assert "<Variables>" in content_3
     assert "var3" in content_3
     
-    # Message 4 (age=0, newest): Files should remain (0 < 3), Variables should remain (0 < 6)
+    # Message 4 (age=0, newest): Files and Variables should remain
     content_4 = result[4].get("content")
     assert isinstance(content_4, str)
     assert "<Files>" in content_4
