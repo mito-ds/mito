@@ -11,6 +11,10 @@ class PromptSection(ABC):
     
     # Class variable: trimming threshold (None = never trim)
     trim_after_messages: Optional[int] = 3
+
+    # Class variable: XML tags this section may render as when serialized.
+    # Defaults to the class-derived section name.
+    trim_tag_names: Optional[List[str]] = None
     
     # Class variable: if True, exclude XML tags when content is empty
     exclude_if_empty: bool = False
@@ -18,6 +22,13 @@ class PromptSection(ABC):
     def __init__(self, content: str):
         self.content = content
         self.name = self.__class__.__name__.replace("Section", "")
+
+    @classmethod
+    def get_trim_tag_names(cls) -> List[str]:
+        if cls.trim_tag_names is not None:
+            return cls.trim_tag_names
+
+        return [cls.__name__.replace("Section", "")]
 
     @staticmethod
     def _is_empty_content(content: Any) -> bool:

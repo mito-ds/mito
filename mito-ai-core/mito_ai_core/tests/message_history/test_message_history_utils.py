@@ -8,6 +8,7 @@ from mito_ai_core.utils.trim_message_history import trim_message_content, trim_o
 from unittest.mock import Mock, patch
 from mito_ai_core.completions.message_history import GlobalMessageHistory, ChatThread
 from mito_ai_core.completions.models import ThreadID
+from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 
 # Tests for trim_message_content function
@@ -160,6 +161,31 @@ def test_trim_message_content_handles_empty_content() -> None:
     content = ""
     result = trim_message_content(content, message_age=5)
     assert result == ""
+
+
+def test_trim_message_content_uses_declared_trim_tag_names() -> None:
+    """Test that trimming uses the section's rendered tag name, not its class name."""
+
+    class RuntimeNamedSection(PromptSection):
+        trim_after_messages = 3
+        trim_tag_names = ["Reminder"]
+
+    content = """Before text.
+
+<Reminder>Remember to choose the correct tool to respond with.</Reminder>
+
+After text."""
+
+    with patch(
+        "mito_ai_core.utils.trim_message_history.get_all_section_classes",
+        return_value=[RuntimeNamedSection],
+    ):
+        result = trim_message_content(content, message_age=3)
+
+    assert "<Reminder>" not in result
+    assert "Remember to choose the correct tool" not in result
+    assert "Before text." in result
+    assert "After text." in result
 
 
 def test_trim_message_content_handles_content_without_sections() -> None:

@@ -23,8 +23,8 @@ def build_section_to_trim_message_index_mapping() -> Dict[str, Optional[int]]:
     """Build mapping from section names to trim_after_messages thresholds."""
     mapping = {}
     for section_class in get_all_section_classes():
-        section_name = section_class.__name__.replace("Section", "")
-        mapping[section_name] = section_class.trim_after_messages
+        for section_name in section_class.get_trim_tag_names():
+            mapping[section_name] = section_class.trim_after_messages
     return mapping
 
 
