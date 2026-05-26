@@ -16,7 +16,7 @@ def test_trim_message_content_removes_sections_based_on_threshold() -> None:
     """Test that sections are removed when message_age >= trim_after_messages threshold."""
     # FilesSection has trim_after_messages = 3
     # VariablesSection has trim_after_messages = 2
-    # NotebookSection has trim_after_messages = 6
+    # NotebookSection has trim_after_messages = 2
     
     content = """Some text before.
 
@@ -41,23 +41,23 @@ Some text after."""
     assert "<Notebook>" in result
     assert "cell_type" in result
     
-    # Test with message_age = 2 (should trim Variables, but NOT Files or Notebook)
+    # Test with message_age = 2 (should trim Variables and Notebook, but NOT Files)
     result = trim_message_content(content, message_age=2)
     assert "<Files>" in result
     assert "file1.csv" in result
     assert "<Variables>" not in result
     assert "var1 = 1" not in result
-    assert "<Notebook>" in result
-    assert "cell_type" in result
+    assert "<Notebook>" not in result
+    assert "cell_type" not in result
     
-    # Test with message_age = 3 (should trim Files and Variables, but NOT Notebook)
+    # Test with message_age = 3 (should trim Files, Variables, and Notebook)
     result = trim_message_content(content, message_age=3)
     assert "<Files>" not in result
     assert "file1.csv" not in result
     assert "<Variables>" not in result
     assert "var1 = 1" not in result
-    assert "<Notebook>" in result
-    assert "cell_type" in result
+    assert "<Notebook>" not in result
+    assert "cell_type" not in result
     
     # Test with message_age = 6 (should trim Files, Variables, and Notebook)
     result = trim_message_content(content, message_age=6)
