@@ -10,7 +10,7 @@ from .base import PromptSection
 
 class NotebookSection(PromptSection):
     """Section for Jupyter notebook content."""
-    trim_after_messages: int = 6
+    trim_after_messages: int = 2
     exclude_if_empty: bool = False
     
     def __init__(self, cells: Optional[List[AIOptimizedCell]]):
