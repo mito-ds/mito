@@ -1,6 +1,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+"""Connect to DB skill."""
+
 import json
 import os
 from typing import Any, Dict, Final, Optional, cast
@@ -84,8 +86,8 @@ def _load_schemas() -> Optional[Any]:
         return None
 
 
-class DatabaseRulesSkill(Skill):
-    name = "database_rules"
+class ConnectToDbSkill(Skill):
+    name = "connect_to_db"
     description = "Use this skill if the user has requested data from a database. This skill contains the database credentials and instructions on how to properly query the database."
 
     @property

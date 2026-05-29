@@ -6,7 +6,7 @@ import json
 import pytest
 
 from mito_ai_core.completions.prompt_builders.prompt_constants import get_database_rules
-from mito_ai_core.skills import database_rules as database_rules_module
+from mito_ai_core.skills import connect_to_db as connect_to_db_module
 from mito_ai_core.skills.types import Skill
 from mito_ai_core.skills.utils import SKILLS, get_available_skills, get_skill, read_skill
 
@@ -21,8 +21,8 @@ def db_config(tmp_path, monkeypatch):
         json.dumps({"my_db": {"username": "admin", "password": "secret", "host": "localhost"}})
     )
     schemas_path.write_text(json.dumps({"my_db": {"tables": ["users"]}}))
-    monkeypatch.setattr(database_rules_module, "CONNECTIONS_PATH", str(connections_path))
-    monkeypatch.setattr(database_rules_module, "SCHEMAS_PATH", str(schemas_path))
+    monkeypatch.setattr(connect_to_db_module, "CONNECTIONS_PATH", str(connections_path))
+    monkeypatch.setattr(connect_to_db_module, "SCHEMAS_PATH", str(schemas_path))
     return connections_path, schemas_path
 
 
@@ -31,21 +31,21 @@ class TestSkillRegistry:
         assert "excel_to_python" in SKILLS
         assert SKILLS["excel_to_python"].description
 
-    def test_database_rules_is_registered(self) -> None:
-        assert "database_rules" in SKILLS
+    def test_connect_to_db_is_registered(self) -> None:
+        assert "connect_to_db" in SKILLS
 
     def test_list_available_skills_includes_excel_to_python(self) -> None:
         assert "excel_to_python" in get_available_skills()
 
-    def test_database_rules_not_listed_without_config(
+    def test_connect_to_db_not_listed_without_config(
         self, tmp_path, monkeypatch
     ) -> None:
         missing_path = str(tmp_path / "missing" / "connections.json")
-        monkeypatch.setattr(database_rules_module, "CONNECTIONS_PATH", missing_path)
-        assert "database_rules" not in get_available_skills()
+        monkeypatch.setattr(connect_to_db_module, "CONNECTIONS_PATH", missing_path)
+        assert "connect_to_db" not in get_available_skills()
 
-    def test_database_rules_listed_when_configured(self, db_config) -> None:
-        assert "database_rules" in get_available_skills()
+    def test_connect_to_db_listed_when_configured(self, db_config) -> None:
+        assert "connect_to_db" in get_available_skills()
 
 
 class TestGetSkill:
@@ -57,8 +57,8 @@ class TestGetSkill:
     def test_returns_none_for_missing_skill(self) -> None:
         assert get_skill("missing") is None
 
-    def test_database_rules_includes_user_config(self, db_config) -> None:
-        content = get_skill("database_rules")
+    def test_connect_to_db_includes_user_config(self, db_config) -> None:
+        content = get_skill("connect_to_db")
         assert content is not None
         assert "SQLAlchemy" in content
         assert "redacted" in content
@@ -72,8 +72,8 @@ class TestReadSkill:
         assert result.tool_name == "read_skill"
         assert "mito_check_" in (result.output or "")
 
-    def test_read_database_rules(self, db_config) -> None:
-        result = read_skill("database_rules")
+    def test_read_connect_to_db(self, db_config) -> None:
+        result = read_skill("connect_to_db")
         assert result.success
         assert "Your Database Configuration" in (result.output or "")
 
@@ -97,11 +97,11 @@ class TestFormatAvailableSkills:
         assert "excel_to_python:" in formatted
         assert "Convert Excel workbook logic" in formatted
 
-    def test_includes_database_rules_when_configured(self, db_config) -> None:
+    def test_includes_connect_to_db_when_configured(self, db_config) -> None:
         from mito_ai_core.completions.prompt_builders.skills import format_available_skills
 
         formatted = format_available_skills()
-        assert "database_rules:" in formatted
+        assert "connect_to_db:" in formatted
         assert "database" in formatted.lower()
 
     def test_custom_skill_in_registry(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -123,11 +123,11 @@ class TestFormatAvailableSkills:
 class TestGetDatabaseRulesForChat:
     def test_returns_empty_when_no_db(self, tmp_path, monkeypatch) -> None:
         missing_path = str(tmp_path / "missing" / "connections.json")
-        monkeypatch.setattr(database_rules_module, "CONNECTIONS_PATH", missing_path)
+        monkeypatch.setattr(connect_to_db_module, "CONNECTIONS_PATH", missing_path)
         assert get_database_rules() == ""
 
     def test_matches_skill_content(self, db_config) -> None:
-        from mito_ai_core.skills.database_rules import DatabaseRulesSkill
+        from mito_ai_core.skills.connect_to_db import ConnectToDbSkill
 
-        skill = DatabaseRulesSkill()
+        skill = ConnectToDbSkill()
         assert get_database_rules() == skill.get_content()

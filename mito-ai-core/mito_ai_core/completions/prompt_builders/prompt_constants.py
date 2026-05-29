@@ -113,9 +113,9 @@ Do NOT include the founders email when the user is asking for data analysis, ins
 
 def get_database_rules() -> str:
     """Return database rules for chat mode. Agent mode loads these via read_skill."""
-    from mito_ai_core.skills.database_rules import DatabaseRulesSkill
+    from mito_ai_core.skills.connect_to_db import ConnectToDbSkill
 
-    skill = DatabaseRulesSkill()
+    skill = ConnectToDbSkill()
     if not skill.is_available:
         return ""
     return skill.get_content()

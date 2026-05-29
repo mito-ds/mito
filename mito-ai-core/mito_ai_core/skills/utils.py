@@ -4,13 +4,13 @@
 from typing import Dict, Optional
 
 from mito_ai_core.agent.types import ToolResult
-from mito_ai_core.skills.database_rules import DatabaseRulesSkill
+from mito_ai_core.skills.connect_to_db import ConnectToDbSkill
 from mito_ai_core.skills.excel_to_python import ExcelToPythonSkill
 from mito_ai_core.skills.types import Skill
 
 SKILLS: Dict[str, Skill] = {
     ExcelToPythonSkill.name: ExcelToPythonSkill(),
-    DatabaseRulesSkill.name: DatabaseRulesSkill(),
+    ConnectToDbSkill.name: ConnectToDbSkill(),
 }
 
 
