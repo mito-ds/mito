@@ -385,8 +385,6 @@ Important information:
 
 """))
 
-    sections.append(SG.Generic("Available Skills", format_available_skills()))
-
     sections.append(SG.Generic("TOOL: READ_SKILL", """
 Load detailed instructions for a specialized task on demand. Use this before work that needs guidance not included in the base prompt (e.g. Excel formula translation, database connections).
 
@@ -403,6 +401,8 @@ Important information:
 3. After reading a skill, follow its instructions for the rest of the task.
 4. Do not call read_skill for the same skill more than once in a conversation unless the user asks you to reload it.
 """))
+
+    sections.append(SG.Generic("Available Skills", format_available_skills()))
 
     # MCP_TOOL_CALL tool
     sections.append(
