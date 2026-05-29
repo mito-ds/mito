@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from mito_ai_core.agent.types import ToolResult
 from mito_ai_core.skills.database_rules import DatabaseRulesSkill
@@ -18,11 +18,6 @@ def get_available_skills() -> Dict[str, Skill]:
     return {
         name: skill for name, skill in SKILLS.items() if skill.is_available
     }
-
-
-def list_available_skills() -> List[str]:
-    """Return sorted registered skill names that are currently available."""
-    return sorted(get_available_skills().keys())
 
 
 def get_skill(skill_name: str) -> Optional[str]:
@@ -45,7 +40,7 @@ def read_skill(skill_name: str) -> ToolResult:
     sanitized_name = skill_name.strip()
     skill = get_available_skills().get(sanitized_name)
     if skill is None:
-        available = list_available_skills()
+        available = sorted(get_available_skills().keys())
         available_text = ", ".join(available) if available else "(none)"
         return ToolResult(
             success=False,

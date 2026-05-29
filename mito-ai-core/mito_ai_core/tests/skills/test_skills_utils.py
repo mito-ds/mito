@@ -8,7 +8,7 @@ import pytest
 from mito_ai_core.completions.prompt_builders.prompt_constants import get_database_rules
 from mito_ai_core.skills import database_rules as database_rules_module
 from mito_ai_core.skills.types import Skill
-from mito_ai_core.skills.utils import SKILLS, get_skill, list_available_skills, read_skill
+from mito_ai_core.skills.utils import SKILLS, get_available_skills, get_skill, read_skill
 
 
 @pytest.fixture
@@ -35,17 +35,17 @@ class TestSkillRegistry:
         assert "database_rules" in SKILLS
 
     def test_list_available_skills_includes_excel_to_python(self) -> None:
-        assert "excel_to_python" in list_available_skills()
+        assert "excel_to_python" in get_available_skills()
 
     def test_database_rules_not_listed_without_config(
         self, tmp_path, monkeypatch
     ) -> None:
         missing_path = str(tmp_path / "missing" / "connections.json")
         monkeypatch.setattr(database_rules_module, "CONNECTIONS_PATH", missing_path)
-        assert "database_rules" not in list_available_skills()
+        assert "database_rules" not in get_available_skills()
 
     def test_database_rules_listed_when_configured(self, db_config) -> None:
-        assert "database_rules" in list_available_skills()
+        assert "database_rules" in get_available_skills()
 
 
 class TestGetSkill:
