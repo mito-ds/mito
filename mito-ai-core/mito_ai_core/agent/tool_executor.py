@@ -201,7 +201,7 @@ class ToolExecutor(Protocol):
         ctx:
             Current agent context.
         skill_name:
-            Skill identifier (matches a ``.md`` file in bundled or user skills).
+            Skill identifier (matches a ``.py`` skill module in package or user skills).
         message:
             Agent's reasoning for loading this skill.
         """

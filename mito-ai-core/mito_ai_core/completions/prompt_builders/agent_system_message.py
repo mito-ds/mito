@@ -401,8 +401,7 @@ Important information:
 1. Only request skills listed in the "Available Skills" section.
 2. The skill_name must exactly match one of the listed skill names.
 3. After reading a skill, follow its instructions for the rest of the task.
-4. Call read_skill with skill_name `excel_to_python` when the user asks you to convert, translate, or replicate Excel workbook logic in Python.
-5. Do not call read_skill for the same skill more than once in a conversation unless the user asks you to reload it.
+4. Do not call read_skill for the same skill more than once in a conversation unless the user asks you to reload it.
 """))
 
     # MCP_TOOL_CALL tool

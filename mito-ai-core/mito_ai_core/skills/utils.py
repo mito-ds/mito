@@ -1,21 +1,27 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import importlib.util
 import os
+from types import ModuleType
 from typing import Final, List, Optional
 
 from mito_ai_core.agent.types import ToolResult
 from mito_ai_core.utils.schema import MITO_FOLDER
 
-BUNDLED_SKILLS_DIR: Final[str] = os.path.join(os.path.dirname(__file__), "bundled")
+SKILLS_DIR: Final[str] = os.path.dirname(__file__)
 USER_SKILLS_DIR: Final[str] = os.path.join(MITO_FOLDER, "skills")
+SKILL_CONTENT_ATTR: Final[str] = "CONTENT"
+_EXCLUDED_SKILL_MODULES: Final[frozenset[str]] = frozenset({"utils", "__init__"})
 
 
 def _sanitize_skill_name(skill_name: str) -> str:
     if not skill_name:
         raise ValueError("Skill name cannot be empty")
 
-    if skill_name.endswith(".md"):
+    if skill_name.endswith(".py"):
+        skill_name = skill_name[:-3]
+    elif skill_name.endswith(".md"):
         skill_name = skill_name[:-3]
 
     if ".." in skill_name or "/" in skill_name or "\\" in skill_name:
@@ -36,10 +42,10 @@ def _sanitize_skill_name(skill_name: str) -> str:
 
 def _validate_skill_path(file_path: str, skill_name: str) -> None:
     resolved_path = os.path.abspath(file_path)
-    bundled_dir_abs = os.path.abspath(BUNDLED_SKILLS_DIR)
+    skills_dir_abs = os.path.abspath(SKILLS_DIR)
     user_dir_abs = os.path.abspath(USER_SKILLS_DIR)
     if not (
-        resolved_path.startswith(bundled_dir_abs)
+        resolved_path.startswith(skills_dir_abs)
         or resolved_path.startswith(user_dir_abs)
     ):
         raise ValueError(f"Invalid skill name: {skill_name}")
@@ -52,36 +58,55 @@ def _list_skills_in_dir(directory: str) -> List[str]:
         return [
             f[:-3]
             for f in os.listdir(directory)
-            if f.endswith(".md") and not f.startswith(".")
+            if f.endswith(".py")
+            and not f.startswith(".")
+            and f[:-3] not in _EXCLUDED_SKILL_MODULES
         ]
     except OSError:
         return []
 
 
+def _load_content_from_module(module: ModuleType) -> Optional[str]:
+    content = getattr(module, SKILL_CONTENT_ATTR, None)
+    if content is None or not isinstance(content, str):
+        return None
+    return content
+
+
+def _load_skill_from_path(path: str) -> Optional[str]:
+    if not os.path.exists(path):
+        return None
+
+    module_name = f"mito_skill_{os.path.basename(path)[:-3]}"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        return None
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return _load_content_from_module(module)
+
+
 def list_available_skills() -> List[str]:
-    """Return sorted skill names from bundled and user skill directories."""
-    names = set(_list_skills_in_dir(BUNDLED_SKILLS_DIR))
+    """Return sorted skill names from package and user skill directories."""
+    names = set(_list_skills_in_dir(SKILLS_DIR))
     names.update(_list_skills_in_dir(USER_SKILLS_DIR))
     return sorted(names)
 
 
 def get_skill(skill_name: str) -> Optional[str]:
-    """Load a skill by name. User skills override bundled skills."""
+    """Load a skill by name. User skills override package skills."""
     skill_name = _sanitize_skill_name(skill_name)
 
-    user_path = os.path.join(USER_SKILLS_DIR, f"{skill_name}.md")
+    user_path = os.path.join(USER_SKILLS_DIR, f"{skill_name}.py")
     _validate_skill_path(user_path, skill_name)
-    if os.path.exists(user_path):
-        with open(user_path, "r") as f:
-            return f.read()
+    user_content = _load_skill_from_path(user_path)
+    if user_content is not None:
+        return user_content
 
-    bundled_path = os.path.join(BUNDLED_SKILLS_DIR, f"{skill_name}.md")
-    _validate_skill_path(bundled_path, skill_name)
-    if os.path.exists(bundled_path):
-        with open(bundled_path, "r") as f:
-            return f.read()
-
-    return None
+    skill_path = os.path.join(SKILLS_DIR, f"{skill_name}.py")
+    _validate_skill_path(skill_path, skill_name)
+    return _load_skill_from_path(skill_path)
 
 
 def read_skill(skill_name: str) -> ToolResult:
