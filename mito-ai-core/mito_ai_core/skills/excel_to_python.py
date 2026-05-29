@@ -1,6 +1,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from mito_ai_core.skills.types import Skill
+
 CONTENT = """
 # Excel to Python Conversion
 
@@ -119,3 +121,13 @@ Once every todo item is checked off, rerun the entire notebook from top to botto
 - **Use the notebook well.** Markdown cells are your thinking tool. Use them to explain your understanding before writing code. This helps you catch mistakes in understanding before they become mistakes in code.
 - **Be precise with the todo list.** Check off items only after their asserts pass. The todo list is your progress tracker — it should always reflect the true state of your work.
 """
+
+
+class ExcelToPythonSkill(Skill):
+    name = "excel_to_python"
+    description = (
+        "Convert Excel workbook logic into an interactive, test-driven Jupyter notebook."
+    )
+
+    def get_content(self) -> str:
+        return CONTENT

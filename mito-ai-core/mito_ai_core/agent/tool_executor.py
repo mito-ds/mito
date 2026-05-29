@@ -201,7 +201,7 @@ class ToolExecutor(Protocol):
         ctx:
             Current agent context.
         skill_name:
-            Skill identifier (matches a ``.py`` skill module in package or user skills).
+            Skill identifier for a registered skill (see Available Skills in the system prompt).
         message:
             Agent's reasoning for loading this skill.
         """
