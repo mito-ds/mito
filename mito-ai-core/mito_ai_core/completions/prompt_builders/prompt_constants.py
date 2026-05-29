@@ -116,7 +116,7 @@ def get_database_rules() -> str:
     from mito_ai_core.skills.database_rules import DatabaseRulesSkill
 
     skill = DatabaseRulesSkill()
-    if not skill.is_available():
+    if not skill.is_available:
         return ""
     return skill.get_content()
 

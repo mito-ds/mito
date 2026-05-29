@@ -8,10 +8,7 @@ from typing import ClassVar
 class Skill(ABC):
     name: ClassVar[str]
     description: ClassVar[str]
-
-    def is_available(self) -> bool:
-        """Whether this skill should appear in Available Skills and be readable."""
-        return True
+    is_available: ClassVar[bool] = True
 
     @abstractmethod
     def get_content(self) -> str:

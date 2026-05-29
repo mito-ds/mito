@@ -16,7 +16,7 @@ SKILLS: Dict[str, Skill] = {
 
 def _available_skills() -> Dict[str, Skill]:
     return {
-        name: skill for name, skill in SKILLS.items() if skill.is_available()
+        name: skill for name, skill in SKILLS.items() if skill.is_available
     }
 
 

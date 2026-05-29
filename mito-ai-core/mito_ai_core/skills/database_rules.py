@@ -86,8 +86,9 @@ def _load_schemas() -> Optional[Any]:
 
 class DatabaseRulesSkill(Skill):
     name = "database_rules"
-    description = "Query data from the user's configured database connections using SQLAlchemy."
+    description = "Use this skill if the user has requested data from a database. This skill contains the database credentials and instructions on how to properly query the database."
 
+    @property
     def is_available(self) -> bool:
         return _load_connections() is not None
 
