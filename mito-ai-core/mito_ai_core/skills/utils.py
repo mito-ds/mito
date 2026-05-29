@@ -4,22 +4,30 @@
 from typing import Dict, List, Optional
 
 from mito_ai_core.agent.types import ToolResult
+from mito_ai_core.skills.database_rules import DatabaseRulesSkill
 from mito_ai_core.skills.excel_to_python import ExcelToPythonSkill
 from mito_ai_core.skills.types import Skill
 
 SKILLS: Dict[str, Skill] = {
     ExcelToPythonSkill.name: ExcelToPythonSkill(),
+    DatabaseRulesSkill.name: DatabaseRulesSkill(),
 }
 
 
+def _available_skills() -> Dict[str, Skill]:
+    return {
+        name: skill for name, skill in SKILLS.items() if skill.is_available()
+    }
+
+
 def list_available_skills() -> List[str]:
-    """Return sorted registered skill names."""
-    return sorted(SKILLS.keys())
+    """Return sorted registered skill names that are currently available."""
+    return sorted(_available_skills().keys())
 
 
 def get_skill(skill_name: str) -> Optional[str]:
-    """Return skill content by name, or None if not registered."""
-    skill = SKILLS.get(skill_name)
+    """Return skill content by name, or None if not registered or unavailable."""
+    skill = _available_skills().get(skill_name)
     if skill is None:
         return None
     return skill.get_content()
@@ -35,7 +43,7 @@ def read_skill(skill_name: str) -> ToolResult:
         )
 
     sanitized_name = skill_name.strip()
-    skill = SKILLS.get(sanitized_name)
+    skill = _available_skills().get(sanitized_name)
     if skill is None:
         available = list_available_skills()
         available_text = ", ".join(available) if available else "(none)"
