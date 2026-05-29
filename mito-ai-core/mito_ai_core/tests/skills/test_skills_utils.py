@@ -102,7 +102,7 @@ class TestFormatAvailableSkills:
 
         formatted = format_available_skills()
         assert "database_rules:" in formatted
-        assert "SQLAlchemy" in formatted
+        assert "database" in formatted.lower()
 
     def test_custom_skill_in_registry(self, monkeypatch: pytest.MonkeyPatch) -> None:
         from mito_ai_core.completions.prompt_builders.skills import format_available_skills

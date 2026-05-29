@@ -1,11 +1,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from mito_ai_core.skills.utils import _available_skills
+from mito_ai_core.skills.utils import get_available_skills
 
 
 def format_available_skills() -> str:
-    skills = _available_skills()
+    skills = get_available_skills()
     if not skills:
         return "No skills are currently available."
     return "\n".join(

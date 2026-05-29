@@ -14,7 +14,7 @@ SKILLS: Dict[str, Skill] = {
 }
 
 
-def _available_skills() -> Dict[str, Skill]:
+def get_available_skills() -> Dict[str, Skill]:
     return {
         name: skill for name, skill in SKILLS.items() if skill.is_available
     }
@@ -22,12 +22,12 @@ def _available_skills() -> Dict[str, Skill]:
 
 def list_available_skills() -> List[str]:
     """Return sorted registered skill names that are currently available."""
-    return sorted(_available_skills().keys())
+    return sorted(get_available_skills().keys())
 
 
 def get_skill(skill_name: str) -> Optional[str]:
     """Return skill content by name, or None if not registered or unavailable."""
-    skill = _available_skills().get(skill_name)
+    skill = get_available_skills().get(skill_name)
     if skill is None:
         return None
     return skill.get_content()
@@ -43,7 +43,7 @@ def read_skill(skill_name: str) -> ToolResult:
         )
 
     sanitized_name = skill_name.strip()
-    skill = _available_skills().get(sanitized_name)
+    skill = get_available_skills().get(sanitized_name)
     if skill is None:
         available = list_available_skills()
         available_text = ", ".join(available) if available else "(none)"
