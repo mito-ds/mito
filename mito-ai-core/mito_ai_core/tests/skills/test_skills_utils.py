@@ -55,6 +55,15 @@ class TestReadSkill:
         assert result.tool_name == "read_skill"
         assert "Markdown" in (result.output or "")
 
+    def test_bundled_excel_to_python_skill(self) -> None:
+        assert "excel_to_python" in list_available_skills()
+        content = get_skill("excel_to_python")
+        assert content is not None
+        assert "Configuration cell" in content
+        result = read_skill("excel_to_python")
+        assert result.success
+        assert "mito_check_" in (result.output or "")
+
     def test_returns_error_for_missing_skill(self, skills_dirs) -> None:
         result = read_skill("does_not_exist")
         assert not result.success

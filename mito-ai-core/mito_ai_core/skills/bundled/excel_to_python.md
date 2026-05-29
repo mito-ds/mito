@@ -1,12 +1,5 @@
-# Copyright (c) Saga Inc.
-# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+# Excel to Python Conversion
 
-"""
-Excel-to-Python conversion rules used when converting Excel spreadsheets
-into Jupyter notebooks (e.g. in agent execution prompts).
-"""
-
-EXCEL_TO_PYTHON_RULES = """
 If you've been asked to convert, translate, or replicate the logic of an Excel file into Python, then you should follow these rules.
 
 **Purpose of converting to Python:** The main reason to convert an Excel model to Python is so the user can easily try different input values and run different scenarios. The user should be able to change a few parameters at the top of the notebook, re-run the notebook, and see new results — without hunting through the code. Your output must support this workflow.
@@ -121,4 +114,3 @@ Once every todo item is checked off, rerun the entire notebook from top to botto
 - **Keep working.** Your job is to work through the entire todo list until all asserts pass. Do not stop early.
 - **Use the notebook well.** Markdown cells are your thinking tool. Use them to explain your understanding before writing code. This helps you catch mistakes in understanding before they become mistakes in code.
 - **Be precise with the todo list.** Check off items only after their asserts pass. The todo list is your progress tracker — it should always reflect the true state of your work.
-"""
