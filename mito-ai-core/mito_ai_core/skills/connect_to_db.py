@@ -86,9 +86,30 @@ def _load_schemas() -> Optional[Any]:
         return None
 
 
+def _get_skill_description(connections: Optional[dict]) -> str:
+    if connections is None:
+        return "No database connections are configured."
+
+    entries = []
+    for conn_data in connections.values():
+        conn = cast(dict, conn_data)
+        name = conn.get("alias") or conn.get("database") or "unknown"
+        db_type = conn.get("type", "unknown")
+        entries.append(f"{name} ({db_type})")
+
+    return (
+        "Use this skill if the user has requested data from a database. "
+        "This skill contains the database credentials and instructions on how to properly query the database. "
+        f"Configured databases: {', '.join(sorted(entries))}."
+    )
+
+
 class ConnectToDbSkill(Skill):
     name = "connect_to_db"
-    description = "Use this skill if the user has requested data from a database. This skill contains the database credentials and instructions on how to properly query the database."
+
+    @property
+    def description(self) -> str:
+        return _get_skill_description(_load_connections())
 
     @property
     def is_available(self) -> bool:

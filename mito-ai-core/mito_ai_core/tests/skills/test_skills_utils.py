@@ -18,7 +18,17 @@ def db_config(tmp_path, monkeypatch):
     connections_path = db_dir / "connections.json"
     schemas_path = db_dir / "schemas.json"
     connections_path.write_text(
-        json.dumps({"my_db": {"username": "admin", "password": "secret", "host": "localhost"}})
+        json.dumps(
+            {
+                "550e8400-e29b-41d4-a716-446655440000": {
+                    "type": "postgres",
+                    "alias": "my_db",
+                    "username": "admin",
+                    "password": "secret",
+                    "host": "localhost",
+                }
+            }
+        )
     )
     schemas_path.write_text(json.dumps({"my_db": {"tables": ["users"]}}))
     monkeypatch.setattr(connect_to_db_module, "CONNECTIONS_PATH", str(connections_path))
@@ -103,13 +113,17 @@ class TestFormatAvailableSkills:
         formatted = format_available_skills()
         assert "connect_to_db:" in formatted
         assert "database" in formatted.lower()
+        assert "my_db (postgres)" in formatted
 
     def test_custom_skill_in_registry(self, monkeypatch: pytest.MonkeyPatch) -> None:
         from mito_ai_core.completions.prompt_builders.skills import format_available_skills
 
         class CustomSkill(Skill):
             name = "custom_skill"
-            description = "A test skill."
+
+            @property
+            def description(self) -> str:
+                return "A test skill."
 
             def get_content(self) -> str:
                 return "custom content"
