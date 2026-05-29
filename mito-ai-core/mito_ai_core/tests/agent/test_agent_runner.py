@@ -197,6 +197,23 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="MCP tool executed")
 
+    async def read_skill(
+        self,
+        ctx: AgentContext,
+        skill_name: str,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("read_skill", {
+            "ctx": ctx,
+            "skill_name": skill_name,
+            "message": message,
+        }))
+        return ToolResult(
+            success=True,
+            tool_name="read_skill",
+            output=f"Skill: {skill_name}\n\nmock skill content",
+        )
+
 
 class FailingCellUpdateToolExecutor(FakeToolExecutor):
     """Tool executor that always fails CELL_UPDATE dispatch."""
@@ -259,6 +276,7 @@ def _agent_response_json(
         "answers": None,
         "scratchpad_code": None,
         "scratchpad_summary": None,
+        "skill_name": None,
     }
     data.update(extra)
     return json.dumps(data)
@@ -451,6 +469,26 @@ class TestToolDispatch:
 
         assert result.finished is True
         assert executor.calls[0][0] == "execute_scratchpad"
+
+    @pytest.mark.asyncio
+    async def test_read_skill_dispatched(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "read_skill",
+                message="Loading Excel guidance.",
+                skill_name="excel_to_python",
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert executor.calls[0][0] == "read_skill"
+        assert executor.calls[0][1]["skill_name"] == "excel_to_python"
 
     @pytest.mark.asyncio
     async def test_ask_user_question_dispatched(self) -> None:

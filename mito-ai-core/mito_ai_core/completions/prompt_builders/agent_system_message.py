@@ -4,12 +4,12 @@
 from typing import Any, Dict, List, Optional
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai_core.completions.prompt_builders.mcp_tools import format_available_mcp_tools
+from mito_ai_core.completions.prompt_builders.skills import format_available_skills
 from mito_ai_core.completions.prompt_builders.prompt_constants import (
     ABOUT_MITO,
     CHART_CONFIG_RULES,
     CITATION_RULES,
     CELL_REFERENCE_RULES,
-    EXCEL_TO_PYTHON_RULES,
     MARKDOWN_RULES,
     get_database_rules
 )
@@ -109,7 +109,6 @@ You will not always know every key driver up front. Treat the configuration cell
 """))
 
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
-    sections.append(SG.Generic("Excel to Python Rules", EXCEL_TO_PYTHON_RULES))
 
     sections.append(SG.Generic("TOOL: CELL_UPDATE", """
 
@@ -385,6 +384,25 @@ Important information:
     </Example>
 
 """))
+
+    sections.append(SG.Generic("TOOL: READ_SKILL", """
+Load detailed instructions for a specialized task on demand. Use this before work that needs guidance not included in the base prompt (e.g. Excel formula translation, database connections).
+
+Format:
+{{
+    "type": "read_skill",
+    "message": "<string>",
+    "skill_name": "<string>"
+}}
+
+Important information:
+1. Only request skills listed in the "Available Skills" section.
+2. The skill_name must exactly match one of the listed skill names.
+3. After reading a skill, follow its instructions for the rest of the task.
+4. Do not call read_skill for the same skill more than once in a conversation unless the user asks you to reload it.
+"""))
+
+    sections.append(SG.Generic("Available Skills", format_available_skills()))
 
     # MCP_TOOL_CALL tool
     sections.append(

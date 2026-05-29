@@ -145,6 +145,23 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="MCP tool executed")
 
+    async def read_skill(
+        self,
+        ctx: AgentContext,
+        skill_name: str,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("read_skill", {
+            "ctx": ctx,
+            "skill_name": skill_name,
+            "message": message,
+        }))
+        return ToolResult(
+            success=True,
+            tool_name="read_skill",
+            output=f"Skill: {skill_name}\n\nmock skill content",
+        )
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -320,6 +337,23 @@ class TestExecuteMcpTool:
         assert executor.calls[0][1]["mcp_server_id"] == "server-1"
         assert executor.calls[0][1]["tool_name"] == "search_docs"
         assert executor.calls[0][1]["arguments"] == {"query": "pandas read_csv"}
+
+
+class TestExecuteReadSkill:
+    @pytest.mark.asyncio
+    async def test_returns_skill_content(self) -> None:
+        executor = FakeToolExecutor()
+        ctx = _make_ctx()
+        result = await executor.read_skill(
+            ctx,
+            skill_name="excel_to_python",
+            message="Need Excel translation rules.",
+        )
+
+        assert result.success
+        assert result.tool_name == "read_skill"
+        assert "excel_to_python" in (result.output or "")
+        assert executor.calls[0][0] == "read_skill"
 
 
 class TestAgentContext:
