@@ -118,6 +118,7 @@ class FakeAgentRunner:
                     scratchpad_code=None,
                     scratchpad_summary=None,
                     mcp_tool_call=None,
+                    skill_name=None,
                 )
             )
 
@@ -138,6 +139,7 @@ class FakeAgentRunner:
                 scratchpad_code=None,
                 scratchpad_summary=None,
                 mcp_tool_call=None,
+                skill_name=None,
             ),
             finished=True,
             iterations=2,

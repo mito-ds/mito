@@ -60,3 +60,6 @@ timeout = 30
 
 [tool.hatch.build.targets.wheel]
 packages = ["mito_ai_core"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"mito_ai_core/skills/bundled" = "mito_ai_core/skills/bundled"
