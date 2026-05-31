@@ -385,7 +385,7 @@ Important information:
 """))
 
     sections.append(SG.Generic("TOOL: READ_SKILL", """
-Load detailed instructions for a specialized task on demand. Use this before work that needs guidance not included in the base prompt (e.g. Excel formula translation, database connections).
+Load detailed instructions for a specialized task on demand. Use this before work that needs guidance not included in the base prompt (e.g. converting an Excel model to Python, querying a configured database).
 
 Format:
 {{

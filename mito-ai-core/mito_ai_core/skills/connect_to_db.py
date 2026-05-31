@@ -98,14 +98,15 @@ def _get_skill_description(connections: Optional[dict]) -> str:
         entries.append(f"{name} ({db_type})")
 
     return (
-        "Use this skill if the user has requested data from a database. "
-        "This skill contains the database credentials and instructions on how to properly query the database. "
+        "Query configured databases and return results as pandas DataFrames. "
+        "Use when the user asks for SQL data, mentions tables or schemas, or needs data from "
+        "a connected database. This skill contains the database connection details, schemas, and rules for querying the database correctly."
         f"Configured databases: {', '.join(sorted(entries))}."
     )
 
 
 class ConnectToDbSkill(Skill):
-    name = "connect_to_db"
+    name = "connect-to-db"
 
     @property
     def description(self) -> str:

@@ -476,7 +476,7 @@ class TestToolDispatch:
             _agent_response_json(
                 "read_skill",
                 message="Loading Excel guidance.",
-                skill_name="excel_to_python",
+                skill_name="excel-to-python",
             ),
             _finished_response(),
         ])
@@ -488,7 +488,7 @@ class TestToolDispatch:
 
         assert result.finished is True
         assert executor.calls[0][0] == "read_skill"
-        assert executor.calls[0][1]["skill_name"] == "excel_to_python"
+        assert executor.calls[0][1]["skill_name"] == "excel-to-python"
 
     @pytest.mark.asyncio
     async def test_ask_user_question_dispatched(self) -> None:

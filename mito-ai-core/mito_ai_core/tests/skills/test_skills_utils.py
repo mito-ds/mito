@@ -38,29 +38,30 @@ def db_config(tmp_path, monkeypatch):
 
 class TestSkillRegistry:
     def test_excel_to_python_is_registered(self) -> None:
-        assert "excel_to_python" in SKILLS
-        assert SKILLS["excel_to_python"].description
+        assert "excel-to-python" in SKILLS
+        assert SKILLS["excel-to-python"].description
+        assert "Use when" in SKILLS["excel-to-python"].description
 
     def test_connect_to_db_is_registered(self) -> None:
-        assert "connect_to_db" in SKILLS
+        assert "connect-to-db" in SKILLS
 
     def test_list_available_skills_includes_excel_to_python(self) -> None:
-        assert "excel_to_python" in get_available_skills()
+        assert "excel-to-python" in get_available_skills()
 
     def test_connect_to_db_not_listed_without_config(
         self, tmp_path, monkeypatch
     ) -> None:
         missing_path = str(tmp_path / "missing" / "connections.json")
         monkeypatch.setattr(connect_to_db_module, "CONNECTIONS_PATH", missing_path)
-        assert "connect_to_db" not in get_available_skills()
+        assert "connect-to-db" not in get_available_skills()
 
     def test_connect_to_db_listed_when_configured(self, db_config) -> None:
-        assert "connect_to_db" in get_available_skills()
+        assert "connect-to-db" in get_available_skills()
 
 
 class TestGetSkill:
     def test_returns_content_for_registered_skill(self) -> None:
-        content = get_skill("excel_to_python")
+        content = get_skill("excel-to-python")
         assert content is not None
         assert "Configuration cell" in content
 
@@ -68,7 +69,7 @@ class TestGetSkill:
         assert get_skill("missing") is None
 
     def test_connect_to_db_includes_user_config(self, db_config) -> None:
-        content = get_skill("connect_to_db")
+        content = get_skill("connect-to-db")
         assert content is not None
         assert "SQLAlchemy" in content
         assert "redacted" in content
@@ -77,13 +78,13 @@ class TestGetSkill:
 
 class TestReadSkill:
     def test_returns_skill_content(self) -> None:
-        result = read_skill("excel_to_python")
+        result = read_skill("excel-to-python")
         assert result.success
         assert result.tool_name == "read_skill"
         assert "mito_check_" in (result.output or "")
 
     def test_read_connect_to_db(self, db_config) -> None:
-        result = read_skill("connect_to_db")
+        result = read_skill("connect-to-db")
         assert result.success
         assert "Your Database Configuration" in (result.output or "")
 
@@ -104,15 +105,17 @@ class TestFormatAvailableSkills:
         from mito_ai_core.completions.prompt_builders.skills import format_available_skills
 
         formatted = format_available_skills()
-        assert "excel_to_python:" in formatted
-        assert "Convert Excel workbook logic" in formatted
+        assert "excel-to-python:" in formatted
+        assert "Convert Excel workbook formulas" in formatted
+        assert "Use when" in formatted
 
     def test_includes_connect_to_db_when_configured(self, db_config) -> None:
         from mito_ai_core.completions.prompt_builders.skills import format_available_skills
 
         formatted = format_available_skills()
-        assert "connect_to_db:" in formatted
-        assert "database" in formatted.lower()
+        assert "connect-to-db:" in formatted
+        assert "SQLAlchemy" in formatted
+        assert "Use when" in formatted
         assert "my_db (postgres)" in formatted
 
     def test_custom_skill_in_registry(self, monkeypatch: pytest.MonkeyPatch) -> None:
