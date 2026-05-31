@@ -114,7 +114,7 @@ class TestFormatAvailableSkills:
 
         formatted = format_available_skills()
         assert "connect-to-db:" in formatted
-        assert "SQLAlchemy" in formatted
+        assert "pandas DataFrames" in formatted
         assert "Use when" in formatted
         assert "my_db (postgres)" in formatted
 
