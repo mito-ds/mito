@@ -55,6 +55,10 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
     }, []);
 
     const startListening = useCallback(() => {
+        if (recognitionRef.current) {
+            return;
+        }
+
         const SpeechRecognitionClass = getSpeechRecognitionConstructor();
         if (!SpeechRecognitionClass) {
             return;
@@ -96,12 +100,12 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
     }, [stopListening]);
 
     const toggleListening = useCallback(() => {
-        if (isListening) {
+        if (recognitionRef.current) {
             stopListening();
         } else {
             startListening();
         }
-    }, [isListening, startListening, stopListening]);
+    }, [startListening, stopListening]);
 
     useEffect(() => {
         return () => {
