@@ -48,11 +48,22 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
     const onTranscriptRef = useRef(onTranscript);
     onTranscriptRef.current = onTranscript;
 
-    const stopListening = useCallback(() => {
-        recognitionRef.current?.stop();
+    const releaseRecognition = useCallback(() => {
+        const recognition = recognitionRef.current;
+        if (!recognition) {
+            return;
+        }
         recognitionRef.current = null;
-        setIsListening(false);
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        recognition.stop();
     }, []);
+
+    const stopListening = useCallback(() => {
+        releaseRecognition();
+        setIsListening(false);
+    }, [releaseRecognition]);
 
     const startListening = useCallback(() => {
         if (recognitionRef.current) {
@@ -109,9 +120,9 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
 
     useEffect(() => {
         return () => {
-            recognitionRef.current?.stop();
+            releaseRecognition();
         };
-    }, []);
+    }, [releaseRecognition]);
 
     return { isListening, isSupported, toggleListening };
 }
