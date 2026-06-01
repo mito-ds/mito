@@ -188,6 +188,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
     const voiceTranscriptRef = useRef<((text: string) => void) | null>(null);
     const stopDictationRef = useRef<(() => void) | null>(null);
+    const stopDictation = (): void => {
+        stopDictationRef.current?.();
+    };
 
     /** Brief border glow on the taskpane when context arrives from the DataFrame viewer */
     const [attentionGlowActive, setAttentionGlowActive] = useState(false);
@@ -320,6 +323,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
         // Check if user is in agent mode and switch to chat mode if needed
         if (agentModeEnabledRef.current) {
             await startNewChat();
@@ -355,6 +359,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -389,6 +394,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
 
         // Step 0: reset the state for a new message
         resetForNewMessage()
@@ -434,6 +440,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -491,8 +498,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
-
-        stopDictationRef.current?.();
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
