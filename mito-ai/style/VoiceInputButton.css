@@ -1,0 +1,10 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.voice-input-button--listening {
+  color: var(--purple-500);
+  background-color: rgba(157, 108, 255, 0.15);
+  border-radius: 6px;
+}

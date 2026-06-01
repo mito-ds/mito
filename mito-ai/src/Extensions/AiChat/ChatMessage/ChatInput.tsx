@@ -22,6 +22,7 @@ import SelectedContextContainer from '../../../components/SelectedContextContain
 import AttachFileButton from '../../../components/AttachFileButton';
 import DatabaseButton from '../../../components/DatabaseButton';
 import IconButton from '../../../components/IconButton';
+import VoiceInputButton from '../../../components/VoiceInputButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
 import { uploadFileToBackend } from '../../../utils/fileUpload';
@@ -424,6 +425,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
         adjustHeight();
     }, [textAreaRef?.current?.value]);
 
+    const appendVoiceTranscript = (text: string): void => {
+        const trimmed = text.trim();
+        if (!trimmed) {
+            return;
+        }
+        setInput((prev) => (prev ? `${prev} ${trimmed}` : trimmed));
+        textAreaRef.current?.focus();
+        setTimeout(() => adjustHeight(), 0);
+    };
+
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
         const value = event.target.value;
         setInput(value);
@@ -746,6 +757,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
             >
                 <DatabaseButton app={app} />
                 <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
+                <VoiceInputButton
+                    onTranscript={appendVoiceTranscript}
+                    disabled={
+                        !canSendMessages ||
+                        agentExecutionStatus === 'working' ||
+                        agentExecutionStatus === 'stopping'
+                    }
+                />
                 <IconButton
                     icon={<span className="add-context-button-icon">@</span>}
                     title="Add Context"
