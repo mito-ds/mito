@@ -41,6 +41,7 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
     isListening: boolean;
     isSupported: boolean;
     toggleListening: () => void;
+    stopListening: () => void;
 } {
     const [isListening, setIsListening] = useState(false);
     const [isSupported] = useState(() => getSpeechRecognitionConstructor() !== null);
@@ -133,5 +134,5 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
         };
     }, [releaseRecognition]);
 
-    return { isListening, isSupported, toggleListening };
+    return { isListening, isSupported, toggleListening, stopListening };
 }

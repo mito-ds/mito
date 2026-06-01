@@ -187,6 +187,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
     const voiceTranscriptRef = useRef<((text: string) => void) | null>(null);
+    const stopDictationRef = useRef<(() => void) | null>(null);
 
     /** Brief border glow on the taskpane when context arrives from the DataFrame viewer */
     const [attentionGlowActive, setAttentionGlowActive] = useState(false);
@@ -490,6 +491,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+
+        stopDictationRef.current?.();
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
@@ -1234,6 +1237,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <div className="chat-controls-right">
                         <VoiceInputButton
                             onTranscript={(text) => voiceTranscriptRef.current?.(text)}
+                            stopDictationRef={stopDictationRef}
                             disabled={ghCopilot.copilotBlocksChat}
                         />
                         <button
