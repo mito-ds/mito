@@ -21,7 +21,24 @@
   height: 18px;
 }
 
+@keyframes voice-input-pulse {
+  0%,
+  100% {
+    background-color: rgba(157, 108, 255, 0.12);
+  }
+  50% {
+    background-color: rgba(157, 108, 255, 0.28);
+  }
+}
+
 .voice-input-button--listening {
   color: var(--purple-500);
-  background-color: rgba(157, 108, 255, 0.15);
+  animation: voice-input-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-input-button--listening {
+    animation: none;
+    background-color: rgba(157, 108, 255, 0.15);
+  }
 }
