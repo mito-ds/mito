@@ -81,6 +81,9 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
         recognition.lang = 'en-US';
 
         recognition.onresult = (event: ISpeechRecognitionEvent) => {
+            if (recognitionRef.current !== recognition) {
+                return;
+            }
             let transcript = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const result = event.results[i];
@@ -97,10 +100,16 @@ export function useSpeechToText(onTranscript: (text: string) => void): {
         };
 
         recognition.onerror = () => {
+            if (recognitionRef.current !== recognition) {
+                return;
+            }
             stopListening();
         };
 
         recognition.onend = () => {
+            if (recognitionRef.current !== recognition) {
+                return;
+            }
             recognitionRef.current = null;
             setIsListening(false);
         };
