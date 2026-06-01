@@ -1,25 +1,28 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from mito_ai_core.agent.types import ToolResult
+from mito_ai_core.skills.connect_to_db import ConnectToDbSkill
 from mito_ai_core.skills.excel_to_python import ExcelToPythonSkill
 from mito_ai_core.skills.types import Skill
 
 SKILLS: Dict[str, Skill] = {
     ExcelToPythonSkill.name: ExcelToPythonSkill(),
+    ConnectToDbSkill.name: ConnectToDbSkill(),
 }
 
 
-def list_available_skills() -> List[str]:
-    """Return sorted registered skill names."""
-    return sorted(SKILLS.keys())
+def get_available_skills() -> Dict[str, Skill]:
+    return {
+        name: skill for name, skill in SKILLS.items() if skill.is_available
+    }
 
 
 def get_skill(skill_name: str) -> Optional[str]:
-    """Return skill content by name, or None if not registered."""
-    skill = SKILLS.get(skill_name)
+    """Return skill content by name, or None if not registered or unavailable."""
+    skill = get_available_skills().get(skill_name)
     if skill is None:
         return None
     return skill.get_content()
@@ -35,9 +38,9 @@ def read_skill(skill_name: str) -> ToolResult:
         )
 
     sanitized_name = skill_name.strip()
-    skill = SKILLS.get(sanitized_name)
+    skill = get_available_skills().get(sanitized_name)
     if skill is None:
-        available = list_available_skills()
+        available = sorted(get_available_skills().keys())
         available_text = ", ".join(available) if available else "(none)"
         return ToolResult(
             success=False,

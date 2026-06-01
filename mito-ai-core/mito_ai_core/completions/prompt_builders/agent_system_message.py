@@ -11,7 +11,6 @@ from mito_ai_core.completions.prompt_builders.prompt_constants import (
     CITATION_RULES,
     CELL_REFERENCE_RULES,
     MARKDOWN_RULES,
-    get_database_rules
 )
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 from mito_ai_core.rules.utils import get_default_rules_content
@@ -386,7 +385,7 @@ Important information:
 """))
 
     sections.append(SG.Generic("TOOL: READ_SKILL", """
-Load detailed instructions for a specialized task on demand. Use this before work that needs guidance not included in the base prompt (e.g. Excel formula translation, database connections).
+Load detailed instructions for a specialized task on demand. Use this before work that needs guidance not included in the base prompt (e.g. converting an Excel model to Python, querying a configured database).
 
 Format:
 {{
@@ -630,9 +629,6 @@ Important information:
     }}
     </Example>"""))
     sections.append(SG.Generic("Cell Reference Rules", CELL_REFERENCE_RULES))
-    
-    # Database rules
-    sections.append(SG.Generic("Database Rules", get_database_rules()))
 
     # Default rules
     default_rules = get_default_rules_content()

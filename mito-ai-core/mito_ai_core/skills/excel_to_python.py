@@ -124,10 +124,16 @@ Once every todo item is checked off, rerun the entire notebook from top to botto
 
 
 class ExcelToPythonSkill(Skill):
-    name = "excel_to_python"
-    description = (
-        "Convert Excel workbook logic into an interactive, test-driven Jupyter notebook."
-    )
+    name = "excel-to-python"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Convert Excel workbook formulas and logic into an interactive, scenario-ready "
+            "Jupyter notebook validated against the source file. Use when the user asks to "
+            "convert, translate, replicate, or port an Excel model to Python, rebuild a "
+            "spreadsheet in a notebook, or run what-if scenarios from an .xlsx file."
+        )
 
     def get_content(self) -> str:
         return CONTENT

@@ -346,13 +346,13 @@ class TestExecuteReadSkill:
         ctx = _make_ctx()
         result = await executor.read_skill(
             ctx,
-            skill_name="excel_to_python",
+            skill_name="excel-to-python",
             message="Need Excel translation rules.",
         )
 
         assert result.success
         assert result.tool_name == "read_skill"
-        assert "excel_to_python" in (result.output or "")
+        assert "excel-to-python" in (result.output or "")
         assert executor.calls[0][0] == "read_skill"
 
 
