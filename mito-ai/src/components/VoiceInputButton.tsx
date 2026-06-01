@@ -31,10 +31,6 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({ onTranscript, disab
             className={classNames('icon-button-hover', 'voice-input-button', {
                 'voice-input-button--listening': isListening,
             })}
-            style={{
-                height: 'var(--chat-context-button-height)',
-                width: 'var(--chat-context-button-height)',
-            }}
         />
     );
 };

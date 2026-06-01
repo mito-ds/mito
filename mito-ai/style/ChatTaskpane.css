@@ -173,6 +173,13 @@
 .chat-controls-left > * {
   margin: 0 !important;
 }
+
+.chat-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .submit-button {
   background-color: var(--purple-400);
   color: var(--purple-700);

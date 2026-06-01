@@ -3,8 +3,25 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.voice-input-button {
+  min-width: 36px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: transparent;
+  border: none;
+}
+
+.voice-input-button:hover:not(:disabled) {
+  background-color: var(--jp-layout-color3);
+}
+
+.voice-input-button svg {
+  width: 18px;
+  height: 18px;
+}
+
 .voice-input-button--listening {
   color: var(--purple-500);
   background-color: rgba(157, 108, 255, 0.15);
-  border-radius: 6px;
 }
