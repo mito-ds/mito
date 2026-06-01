@@ -25,6 +25,12 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
     const { isListening, isSupported, toggleListening, stopListening } = useSpeechToText(onTranscript);
 
     useEffect(() => {
+        if (disabled) {
+            stopListening();
+        }
+    }, [disabled, stopListening]);
+
+    useEffect(() => {
         if (!stopDictationRef) {
             return;
         }
