@@ -3,49 +3,65 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useLayoutEffect, useRef, useState } from "react";
-import { GridState, SheetData } from "../../types";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { MitoAPI } from "../../api/api";
+import { ColumnID, GridState, SheetData } from "../../types";
 
 /*
-    Renders the "at-a-glance" card for the currently selected cell. A card exists
-    when the selected column has a saved template (sheetData.columnCards[columnID]).
-    The template's {Column Header} placeholders are filled in with the selected
-    row's values, and the card is positioned next to the selected cell.
+    Renders the "at-a-glance" card for the currently selected cell. Card text is
+    rendered on the backend so templates can use {Column Header} values and
+    {=expression} computed fields for the selected row.
 */
 const GAP_PX = 6;
 
-const fillTemplate = (template: string, sheetData: SheetData, rowIndex: number): string => {
-    let result = template;
-    sheetData.data.forEach(column => {
-        const header = String(column.columnHeader);
-        const value = column.columnData[rowIndex];
-        const displayValue = (value === null || value === undefined) ? '' : String(value);
-        result = result.split(`{${header}}`).join(displayValue);
-    })
-    return result;
-}
-
 const SelectionCard = (props: {
+    mitoAPI: MitoAPI;
     sheetDataArray: SheetData[];
     gridState: GridState;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
 }): JSX.Element | null => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [style, setStyle] = useState<React.CSSProperties | undefined>(undefined);
+    const [cardContent, setCardContent] = useState<string | undefined>(undefined);
 
-    const sheetData: SheetData | undefined = props.sheetDataArray[props.gridState.sheetIndex];
+    const sheetIndex = props.gridState.sheetIndex;
+    const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex];
     const selection = props.gridState.selections[props.gridState.selections.length - 1];
     const rowIndex = selection.startingRowIndex;
     const columnIndex = selection.startingColumnIndex;
 
-    const columnID = (sheetData !== undefined && rowIndex >= 0 && columnIndex >= 0)
+    const columnID: ColumnID | undefined = (sheetData !== undefined && rowIndex >= 0 && columnIndex >= 0)
         ? sheetData.data[columnIndex]?.columnID
         : undefined;
-    const template = columnID !== undefined ? sheetData?.columnCards?.[columnID] : undefined;
-    const showCard = sheetData !== undefined && template !== undefined;
+    const hasCard = columnID !== undefined && sheetData?.columnCards?.[columnID] !== undefined;
+
+    useEffect(() => {
+        if (!hasCard || columnID === undefined) {
+            setCardContent(undefined);
+            return;
+        }
+
+        let cancelled = false;
+        void (async () => {
+            const response = await props.mitoAPI.getCardContent(sheetIndex, rowIndex, columnID);
+            if (cancelled) {
+                return;
+            }
+            const result = 'result' in response ? response.result : undefined;
+            if (result !== undefined && !('error' in result)) {
+                setCardContent(result.content);
+            } else {
+                setCardContent('');
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [hasCard, sheetIndex, rowIndex, columnID, props.mitoAPI, sheetData?.columnCards]);
 
     useLayoutEffect(() => {
-        if (!showCard) {
+        if (!hasCard) {
             return;
         }
         const cardEl = cardRef.current;
@@ -56,7 +72,6 @@ const SelectionCard = (props: {
             return;
         }
 
-        // The selected cell is only in the DOM when it's scrolled into view
         const cellEl = container.querySelector(`[mito-row-index="${rowIndex}"][mito-col-index="${columnIndex}"]`);
         if (cellEl === null) {
             setStyle(undefined);
@@ -68,13 +83,10 @@ const SelectionCard = (props: {
         const cardWidth = cardEl.offsetWidth;
         const cardHeight = cardEl.offsetHeight;
 
-        // Default: to the right of the cell, aligned with the top of the cell
         let left = cellRect.right - parentRect.left + GAP_PX;
-        // If there isn't room on the right, place it to the left of the cell instead
         if (left + cardWidth > parentRect.width) {
             left = cellRect.left - parentRect.left - cardWidth - GAP_PX;
         }
-        // As a last resort (very narrow sheet), clamp inside the visible area
         if (left < 0) {
             left = Math.max(GAP_PX, parentRect.width - cardWidth - GAP_PX);
         }
@@ -88,9 +100,9 @@ const SelectionCard = (props: {
         }
 
         setStyle({ top, left });
-    }, [showCard, rowIndex, columnIndex, template, props.gridState.scrollPosition, props.gridState.viewport, props.mitoContainerRef]);
+    }, [hasCard, rowIndex, columnIndex, cardContent, props.gridState.scrollPosition, props.gridState.viewport, props.mitoContainerRef]);
 
-    if (!showCard) {
+    if (!hasCard) {
         return null;
     }
 
@@ -98,11 +110,10 @@ const SelectionCard = (props: {
         <div
             ref={cardRef}
             className="mito-selection-card"
-            // Hide until positioned to avoid a flash in the wrong spot
             style={style ?? { visibility: 'hidden' }}
         >
             <div className="mito-selection-card-body">
-                {fillTemplate(template, sheetData, rowIndex)}
+                {cardContent ?? '…'}
             </div>
         </div>
     )

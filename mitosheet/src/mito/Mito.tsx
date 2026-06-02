@@ -1237,6 +1237,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             userProfile={userProfile}
                         />
                         <SelectionCard
+                            mitoAPI={mitoAPI}
                             sheetDataArray={sheetDataArray}
                             gridState={gridState}
                             mitoContainerRef={mitoContainerRef}

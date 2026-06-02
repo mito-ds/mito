@@ -651,6 +651,25 @@ export class MitoAPI {
     /**
      * Save (or clear, by passing an empty template) the at-a-glance card for a column.
      */
+    /**
+     * Renders a saved card template for a specific row (column values + {=expressions}).
+     */
+    async getCardContent(
+        sheetIndex: number,
+        rowIndex: number,
+        columnID: ColumnID,
+    ): Promise<MitoAPIResult<{error: string} | {content: string}>> {
+        return await this.send<{error: string} | {content: string}>({
+            'event': 'api_call',
+            'type': 'get_card_content',
+            'params': {
+                'sheet_index': sheetIndex,
+                'row_index': rowIndex,
+                'column_id': columnID,
+            },
+        })
+    }
+
     async editSetColumnCard(
         sheetIndex: number,
         columnID: ColumnID,

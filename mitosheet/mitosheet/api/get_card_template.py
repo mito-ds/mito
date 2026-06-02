@@ -29,7 +29,7 @@ from mitosheet.api.suggestions_api_utils import (
 )
 from mitosheet.types import StepsManagerType
 
-CARD_TEMPLATE_PROMPT_VERSION = "card-template-v1"
+CARD_TEMPLATE_PROMPT_VERSION = "card-template-v2"
 
 
 def _build_card_template_prompt(df: pd.DataFrame, focused_column: str, user_input: str) -> str:
@@ -48,14 +48,17 @@ def _build_card_template_prompt(df: pd.DataFrame, focused_column: str, user_inpu
         f"The user described the card they want like this:\n{user_input}\n\n"
         f"Available columns:\n{col_catalog}\n\n"
         f"Sample rows:\n{df_snippet}\n\n"
-        "Write a short card template. Reference column values with placeholders written as "
-        "{Column Header} using the EXACT column names listed above. Use plain text with line "
-        "breaks (\\n) to separate fields. Keep it concise - a few lines at most.\n\n"
+        "Write a short card template. Use two kinds of placeholders:\n"
+        "1. {Column Header} — show that column's value for the selected row (use EXACT column names).\n"
+        "2. {=expression} — a computed value from the row, using column names in a pandas-style "
+        "expression (e.g. {=Revenue - Cost}, {=Revenue / Orders}).\n\n"
+        "Use plain text with line breaks (\\n) to separate fields. Keep it concise - a few lines at most.\n\n"
         "Respond with ONLY valid JSON (no markdown, no code fences) of this exact shape:\n"
         '{"template": "..."}\n\n'
         "Rules:\n"
-        "- Only use placeholders for columns that exist in the list above.\n"
-        "- Do not invent data or include values directly; always use {Column Header} placeholders.\n"
+        "- Only reference columns that exist in the list above.\n"
+        "- Do not put literal row values in the template; use placeholders only.\n"
+        "- Prefer {=expression} when the user asks for totals, ratios, margins, or other derived figures.\n"
         "- The template must be a single string.\n"
     )
 

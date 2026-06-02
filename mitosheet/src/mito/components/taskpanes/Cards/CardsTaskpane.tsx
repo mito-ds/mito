@@ -71,8 +71,9 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             />
             <DefaultTaskpaneBody>
                 <p className="text-body-1">
-                    Describe the card you want. The card shows up when you select a cell in
-                    this column. Reference column values using {'{Column Header}'}.
+                    Describe the card you want. It appears when you select a cell in this column.
+                    Use {'{Column Header}'} for values from other columns, or {'{=expression}'} for
+                    computed fields (e.g. {'{=Revenue - Cost}'}).
                 </p>
                 <TextArea
                     value={userInput}
