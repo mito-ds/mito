@@ -71,9 +71,9 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             />
             <DefaultTaskpaneBody>
                 <p className="text-body-1">
-                    Describe the card you want. It appears when you select a cell in this column.
-                    Use {'{Column Header}'} for values from other columns, or {'{=expression}'} for
-                    computed fields (e.g. {'{=Revenue - Cost}'}).
+                    Describe the card you want. AI builds a layout with headers, metrics, and tables.
+                    Placeholders: {'{Column}'} for values, {'{=expr}'} for computed fields.
+                    You can edit the JSON definition below.
                 </p>
                 <TextArea
                     value={userInput}

@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from mitosheet.api.card_template_utils import render_card
 from mitosheet.types import StepsManagerType
-from mitosheet.api.card_template_utils import render_card_template
 
 
 def get_card_content(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
@@ -34,16 +34,16 @@ def get_card_content(params: Dict[str, Any], steps_manager: StepsManagerType) ->
         return {"error": "Invalid row index"}
 
     if sheet_index >= len(state.column_cards):
-        return {"content": ""}
+        return {"blocks": []}
 
     cards_for_sheet = state.column_cards[sheet_index]
     if not isinstance(column_id, str) or column_id not in cards_for_sheet:
-        return {"content": ""}
+        return {"blocks": []}
 
-    template = cards_for_sheet[column_id]
-    if not isinstance(template, str) or template.strip() == "":
-        return {"content": ""}
+    stored = cards_for_sheet[column_id]
+    if not isinstance(stored, str) or stored.strip() == "":
+        return {"blocks": []}
 
     return {
-        "content": render_card_template(template, df, row_index),
+        "blocks": render_card(stored, df, row_index),
     }

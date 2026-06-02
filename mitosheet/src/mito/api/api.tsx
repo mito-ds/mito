@@ -21,6 +21,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
+import { CardBlock } from "../components/endo/cardTypes";
 import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, ParameterizableParams, SheetData, UIState, UserProfile, GraphParamsBackend, GraphParamsFrontend, StepType } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
@@ -658,8 +659,8 @@ export class MitoAPI {
         sheetIndex: number,
         rowIndex: number,
         columnID: ColumnID,
-    ): Promise<MitoAPIResult<{error: string} | {content: string}>> {
-        return await this.send<{error: string} | {content: string}>({
+    ): Promise<MitoAPIResult<{error: string} | {blocks: CardBlock[]}>> {
+        return await this.send<{error: string} | {blocks: CardBlock[]}>({
             'event': 'api_call',
             'type': 'get_card_content',
             'params': {

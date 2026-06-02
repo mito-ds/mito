@@ -6,12 +6,9 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MitoAPI } from "../../api/api";
 import { ColumnID, GridState, SheetData } from "../../types";
+import CardBlockDisplay from "./CardBlockDisplay";
+import { CardBlock } from "./cardTypes";
 
-/*
-    Renders the "at-a-glance" card for the currently selected cell. Card text is
-    rendered on the backend so templates can use {Column Header} values and
-    {=expression} computed fields for the selected row.
-*/
 const GAP_PX = 6;
 
 const SelectionCard = (props: {
@@ -22,7 +19,7 @@ const SelectionCard = (props: {
 }): JSX.Element | null => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [style, setStyle] = useState<React.CSSProperties | undefined>(undefined);
-    const [cardContent, setCardContent] = useState<string | undefined>(undefined);
+    const [blocks, setBlocks] = useState<CardBlock[] | undefined>(undefined);
 
     const sheetIndex = props.gridState.sheetIndex;
     const sheetData: SheetData | undefined = props.sheetDataArray[sheetIndex];
@@ -37,7 +34,7 @@ const SelectionCard = (props: {
 
     useEffect(() => {
         if (!hasCard || columnID === undefined) {
-            setCardContent(undefined);
+            setBlocks(undefined);
             return;
         }
 
@@ -49,9 +46,9 @@ const SelectionCard = (props: {
             }
             const result = 'result' in response ? response.result : undefined;
             if (result !== undefined && !('error' in result)) {
-                setCardContent(result.content);
+                setBlocks(result.blocks);
             } else {
-                setCardContent('');
+                setBlocks([]);
             }
         })();
 
@@ -100,7 +97,7 @@ const SelectionCard = (props: {
         }
 
         setStyle({ top, left });
-    }, [hasCard, rowIndex, columnIndex, cardContent, props.gridState.scrollPosition, props.gridState.viewport, props.mitoContainerRef]);
+    }, [hasCard, rowIndex, columnIndex, blocks, props.gridState.scrollPosition, props.gridState.viewport, props.mitoContainerRef]);
 
     if (!hasCard) {
         return null;
@@ -112,9 +109,10 @@ const SelectionCard = (props: {
             className="mito-selection-card"
             style={style ?? { visibility: 'hidden' }}
         >
-            <div className="mito-selection-card-body">
-                {cardContent ?? '…'}
-            </div>
+            {blocks === undefined
+                ? <div className="mito-selection-card-loading">…</div>
+                : <CardBlockDisplay blocks={blocks} />
+            }
         </div>
     )
 }
