@@ -66,6 +66,7 @@ class State:
         column_formulas: Optional[List[Dict[ColumnID, List[FrontendFormulaAndLocation]]]]=None,
         column_filters: Optional[List[Dict[ColumnID, Any]]]=None,
         df_formats: Optional[List[DataframeFormat]]=None,
+        column_cards: Optional[List[Dict[ColumnID, str]]]=None,
         graph_data_array: Optional[List[Dict[str, Any]]]=None,
         user_defined_functions: Optional[List[Callable]]=None,
         user_defined_importers: Optional[List[Callable]]=None,
@@ -136,6 +137,15 @@ class State:
             ]
         )
 
+        # An "at-a-glance" card template per column, keyed by column id. One dict per sheet.
+        # The template is a string with {Column Header} placeholders that get filled in
+        # with the selected row's values on the frontend.
+        self.column_cards: List[Dict[ColumnID, str]] = (
+            column_cards
+            if column_cards is not None
+            else [{} for _ in range(len(dfs))]
+        )
+
         # We put this in an ordered dict so we can easily figure out the last graph that was edited at each step. 
         # This is helpful for undoing, for example. 
         self.graph_data_array: List[Dict[str, Any]] = graph_data_array if graph_data_array is not None else []
@@ -162,6 +172,7 @@ class State:
             column_formulas=deepcopy(self.column_formulas),
             column_filters=deepcopy(self.column_filters),
             df_formats=deepcopy(self.df_formats),
+            column_cards=deepcopy(self.column_cards),
             graph_data_array=deepcopy(self.graph_data_array),
             user_defined_functions=deepcopy(self.user_defined_functions),
             user_defined_importers=deepcopy(self.user_defined_importers),
@@ -221,6 +232,8 @@ class State:
                 else df_format
             )
 
+            self.column_cards.append({})
+
             # Return the index of this sheet
             return len(self.dfs) - 1
         else:
@@ -270,6 +283,11 @@ class State:
                 if df_format is None
                 else df_format
             )
+
+            if sheet_index < len(self.column_cards):
+                self.column_cards[sheet_index] = {}
+            else:
+                self.column_cards.append({})
 
             # Return the index of this sheet
             return sheet_index

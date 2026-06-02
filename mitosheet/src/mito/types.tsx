@@ -330,6 +330,9 @@ export type SheetData = {
     columnDtypeMap: Record<ColumnID, string>;
     index: IndexLabel[];
     dfFormat: DataframeFormat;
+    // An "at-a-glance" card template per column, keyed by column id. The template is a
+    // string with {Column Header} placeholders filled in with the selected row's values.
+    columnCards: Record<ColumnID, string>;
     conditionalFormattingResult: ConditionalFormattingResult;
 };
 
@@ -1048,6 +1051,7 @@ export enum ActionEnum {
     Change_Dtype = 'change dtype',
     ChangeChartTypeDropdown = 'change chart type dropdown',
     Column_Summary = 'column summary',
+    Create_Card = 'create card',
     Copy = 'copy',
     CopyCode = 'copy code',
     Delete = 'delete',

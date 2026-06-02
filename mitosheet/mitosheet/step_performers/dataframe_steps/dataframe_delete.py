@@ -71,6 +71,8 @@ def delete_dataframe_from_state(state: State, sheet_index: int) -> None:
     state.column_formulas.pop(sheet_index)
     state.column_filters.pop(sheet_index)
     state.df_formats.pop(sheet_index)
+    if sheet_index < len(state.column_cards):
+        state.column_cards.pop(sheet_index)
     state.dfs.pop(sheet_index)
     state.df_names.pop(sheet_index)
     state.df_sources.pop(sheet_index)

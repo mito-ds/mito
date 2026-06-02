@@ -482,6 +482,7 @@ def df_to_json_dumpsable(
         'columnDtypeMap': column_dtype_map,
         'index': json_obj['index'],
         'dfFormat': df_format,
+        'columnCards': state.column_cards[sheet_index] if sheet_index < len(state.column_cards) else {},
         'conditionalFormattingResult': get_conditonal_formatting_result(
             state,
             sheet_index,

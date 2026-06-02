@@ -435,6 +435,39 @@ export const getActions = (
             searchTerms: ['column summary', 'describe', 'stats'],
             tooltip: "Learn about the distribution of the data in the selected column."
         },
+        [ActionEnum.Create_Card]: {
+            type: 'build-time',
+            staticType: ActionEnum.Create_Card,
+            titleToolbar: 'Create Card',
+            titleContextMenu: 'Create card',
+            longTitle: 'Create at-a-glance card',
+            actionFunction: () => {
+                setEditorState(undefined);
+
+                // If opened from the context menu, target the right-clicked column
+                let columnIndex = startingColumnIndex;
+                if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
+                    columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                const columnIDForCard = getColumnIDByIndex(sheetData, columnIndex);
+                if (columnIDForCard === undefined) {
+                    return;
+                }
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.CARDS, sheetIndex: sheetIndex, columnID: columnIDForCard},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {
+                return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to create a card from. Add data to the sheet.'
+            },
+            searchTerms: ['card', 'cards', 'at a glance', 'summary', 'template'],
+            tooltip: "Create an at-a-glance card for this column using AI."
+        },
         [ActionEnum.Copy]: {
             type: 'build-time',
             staticType: ActionEnum.Copy,

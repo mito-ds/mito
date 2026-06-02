@@ -630,6 +630,45 @@ export class MitoAPI {
     }
 
     /**
+     * LLM generation of an at-a-glance card template for a column.
+     */
+    async getCardTemplate(
+        sheetIndex: number,
+        columnID: ColumnID,
+        userInput: string,
+    ): Promise<MitoAPIResult<{error: string} | {prompt_version: string, template: string}>> {
+        return await this.send<{error: string} | {prompt_version: string, template: string}>({
+            'event': 'api_call',
+            'type': 'get_card_template',
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID,
+                'user_input': userInput,
+            },
+        })
+    }
+
+    /**
+     * Save (or clear, by passing an empty template) the at-a-glance card for a column.
+     */
+    async editSetColumnCard(
+        sheetIndex: number,
+        columnID: ColumnID,
+        cardTemplate: string,
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
+            'event': 'edit_event',
+            'type': 'set_column_card_edit',
+            'step_id': getRandomId(),
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID,
+                'card_template': cardTemplate,
+            }
+        });
+    }
+
+    /**
      * LLM chart suggestions. Pass columnIndices to restrict suggestions to a
      * specific selection; omit (or pass undefined) for whole-sheet suggestions.
      */
