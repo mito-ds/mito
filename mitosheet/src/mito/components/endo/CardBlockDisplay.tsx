@@ -7,9 +7,13 @@ import React from "react";
 
 export type CardBlock =
     | { type: 'text'; content: string }
+    | { type: 'caption'; content: string }
+    | { type: 'code'; content: string }
     | { type: 'header'; content: string }
     | { type: 'metric'; label: string; value: string; delta?: string }
     | { type: 'table'; rows: [string, string][] }
+    | { type: 'dataframe'; columns: string[]; rows: string[][] }
+    | { type: 'alert'; variant: 'info' | 'success' | 'warning' | 'error'; content: string }
     | { type: 'divider' };
 
 const CardBlockDisplay = (props: { blocks: CardBlock[] }): JSX.Element => {
@@ -44,15 +48,21 @@ const CardBlockDisplay = (props: { blocks: CardBlock[] }): JSX.Element => {
         flushMetrics();
 
         if (block.type === 'header') {
-            elements.push(
-                <div key={index} className="mito-card-header">{block.content}</div>
-            );
+            elements.push(<div key={index} className="mito-card-header">{block.content}</div>);
         } else if (block.type === 'text') {
-            elements.push(
-                <div key={index} className="mito-card-text">{block.content}</div>
-            );
+            elements.push(<div key={index} className="mito-card-text">{block.content}</div>);
+        } else if (block.type === 'caption') {
+            elements.push(<div key={index} className="mito-card-caption">{block.content}</div>);
+        } else if (block.type === 'code') {
+            elements.push(<pre key={index} className="mito-card-code">{block.content}</pre>);
         } else if (block.type === 'divider') {
             elements.push(<hr key={index} className="mito-card-divider" />);
+        } else if (block.type === 'alert') {
+            elements.push(
+                <div key={index} className={`mito-card-alert mito-card-alert-${block.variant}`}>
+                    {block.content}
+                </div>
+            );
         } else if (block.type === 'table') {
             elements.push(
                 <table key={index} className="mito-card-table">
@@ -61,6 +71,27 @@ const CardBlockDisplay = (props: { blocks: CardBlock[] }): JSX.Element => {
                             <tr key={rowIndex}>
                                 <td className="mito-card-table-label">{row[0]}</td>
                                 <td className="mito-card-table-value">{row[1]}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            );
+        } else if (block.type === 'dataframe') {
+            elements.push(
+                <table key={index} className="mito-card-dataframe">
+                    <thead>
+                        <tr>
+                            {block.columns.map((col, colIndex) => (
+                                <th key={colIndex}>{col}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {block.rows.map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                                {row.map((cell, cellIndex) => (
+                                    <td key={cellIndex}>{cell}</td>
+                                ))}
                             </tr>
                         ))}
                     </tbody>

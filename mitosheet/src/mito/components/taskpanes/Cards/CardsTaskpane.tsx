@@ -66,9 +66,9 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             />
             <DefaultTaskpaneBody>
                 <p className="text-body-1">
-                    Describe the card. AI writes a short Streamlit script using
-                    {' '}<code>st.metric</code>, <code>st.write</code>, <code>st.table</code>, etc.
-                    Use <code>row</code> for the selected row.
+                    Describe the card. AI writes Streamlit code with <code>st.*</code>.
+                    Use <code>row</code> for the selected row and <code>df</code> / <code>pd</code> / <code>np</code> for
+                    sheet-wide stats and calculations.
                 </p>
                 <TextArea
                     value={userInput}

@@ -25,17 +25,21 @@ from mitosheet.api.suggestions_api_utils import (
 )
 from mitosheet.types import StepsManagerType
 
-CARD_CODE_PROMPT_VERSION = "card-code-v1"
+CARD_CODE_PROMPT_VERSION = "card-code-v2"
 
-_EXAMPLE_CODE = """st.header(f"{row['Series_Title']} ({row['Released_Year']})")
-col1, col2 = st.columns(2)
+_EXAMPLE_CODE = """genre = row["Genre"]
+col1, col2, col3 = st.columns(3)
 col1.metric("IMDB", row["IMDB_Rating"])
 col2.metric("Gross", f"${row['Gross']:,.0f}")
+col3.metric("Votes", f"{row['No_of_Votes']:,}")
+
+avg_rating = df["IMDB_Rating"].mean()
+delta = row["IMDB_Rating"] - avg_rating
+st.metric("vs avg rating", f"{delta:+.1f}")
+
 st.divider()
-st.table({
-    "Votes": row["No_of_Votes"],
-    "Meta score": row["Meta_score"],
-})"""
+st.caption("Compared to all rows in this sheet")
+st.dataframe(df[["IMDB_Rating", "Gross"]].describe().round(2))"""
 
 
 def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: str) -> str:
@@ -50,27 +54,27 @@ def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: s
 
     return (
         "You are writing a short Streamlit script that renders an \"at-a-glance\" card for ONE "
-        "dataframe row. The card opens from the column named " + repr(focused_column) + ".\n\n"
+        "selected row. The card opens from the column named " + repr(focused_column) + ".\n\n"
         f"The user described the card they want:\n{user_input}\n\n"
-        f"Available columns (access via row['Column Name']):\n{col_catalog}\n\n"
+        f"Available columns (access via row['Column Name'] or df['Column Name']):\n{col_catalog}\n\n"
         f"Sample rows:\n{df_snippet}\n\n"
-        "Write Python code using the Streamlit API. These names are ALREADY in scope:\n"
-        "  - st  (like streamlit)\n"
-        "  - row (pandas Series for the selected row)\n"
-        "  - pd  (pandas)\n\n"
-        "Do NOT import streamlit or pandas. Do NOT define functions or read files.\n\n"
-        "Use standard Streamlit calls, for example:\n"
-        "  st.metric(label, value), st.write(...), st.header(...), st.divider(),\n"
-        "  st.columns(n) with col.metric(...) on each column, st.table({...}) for key-value rows.\n\n"
-        "Example for a movie row:\n" + _EXAMPLE_CODE + "\n\n"
+        "These names are ALREADY in scope — do NOT import anything:\n"
+        "  - st         (Streamlit: metric, write, header, columns, table, dataframe, divider,\n"
+        "                info, success, warning, error, json, code, caption, container, ...)\n"
+        "  - row        (pandas Series for the selected row)\n"
+        "  - df         (full dataframe for this sheet — use for means, ranks, filters, describe)\n"
+        "  - row_index  (int index of the selected row in df)\n"
+        "  - pd, np     (pandas and numpy)\n\n"
+        "Use pandas on df for dynamic values (averages, percentiles, comparisons, boolean flags).\n"
+        "Then display results with st.metric, st.write, st.dataframe, st.table, st.info, etc.\n\n"
+        "Example:\n" + _EXAMPLE_CODE + "\n\n"
         "Respond with ONLY valid JSON (no markdown fences):\n"
         '{"code": "..."}\n\n'
-        "The code value must be a single string with \\n for newlines.\n\n"
         "Rules:\n"
-        "- Only use columns that exist in the catalog above.\n"
-        "- Use row['Exact Column Name'] for values; you may format numbers with f-strings.\n"
-        "- Keep the script short (roughly 5-15 lines).\n"
-        "- Put headline KPIs in st.metric; use st.table for secondary fields.\n"
+        "- Only use columns that exist in the catalog.\n"
+        "- Keep the script short (roughly 8-25 lines).\n"
+        "- Prefer st.metric for headline numbers; st.dataframe for small summary tables.\n"
+        "- Use f-strings to format numbers; put larger values first in divisions.\n"
     )
 
 
