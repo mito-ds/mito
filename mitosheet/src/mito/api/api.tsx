@@ -21,7 +21,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
-import { CardBlock } from "../components/endo/cardTypes";
+import { CardBlock } from "../components/endo/CardBlockDisplay";
 import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, ParameterizableParams, SheetData, UIState, UserProfile, GraphParamsBackend, GraphParamsFrontend, StepType } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
@@ -630,15 +630,13 @@ export class MitoAPI {
         })
     }
 
-    /**
-     * LLM generation of an at-a-glance card template for a column.
-     */
+    /** LLM generation of Streamlit card code for a column. */
     async getCardTemplate(
         sheetIndex: number,
         columnID: ColumnID,
         userInput: string,
-    ): Promise<MitoAPIResult<{error: string} | {prompt_version: string, template: string}>> {
-        return await this.send<{error: string} | {prompt_version: string, template: string}>({
+    ): Promise<MitoAPIResult<{error: string} | {prompt_version: string, code: string}>> {
+        return await this.send<{error: string} | {prompt_version: string, code: string}>({
             'event': 'api_call',
             'type': 'get_card_template',
             'params': {
@@ -649,12 +647,7 @@ export class MitoAPI {
         })
     }
 
-    /**
-     * Save (or clear, by passing an empty template) the at-a-glance card for a column.
-     */
-    /**
-     * Renders a saved card template for a specific row (column values + {=expressions}).
-     */
+    /** Executes saved card code for a row and returns rendered blocks. */
     async getCardContent(
         sheetIndex: number,
         rowIndex: number,
@@ -674,7 +667,7 @@ export class MitoAPI {
     async editSetColumnCard(
         sheetIndex: number,
         columnID: ColumnID,
-        cardTemplate: string,
+        cardCode: string,
     ): Promise<MitoAPIResult<never>> {
         return await this.send({
             'event': 'edit_event',
@@ -683,7 +676,7 @@ export class MitoAPI {
             'params': {
                 'sheet_index': sheetIndex,
                 'column_id': columnID,
-                'card_template': cardTemplate,
+                'card_code': cardCode,
             }
         });
     }

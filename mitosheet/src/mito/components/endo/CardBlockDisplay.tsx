@@ -4,11 +4,17 @@
  */
 
 import React from "react";
-import { CardBlock, CardMetricBlock } from "./cardTypes";
+
+export type CardBlock =
+    | { type: 'text'; content: string }
+    | { type: 'header'; content: string }
+    | { type: 'metric'; label: string; value: string; delta?: string }
+    | { type: 'table'; rows: [string, string][] }
+    | { type: 'divider' };
 
 const CardBlockDisplay = (props: { blocks: CardBlock[] }): JSX.Element => {
     const elements: React.ReactNode[] = [];
-    let metricBuffer: CardMetricBlock[] = [];
+    const metricBuffer: Extract<CardBlock, { type: 'metric' }>[] = [];
 
     const flushMetrics = () => {
         if (metricBuffer.length === 0) {
@@ -27,7 +33,7 @@ const CardBlockDisplay = (props: { blocks: CardBlock[] }): JSX.Element => {
                 ))}
             </div>
         );
-        metricBuffer = [];
+        metricBuffer.length = 0;
     };
 
     props.blocks.forEach((block, index) => {

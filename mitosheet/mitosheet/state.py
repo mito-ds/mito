@@ -137,9 +137,7 @@ class State:
             ]
         )
 
-        # An "at-a-glance" card template per column, keyed by column id. One dict per sheet.
-        # The template is a string with {Column Header} placeholders that get filled in
-        # with the selected row's values on the frontend.
+        # Streamlit card code per column (st.* script with `row` in scope). One dict per sheet.
         self.column_cards: List[Dict[ColumnID, str]] = (
             column_cards
             if column_cards is not None

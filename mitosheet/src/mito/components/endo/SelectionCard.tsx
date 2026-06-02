@@ -6,8 +6,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MitoAPI } from "../../api/api";
 import { ColumnID, GridState, SheetData } from "../../types";
-import CardBlockDisplay from "./CardBlockDisplay";
-import { CardBlock } from "./cardTypes";
+import CardBlockDisplay, { CardBlock } from "./CardBlockDisplay";
 
 const GAP_PX = 6;
 

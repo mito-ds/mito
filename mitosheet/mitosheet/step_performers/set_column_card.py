@@ -16,9 +16,8 @@ from mitosheet.types import ColumnID
 
 class SetColumnCardStepPerformer(StepPerformer):
     """
-    Saves an "at-a-glance" card template for a single column. The template is a
-    string with {Column Header} placeholders that the frontend fills in with the
-    selected row's values. Passing an empty template removes the card.
+    Saves Streamlit card code for a column. The code uses st.* with `row` in scope.
+    Pass empty code to remove the card.
     """
 
     @classmethod
@@ -33,18 +32,17 @@ class SetColumnCardStepPerformer(StepPerformer):
     def execute(cls, prev_state: State, params: Dict[str, Any]) -> Tuple[State, Optional[Dict[str, Any]]]:
         sheet_index: int = get_param(params, 'sheet_index')
         column_id: ColumnID = get_param(params, 'column_id')
-        card_template: str = get_param(params, 'card_template')
+        card_code: str = get_param(params, 'card_code')
 
         post_state = prev_state.copy()
 
-        # Make sure the cards list is long enough for this sheet
         while len(post_state.column_cards) <= sheet_index:
             post_state.column_cards.append({})
 
-        if card_template == '':
+        if card_code == '':
             post_state.column_cards[sheet_index].pop(column_id, None)
         else:
-            post_state.column_cards[sheet_index][column_id] = card_template
+            post_state.column_cards[sheet_index][column_id] = card_code
 
         return post_state, {
             'pandas_processing_time': 0,
@@ -57,7 +55,6 @@ class SetColumnCardStepPerformer(StepPerformer):
         params: Dict[str, Any],
         execution_data: Optional[Dict[str, Any]],
     ) -> List[CodeChunk]:
-        # Cards are UI-only metadata, so there is no pandas code to generate
         return [
             EmptyCodeChunk(
                 prev_state,

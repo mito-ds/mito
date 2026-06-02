@@ -23,16 +23,11 @@ interface CardsTaskpaneProps {
     columnID: ColumnID;
 }
 
-/*
-    Lets the user describe an "at-a-glance" card for a column, generate a template
-    with AI, and save it. The saved template persists with the analysis and is shown
-    when a cell in this column is selected.
-*/
 const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
     const sheetData: SheetData | undefined = props.sheetDataArray[props.sheetIndex];
 
     const [userInput, setUserInput] = useState('');
-    const [template, setTemplate] = useState(() => sheetData?.columnCards?.[props.columnID] ?? '');
+    const [cardCode, setCardCode] = useState(() => sheetData?.columnCards?.[props.columnID] ?? '');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
 
@@ -42,7 +37,7 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
 
     const columnHeader = sheetData.columnIDsMap[props.columnID];
 
-    const generateTemplate = async () => {
+    const generateCode = async () => {
         setLoading(true);
         setError(undefined);
         const response = await props.mitoAPI.getCardTemplate(props.sheetIndex, props.columnID, userInput);
@@ -53,11 +48,11 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             setError(result !== undefined && 'error' in result ? result.error : 'Something went wrong generating the card.');
             return;
         }
-        setTemplate(result.template);
+        setCardCode(result.code);
     }
 
     const saveCard = async () => {
-        await props.mitoAPI.editSetColumnCard(props.sheetIndex, props.columnID, template);
+        await props.mitoAPI.editSetColumnCard(props.sheetIndex, props.columnID, cardCode);
         props.setUIState(prevUIState => {
             return {...prevUIState, currOpenTaskpane: {type: TaskpaneType.NONE}}
         })
@@ -71,41 +66,41 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             />
             <DefaultTaskpaneBody>
                 <p className="text-body-1">
-                    Describe the card you want. AI builds a layout with headers, metrics, and tables.
-                    Placeholders: {'{Column}'} for values, {'{=expr}'} for computed fields.
-                    You can edit the JSON definition below.
+                    Describe the card. AI writes a short Streamlit script using
+                    {' '}<code>st.metric</code>, <code>st.write</code>, <code>st.table</code>, etc.
+                    Use <code>row</code> for the selected row.
                 </p>
                 <TextArea
                     value={userInput}
-                    placeholder="e.g. Show the customer's name, total revenue, and signup date"
+                    placeholder="e.g. Show title, IMDB rating, and gross revenue"
                     onChange={(e) => setUserInput(e.target.value)}
                     height="small"
                 />
                 <Row justify="space-between">
                     <TextButton
                         variant="dark"
-                        onClick={generateTemplate}
+                        onClick={generateCode}
                         disabled={loading || userInput.trim() === ''}
                     >
-                        {loading ? 'Generating...' : 'Generate Card with AI'}
+                        {loading ? 'Generating...' : 'Generate with AI'}
                     </TextButton>
                 </Row>
                 {error !== undefined &&
                     <p className="text-color-error">{error}</p>
                 }
-                <p className="text-header-3">Card Template</p>
+                <p className="text-header-3">Card code</p>
                 <TextArea
-                    value={template}
-                    placeholder="Your card template will appear here. You can also edit it directly."
-                    onChange={(e) => setTemplate(e.target.value)}
+                    value={cardCode}
+                    placeholder={'st.metric("Rating", row["IMDB_Rating"])'}
+                    onChange={(e) => setCardCode(e.target.value)}
                     height="medium"
                 />
                 <Row justify="space-between">
                     <TextButton
                         variant="light"
                         width="hug-contents"
-                        onClick={() => setTemplate('')}
-                        disabled={template === ''}
+                        onClick={() => setCardCode('')}
+                        disabled={cardCode === ''}
                     >
                         Clear
                     </TextButton>
@@ -113,7 +108,7 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
                         variant="dark"
                         width="hug-contents"
                         onClick={saveCard}
-                        disabled={template.trim() === ''}
+                        disabled={cardCode.trim() === ''}
                     >
                         Save Card
                     </TextButton>

@@ -330,8 +330,7 @@ export type SheetData = {
     columnDtypeMap: Record<ColumnID, string>;
     index: IndexLabel[];
     dfFormat: DataframeFormat;
-    // An "at-a-glance" card template per column, keyed by column id. The template is a
-    // string with {Column Header} placeholders filled in with the selected row's values.
+    // Streamlit card code per column (saved st.* script).
     columnCards: Record<ColumnID, string>;
     conditionalFormattingResult: ConditionalFormattingResult;
 };
