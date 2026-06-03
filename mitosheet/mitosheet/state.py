@@ -23,6 +23,7 @@ DATAFRAME_SOURCE_DUPLICATED = "duplicated"  # created through a sheet duplicatio
 DATAFRAME_SOURCE_TRANSPOSED = "transposed"  # created through a dataframe being transposed
 DATAFRAME_SOURCE_MELTED = "melted"  # created through a dataframe being melted
 DATAFRAME_SOURCE_AI = "ai"  # through AI generated code
+DATAFRAME_SOURCE_EXPLORE = "explore"  # filtered view opened from a card explore link
 
 # Constants used for formatting. Defined here to avoid circular imports
 NUMBER_FORMAT_PLAIN_TEXT = "plain text"

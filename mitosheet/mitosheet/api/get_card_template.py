@@ -23,9 +23,10 @@ from mitosheet.api.suggestions_api_utils import (
     get_suggestions_from_openai_key,
     strip_json_fences,
 )
+from mitosheet.api.card_storage import serialize_card_definition
 from mitosheet.types import StepsManagerType
 
-CARD_CODE_PROMPT_VERSION = "card-code-v2"
+CARD_CODE_PROMPT_VERSION = "card-code-v3"
 
 _EXAMPLE_CODE = """genre = row["Genre"]
 col1, col2, col3 = st.columns(3)
@@ -68,9 +69,17 @@ def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: s
         "Use pandas on df for dynamic values (averages, percentiles, comparisons, boolean flags).\n"
         "Then display results with st.metric, st.write, st.dataframe, st.table, st.info, etc.\n\n"
         "Example:\n" + _EXAMPLE_CODE + "\n\n"
+        "Also suggest 3-5 related table views the user might open from this row. Each view is a "
+        "pandas expression using df and row that returns a DataFrame.\n\n"
         "Respond with ONLY valid JSON (no markdown fences):\n"
-        '{"code": "..."}\n\n'
-        "Rules:\n"
+        '{"code": "...", "explore": [{"label": "...", "view_code": "..."}, ...]}\n\n'
+        "Explore rules:\n"
+        "- label: short link text; use {Column Name} placeholders filled from the selected row "
+        "(e.g. \"All plays from {Released_Year}\").\n"
+        "- view_code: one expression evaluating to a DataFrame, e.g. "
+        "df[df['Released_Year'] == row['Released_Year']] or df.nlargest(20, 'Gross').\n"
+        "- Only use columns from the catalog; views should be relevant to the focused column and user request.\n\n"
+        "Card code rules:\n"
         "- Only use columns that exist in the catalog.\n"
         "- Keep the script short (roughly 8-25 lines).\n"
         "- Prefer st.metric for headline numbers; st.dataframe for small summary tables.\n"
@@ -129,7 +138,22 @@ def get_card_template(params: Dict[str, Any], steps_manager: StepsManagerType) -
     if not isinstance(code, str) or code.strip() == "":
         return {"error": "The model did not return valid Streamlit card code."}
 
+    explore = parsed.get("explore", []) if isinstance(parsed, dict) else []
+    if not isinstance(explore, list):
+        explore = []
+
+    valid_explore = []
+    for item in explore:
+        if not isinstance(item, dict):
+            continue
+        label = item.get("label")
+        view_code = item.get("view_code")
+        if isinstance(label, str) and isinstance(view_code, str) and label.strip() and view_code.strip():
+            valid_explore.append({"label": label.strip(), "view_code": view_code.strip()})
+
     return {
         "prompt_version": CARD_CODE_PROMPT_VERSION,
         "code": code,
+        "explore": valid_explore,
+        "card_code": serialize_card_definition(code, valid_explore),
     }

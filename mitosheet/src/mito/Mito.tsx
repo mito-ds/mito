@@ -1241,6 +1241,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             sheetDataArray={sheetDataArray}
                             gridState={gridState}
                             mitoContainerRef={mitoContainerRef}
+                            setUIState={setUIState}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 

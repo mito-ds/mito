@@ -129,6 +129,51 @@
     color: var(--mito-text-secondary, #888);
 }
 
+.mito-selection-card-explore {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--mito-border, #e0e0e0);
+}
+
+.mito-selection-card-explore-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--mito-text-secondary, #888);
+    margin: 0 0 6px 0;
+}
+
+.mito-selection-card-explore-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mito-selection-card-explore-link {
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--mito-highlight, #9d6cff);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.mito-selection-card-explore-link:hover:not(:disabled) {
+    color: var(--mito-text, #333);
+}
+
+.mito-selection-card-explore-link:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
 .mito-selection-card-blocks {
     display: flex;
     flex-direction: column;

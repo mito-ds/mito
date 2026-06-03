@@ -635,8 +635,18 @@ export class MitoAPI {
         sheetIndex: number,
         columnID: ColumnID,
         userInput: string,
-    ): Promise<MitoAPIResult<{error: string} | {prompt_version: string, code: string}>> {
-        return await this.send<{error: string} | {prompt_version: string, code: string}>({
+    ): Promise<MitoAPIResult<{error: string} | {
+        prompt_version: string,
+        code: string,
+        explore: {label: string, view_code: string}[],
+        card_code: string,
+    }>> {
+        return await this.send<{error: string} | {
+            prompt_version: string,
+            code: string,
+            explore: {label: string, view_code: string}[],
+            card_code: string,
+        }>({
             'event': 'api_call',
             'type': 'get_card_template',
             'params': {
@@ -652,8 +662,14 @@ export class MitoAPI {
         sheetIndex: number,
         rowIndex: number,
         columnID: ColumnID,
-    ): Promise<MitoAPIResult<{error: string} | {blocks: CardBlock[]}>> {
-        return await this.send<{error: string} | {blocks: CardBlock[]}>({
+    ): Promise<MitoAPIResult<{error: string} | {
+        blocks: CardBlock[],
+        explore: {label: string, view_code: string}[],
+    }>> {
+        return await this.send<{error: string} | {
+            blocks: CardBlock[],
+            explore: {label: string, view_code: string}[],
+        }>({
             'event': 'api_call',
             'type': 'get_card_content',
             'params': {
@@ -662,6 +678,25 @@ export class MitoAPI {
                 'column_id': columnID,
             },
         })
+    }
+
+    async editAddExploreView(
+        sourceSheetIndex: number,
+        rowIndex: number,
+        viewName: string,
+        viewCode: string,
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
+            'event': 'edit_event',
+            'type': 'add_explore_view_edit',
+            'step_id': getRandomId(),
+            'params': {
+                'source_sheet_index': sourceSheetIndex,
+                'row_index': rowIndex,
+                'view_name': viewName,
+                'view_code': viewCode,
+            }
+        });
     }
 
     async editSetColumnCard(

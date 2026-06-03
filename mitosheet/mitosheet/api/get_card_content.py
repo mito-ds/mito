@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from mitosheet.api.card_storage import parse_card_definition, render_explore_labels
 from mitosheet.api.streamlit_card_recorder import render_card
 from mitosheet.types import StepsManagerType
 
@@ -40,8 +41,13 @@ def get_card_content(params: Dict[str, Any], steps_manager: StepsManagerType) ->
     if not isinstance(column_id, str) or column_id not in cards_for_sheet:
         return {"blocks": []}
 
-    code = cards_for_sheet[column_id]
-    if not isinstance(code, str):
-        return {"blocks": []}
+    stored = cards_for_sheet[column_id]
+    if not isinstance(stored, str):
+        return {"blocks": [], "explore": []}
 
-    return {"blocks": render_card(code, df, row_index)}
+    code, explore = parse_card_definition(stored)
+    row = df.iloc[row_index]
+    return {
+        "blocks": render_card(code, df, row_index),
+        "explore": render_explore_labels(explore, row),
+    }

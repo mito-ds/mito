@@ -6,6 +6,7 @@
 import React, { useState } from "react";
 import { MitoAPI } from "../../../api/api";
 import { ColumnID, SheetData, UIState } from "../../../types";
+import { parseCardDefinition, serializeCardDefinition } from "../../../utils/cardStorage";
 import TextArea from "../../elements/TextArea";
 import TextButton from "../../elements/TextButton";
 import Row from "../../layout/Row";
@@ -27,7 +28,9 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
     const sheetData: SheetData | undefined = props.sheetDataArray[props.sheetIndex];
 
     const [userInput, setUserInput] = useState('');
-    const [cardCode, setCardCode] = useState(() => sheetData?.columnCards?.[props.columnID] ?? '');
+    const initialStored = sheetData?.columnCards?.[props.columnID] ?? '';
+    const [cardCode, setCardCode] = useState(() => parseCardDefinition(initialStored).code);
+    const [exploreLinks, setExploreLinks] = useState(() => parseCardDefinition(initialStored).explore);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
 
@@ -49,10 +52,15 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             return;
         }
         setCardCode(result.code);
+        setExploreLinks(result.explore);
     }
 
     const saveCard = async () => {
-        await props.mitoAPI.editSetColumnCard(props.sheetIndex, props.columnID, cardCode);
+        await props.mitoAPI.editSetColumnCard(
+            props.sheetIndex,
+            props.columnID,
+            serializeCardDefinition(cardCode, exploreLinks),
+        );
         props.setUIState(prevUIState => {
             return {...prevUIState, currOpenTaskpane: {type: TaskpaneType.NONE}}
         })
@@ -99,8 +107,8 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
                     <TextButton
                         variant="light"
                         width="hug-contents"
-                        onClick={() => setCardCode('')}
-                        disabled={cardCode === ''}
+                        onClick={() => { setCardCode(''); setExploreLinks([]); }}
+                        disabled={cardCode === '' && exploreLinks.length === 0}
                     >
                         Clear
                     </TextButton>
