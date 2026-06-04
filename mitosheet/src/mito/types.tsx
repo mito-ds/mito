@@ -330,6 +330,8 @@ export type SheetData = {
     columnDtypeMap: Record<ColumnID, string>;
     index: IndexLabel[];
     dfFormat: DataframeFormat;
+    // Streamlit card code per column (saved st.* script).
+    columnCards: Record<ColumnID, string>;
     conditionalFormattingResult: ConditionalFormattingResult;
 };
 
@@ -1048,6 +1050,7 @@ export enum ActionEnum {
     Change_Dtype = 'change dtype',
     ChangeChartTypeDropdown = 'change chart type dropdown',
     Column_Summary = 'column summary',
+    Create_Card = 'create card',
     Copy = 'copy',
     CopyCode = 'copy code',
     Delete = 'delete',

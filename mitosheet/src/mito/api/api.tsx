@@ -21,6 +21,7 @@ import { convertFrontendtoBackendGraphParams } from "../components/taskpanes/Gra
 import { AvailableSnowflakeOptionsAndDefaults, SnowflakeCredentials, SnowflakeTableLocationAndWarehouse } from "../components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane";
 import { SplitTextToColumnsParams } from "../components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane";
 import { StepImportData } from "../components/taskpanes/UpdateImports/UpdateImportsTaskpane";
+import { CardBlock } from "../components/endo/CardBlockDisplay";
 import { AnalysisData, MergeParams, BackendPivotParams, CodeOptions, CodeSnippetAPIResult, ColumnID, DataframeFormat, FeedbackID, FilterGroupType, FilterType, FormulaLocation, GraphID, ParameterizableParams, SheetData, UIState, UserProfile, GraphParamsBackend, GraphParamsFrontend, StepType } from "../types";
 import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnType } from "./send";
 
@@ -627,6 +628,96 @@ export class MitoAPI {
                 'sheet_index': sheetIndex,
             },
         })
+    }
+
+    /** LLM generation of Streamlit card code for a column. */
+    async getCardTemplate(
+        sheetIndex: number,
+        columnID: ColumnID,
+        userInput: string,
+    ): Promise<MitoAPIResult<{error: string} | {
+        prompt_version: string,
+        glance_code: string,
+        code: string,
+        explore: {label: string, view_code: string}[],
+        card_code: string,
+    }>> {
+        return await this.send<{error: string} | {
+            prompt_version: string,
+            glance_code: string,
+            code: string,
+            explore: {label: string, view_code: string}[],
+            card_code: string,
+        }>({
+            'event': 'api_call',
+            'type': 'get_card_template',
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID,
+                'user_input': userInput,
+            },
+        })
+    }
+
+    /** Executes saved card code for a row and returns rendered blocks. */
+    async getCardContent(
+        sheetIndex: number,
+        rowIndex: number,
+        columnID: ColumnID,
+        mode: 'glance' | 'full' = 'full',
+    ): Promise<MitoAPIResult<{error: string} | {
+        blocks: CardBlock[],
+        explore: {label: string, view_code: string}[],
+    }>> {
+        return await this.send<{error: string} | {
+            blocks: CardBlock[],
+            explore: {label: string, view_code: string}[],
+        }>({
+            'event': 'api_call',
+            'type': 'get_card_content',
+            'params': {
+                'sheet_index': sheetIndex,
+                'row_index': rowIndex,
+                'column_id': columnID,
+                'mode': mode,
+            },
+        })
+    }
+
+    async editAddExploreView(
+        sourceSheetIndex: number,
+        rowIndex: number,
+        viewName: string,
+        viewCode: string,
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
+            'event': 'edit_event',
+            'type': 'add_explore_view_edit',
+            'step_id': getRandomId(),
+            'params': {
+                'source_sheet_index': sourceSheetIndex,
+                'row_index': rowIndex,
+                'view_name': viewName,
+                'view_code': viewCode,
+            }
+        });
+    }
+
+    async editSetColumnCard(
+        sheetIndex: number,
+        columnID: ColumnID,
+        cardCode: string,
+    ): Promise<MitoAPIResult<never>> {
+        return await this.send({
+            'event': 'edit_event',
+            'type': 'set_column_card_edit',
+            'step_id': getRandomId(),
+            'params': {
+                'sheet_index': sheetIndex,
+                'column_id': columnID,
+                'card_code': cardCode,
+            }
+        });
     }
 
     /**

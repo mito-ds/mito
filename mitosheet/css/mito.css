@@ -105,6 +105,407 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.mito-selection-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 220px;
+    max-width: 380px;
+    max-height: 55%;
+    overflow: auto;
+    z-index: 5;
+    background: linear-gradient(
+        180deg,
+        var(--mito-background-highlight, #faf8ff) 0%,
+        var(--mito-background, white) 48px
+    );
+    border: 1px solid var(--mito-highlight-light, #d4c4ff);
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(80, 40, 140, 0.14), 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 0 16px 14px 16px;
+}
+
+.mito-selection-card-banner {
+    display: flex;
+    align-items: stretch;
+    margin: 0 -16px 6px -16px;
+    background: var(--mito-highlight, #9d6cff);
+    border-radius: 9px 9px 0 0;
+    overflow: hidden;
+}
+
+.mito-selection-card-banner .mito-card-header {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 9px 8px 9px 16px;
+    border-radius: 0;
+}
+
+.mito-selection-card-expand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    padding: 0;
+    border: none;
+    background: var(--mito-highlight, #9d6cff);
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+
+.mito-selection-card-banner .mito-selection-card-expand {
+    align-self: stretch;
+}
+
+.mito-selection-card > .mito-selection-card-expand {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+}
+
+.mito-selection-card-expand svg path {
+    stroke: #ffffff;
+}
+
+.mito-selection-card-expand:hover {
+    background: var(--mito-highlight-medium, #8758f0);
+}
+
+.mito-selection-card-loading {
+    font-size: 13px;
+    color: var(--mito-text-secondary, #888);
+}
+
+.mito-card-sidebar-body {
+    width: 100%;
+}
+
+.mito-selection-card-explore {
+    margin-top: 16px;
+    padding-top: 0;
+    border: none;
+    border-top: none;
+}
+
+.mito-selection-card-explore-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--mito-text-secondary, #888);
+    margin: 0 0 12px 0;
+}
+
+.mito-selection-card-explore-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mito-selection-card-explore-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 4px;
+    text-align: left;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--mito-text, #2a2a2a);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.mito-selection-card-explore-item-label {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.mito-selection-card-explore-item-chevron {
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--mito-highlight, #9d6cff);
+    opacity: 0.85;
+}
+
+.mito-selection-card-explore-item:hover:not(:disabled) {
+    background: var(--mito-background-highlight, #f3f0fa);
+    color: var(--mito-highlight, #7c4dff);
+}
+
+.mito-selection-card-explore-item:hover:not(:disabled) .mito-selection-card-explore-item-chevron {
+    opacity: 1;
+}
+
+.mito-selection-card-explore-item:active:not(:disabled) {
+    background: var(--mito-highlight-very-light, #ede8ff);
+}
+
+.mito-selection-card-explore-item:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.mito-selection-card-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mito-selection-card .mito-selection-card-blocks {
+    gap: 6px;
+}
+
+.mito-card-header {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: #fff;
+    background: var(--mito-highlight, #9d6cff);
+    word-break: break-word;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+}
+
+
+.mito-card-header + .mito-card-caption {
+    margin-top: 0;
+}
+
+.mito-card-text {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--mito-text, #333);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.mito-selection-card .mito-card-divider {
+    display: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    height: 0;
+}
+
+.mito-card-metrics-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mito-card-metric {
+    flex: 1 1 0;
+    min-width: 88px;
+    background: transparent;
+    border: none;
+    padding: 4px 8px 4px 0;
+    box-shadow: none;
+}
+
+.mito-card-metric-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mito-text-secondary, #6b6b6b);
+    margin-bottom: 4px;
+}
+
+.mito-card-metric-value {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--mito-text, #111);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.mito-card-metric-delta {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mito-text-secondary, #6b6b6b);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.mito-card-metric-delta-up {
+    color: #15803d;
+}
+
+.mito-card-metric-delta-down {
+    color: #b91c1c;
+}
+
+.mito-card-metric-delta-neutral {
+    color: var(--mito-text-secondary, #6b6b6b);
+}
+
+.mito-card-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 13px;
+    background: var(--mito-background, #fff);
+    border: 1px solid var(--mito-border, #ebe8f2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* No zebra striping — keep our row borders */
+.mito-selection-card .mito-card-table tbody tr,
+.mito-selection-card .mito-card-table tbody tr:nth-child(odd),
+.mito-selection-card .mito-card-table tbody tr:nth-child(even),
+.mito-selection-card .mito-card-table tbody tr td,
+.mito-selection-card .mito-card-table tbody tr:nth-child(odd) td,
+.mito-selection-card .mito-card-table tbody tr:nth-child(even) td {
+    background-color: var(--mito-background, #fff) !important;
+}
+
+.mito-selection-card .mito-card-table tr:not(:last-child) td {
+    border-bottom: 1px solid var(--mito-border, #f0eef5) !important;
+}
+
+.mito-selection-card .mito-card-table tr:last-child td {
+    border-bottom: none !important;
+}
+
+.mito-card-table-label {
+    padding: 8px 10px;
+    color: var(--mito-text-secondary, #6b6b6b);
+    vertical-align: top;
+    white-space: nowrap;
+    font-weight: 500;
+    width: 38%;
+    text-align: left;
+}
+
+.mito-card-table-value {
+    padding: 8px 10px;
+    color: var(--mito-text, #222);
+    text-align: left;
+    word-break: break-word;
+    font-weight: 500;
+}
+
+.mito-card-caption {
+    font-size: 12px;
+    color: var(--mito-text-secondary, #6b6b6b);
+    line-height: 1.35;
+}
+
+.mito-card-code {
+    font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background: var(--mito-background-secondary, #f6f6f6);
+    border-radius: 4px;
+    padding: 8px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+}
+
+.mito-card-alert {
+    font-size: 13px;
+    line-height: 1.45;
+    padding: 10px 12px;
+    border-radius: 8px;
+    word-break: break-word;
+    border: none;
+}
+
+.mito-card-alert-info {
+    background: #eff6ff;
+    color: #1e3a5f;
+}
+
+.mito-card-alert-success {
+    background: #ecfdf3;
+    color: #14532d;
+}
+
+.mito-card-alert-warning {
+    background: #fffbeb;
+    color: #713f12;
+}
+
+.mito-card-alert-error {
+    background: #fef2f2;
+    color: #7f1d1d;
+}
+
+.mito-card-dataframe {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 12px;
+    background: var(--mito-background, #fff);
+    border: 1px solid var(--mito-border, #ebe8f2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.mito-selection-card .mito-card-dataframe tbody tr,
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(odd),
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(even),
+.mito-selection-card .mito-card-dataframe tbody tr td,
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(odd) td,
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(even) td {
+    background-color: var(--mito-background, #fff) !important;
+}
+
+.mito-selection-card .mito-card-dataframe thead th {
+    border-bottom: 1px solid var(--mito-border, #ebe8f2) !important;
+}
+
+.mito-selection-card .mito-card-dataframe tbody tr:not(:last-child) td {
+    border-bottom: 1px solid var(--mito-border, #f0eef5) !important;
+}
+
+.mito-selection-card .mito-card-dataframe tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.mito-card-dataframe th {
+    text-align: left;
+    font-weight: 600;
+    padding: 8px 10px;
+    color: var(--mito-text-secondary, #555);
+    background: var(--mito-background-highlight, #f8f7fb);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.mito-card-dataframe td {
+    padding: 7px 10px;
+    text-align: left;
+    color: var(--mito-text, #222);
+    word-break: break-word;
+    font-variant-numeric: tabular-nums;
 }
 
 .mito-sheet-and-formula-bar-container-wide-taskpane-open {

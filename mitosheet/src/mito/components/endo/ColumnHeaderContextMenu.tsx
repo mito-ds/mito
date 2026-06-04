@@ -85,6 +85,10 @@ export default function ColumnHeaderContextMenu(props: {
 
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Column_Summary], props.closeOpenEditingPopups)}/>
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Unique_Values], props.closeOpenEditingPopups)} />
+
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Create_Card], props.closeOpenEditingPopups)} />
         </Dropdown>
     )
 }
