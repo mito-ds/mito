@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.voice-input-button {
+  min-width: 36px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background-color: transparent;
+  border: none;
+  color: var(--purple-700);
+}
+
+.voice-input-button:hover:not(:disabled) {
+  background-color: var(--purple-400);
+}
+
+.voice-input-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes voice-input-pulse {
+  0%,
+  100% {
+    background-color: var(--purple-300);
+  }
+  50% {
+    background-color: var(--purple-400);
+  }
+}
+
+.voice-input-button--listening {
+  animation: voice-input-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-input-button--listening {
+    animation: none;
+    background-color: var(--purple-400);
+  }
+}

@@ -11,6 +11,7 @@
 
 @import url('icons.css');
 @import url('statusItem.css');
+@import url('NotebookMarkdown.css');
 
 :root {
   /* Margins */
@@ -19,6 +20,10 @@
   --chat-taskpane-tool-call-horizontal-padding: 10px;
   --chat-context-button-height: 20px;
   --toolbar-button-height: 24px;
+  --toolbar-element-height: 28px;
+  --toolbar-element-radius: 6px;
+  --toolbar-element-font-size: 12px;
+  --toolbar-element-padding: 0 10px;
 
   /* Colors */
   --chat-background-color: var(--jp-layout-color1);

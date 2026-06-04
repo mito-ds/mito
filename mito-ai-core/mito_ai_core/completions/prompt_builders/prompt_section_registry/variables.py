@@ -10,7 +10,7 @@ from .base import PromptSection
 
 class VariablesSection(PromptSection):
     """Section for defined variables."""
-    trim_after_messages: int = 6
+    trim_after_messages: int = 2
     exclude_if_empty: bool = False
     
     def __init__(self, variables: Optional[List[KernelVariable]]) -> None:

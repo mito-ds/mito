@@ -42,11 +42,10 @@ test.describe.parallel('Chart Wizard', () => {
         const chartOutputContainer = page.locator('.chart-wizard-output-container').first();
         await expect(chartOutputContainer).toBeVisible({ timeout: 10000 });
 
-        // Hover over the chart output to make the button visible
-        await chartOutputContainer.hover();
+        const outputWrapper = chartOutputContainer.locator('xpath=ancestor::div[contains(@class,"jp-Cell-outputWrapper")]');
+        await outputWrapper.hover();
 
-        // Wait for the Chart Wizard button to become visible (opacity changes on hover)
-        const chartWizardButton = page.locator('.chart-wizard-button-container').getByRole('button', { name: 'Chart Wizard' });
+        const chartWizardButton = outputWrapper.locator('.mito-output-action-slot-chartWizard').getByRole('button', { name: 'Chart Wizard' });
         await expect(chartWizardButton).toBeVisible();
 
         // Click the Chart Wizard button
@@ -60,6 +59,11 @@ test.describe.parallel('Chart Wizard', () => {
         const hasTab = await chartWizardTab.count() > 0;
         const hasWidget = await chartWizardWidget.count() > 0;
         expect(hasTab || hasWidget).toBeTruthy();
+
+        // Notebook mode: opening Chart Wizard collapses the source cell input (input placeholder).
+        const codeCell = page.locator('.jp-CodeCell').filter({ has: chartOutputContainer });
+        await expect(codeCell.locator('.jp-InputPlaceholder')).toBeVisible();
+        await expect(codeCell.locator('.jp-Placeholder-content[title="Click to expand"]')).toBeVisible();
 
         // Wait for the Chart Wizard content to load
         await chartWizardWidget.waitFor({ state: 'visible', timeout: 5000 });
@@ -94,5 +98,11 @@ test.describe.parallel('Chart Wizard', () => {
         // Verify the code cell has been updated with the new title
         const updatedCode = await getCodeFromCell(page, 0);
         expect(updatedCode).toContain(`TITLE = '${newTitle}'`);
+
+        const closeButton = chartWizardWidget.getByRole('button', { name: 'Close Chart Wizard' });
+        await expect(closeButton).toBeVisible();
+        await closeButton.click();
+        await waitForIdle(page);
+        await expect(chartWizardWidget).toBeHidden();
     });
 });

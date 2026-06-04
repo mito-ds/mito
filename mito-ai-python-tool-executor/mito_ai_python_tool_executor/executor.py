@@ -445,3 +445,14 @@ class PythonToolExecutor:
             output=STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE,
             variables=vars_,
         )
+
+    async def read_skill(
+        self,
+        ctx: AgentContext,
+        skill_name: str,
+        message: str,
+    ) -> ToolResult:
+        del ctx, message
+        from mito_ai_core.skills.utils import read_skill as read_skill_content
+
+        return read_skill_content(skill_name)

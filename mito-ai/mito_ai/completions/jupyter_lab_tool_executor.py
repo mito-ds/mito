@@ -112,6 +112,7 @@ class JupyterLabToolExecutor:
             "ask_user_question",
             "scratchpad",
             "mcp_tool_call",
+            "read_skill",
         ],
         message: str,
         *,
@@ -122,6 +123,7 @@ class JupyterLabToolExecutor:
         scratchpad_code: Optional[str] = None,
         scratchpad_summary: Optional[str] = None,
         streamlit_app_prompt: Optional[str] = None,
+        skill_name: Optional[str] = None,
     ) -> AgentResponse:
         return AgentResponse(
             type=type,
@@ -136,6 +138,7 @@ class JupyterLabToolExecutor:
             scratchpad_code=scratchpad_code,
             scratchpad_summary=scratchpad_summary,
             mcp_tool_call=None,
+            skill_name=skill_name,
         )
 
     # ------------------------------------------------------------------
@@ -285,3 +288,14 @@ class JupyterLabToolExecutor:
             tool_name="mcp_tool_call",
             error_message=result.get("error", "Unknown MCP tool error"),
         )
+
+    async def read_skill(
+        self,
+        ctx: AgentContext,
+        skill_name: str,
+        message: str,
+    ) -> ToolResult:
+        del ctx, message
+        from mito_ai_core.skills.utils import read_skill as read_skill_content
+
+        return read_skill_content(skill_name)

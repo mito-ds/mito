@@ -3,35 +3,35 @@
     "title": "mito_ai",
     "description": "mito-ai settings.",
     "type": "object",
-    "properties": {},
+    "jupyter.lab.transform": true,
+    "properties": {
+        "toolbar": {
+            "type": "array",
+            "default": []
+        }
+    },
     "additionalProperties": false,
     "jupyter.lab.toolbars": {
-      "Cell": [
-        {
-          "name": "explain-code",
-          "command": "toolbar-button:explain-code"
-        },
-        {
-          "name": "toggle-include-cell-in-app",
-          "command": "toolbar-button:toggle-include-cell-in-app"
-        },
-        {
-          "name": "accept-code",
-          "command": "toolbar-button:accept-code",
-          "rank": 1
-        },
-        {
-          "name": "reject-code",
-          "command": "toolbar-button:reject-code",
-          "rank": 2
-        }
-      ],
-      "Notebook": [
-        {
-          "name": "preview-app",
-          "command": "toolbar-button:preview-as-streamlit",
-          "rank": 1000
-        }
-      ]
+        "Cell": [
+            {
+                "name": "explain-code",
+                "command": "toolbar-button:explain-code"
+            },
+            {
+                "name": "toggle-include-cell-in-app",
+                "command": "toolbar-button:toggle-include-cell-in-app"
+            },
+            {
+                "name": "accept-code",
+                "command": "toolbar-button:accept-code",
+                "rank": 1
+            },
+            {
+                "name": "reject-code",
+                "command": "toolbar-button:reject-code",
+                "rank": 2
+            }
+        ],
+        "Notebook": []
     }
 }

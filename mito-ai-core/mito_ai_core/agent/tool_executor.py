@@ -188,6 +188,25 @@ class ToolExecutor(Protocol):
         """
         ...
 
+    async def read_skill(
+        self,
+        ctx: AgentContext,
+        skill_name: str,
+        message: str,
+    ) -> ToolResult:
+        """Load a skill document by name.
+
+        Parameters
+        ----------
+        ctx:
+            Current agent context.
+        skill_name:
+            Skill identifier for a registered skill (see Available Skills in the system prompt).
+        message:
+            Agent's reasoning for loading this skill.
+        """
+        ...
+
     async def execute_mcp_tool(
         self,
         ctx: AgentContext,

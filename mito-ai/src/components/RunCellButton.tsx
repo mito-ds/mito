@@ -8,6 +8,7 @@ import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { KernelMessage, Kernel } from '@jupyterlab/services';
 import type { ISessionContext } from '@jupyterlab/apputils';
 import { SessionContextDialogs } from '@jupyterlab/apputils';
+import type { IChangedArgs } from '@jupyterlab/coreutils';
 import ChevronIcon from '../icons/ChevronIcon';
 import RunAllIcon from '../icons/RunAllIcon';
 import RestartAndRunIcon from '../icons/RestartAndRunIcon';
@@ -21,6 +22,40 @@ import { classNames } from '../utils/classNames';
 interface RunCellButtonProps {
   notebookPanel: NotebookPanel;
 }
+
+interface IExecutionStatus {
+  executionStatus: 'idle' | 'busy';
+  kernelStatus: ISessionContext.KernelDisplayStatus;
+  totalTime: number;
+  scheduledCellIds: Set<string>;
+  scheduledCellNumber: number;
+  needReset: boolean;
+}
+
+const createInitialExecutionStatus = (): IExecutionStatus => ({
+  executionStatus: 'idle',
+  kernelStatus: 'idle',
+  totalTime: 0,
+  scheduledCellIds: new Set<string>(),
+  scheduledCellNumber: 0,
+  needReset: true
+});
+
+const kernelStatusLabels: Partial<Record<ISessionContext.KernelDisplayStatus, string>> = {
+  busy: 'Busy',
+  idle: 'Idle',
+  starting: 'Starting',
+  restarting: 'Restarting',
+  initializing: 'Initializing',
+  terminating: 'Terminating',
+  connecting: 'Connecting',
+  disconnected: 'Disconnected',
+  unknown: 'Unknown'
+};
+
+const getKernelStatusLabel = (status: ISessionContext.KernelDisplayStatus): string => {
+  return kernelStatusLabels[status] ?? status;
+};
 
 const RunCellButton: React.FC<RunCellButtonProps> = ({ notebookPanel }) => {
 
@@ -79,65 +114,222 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ notebookPanel }) => {
   };
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isStatusPopupOpen, setIsStatusPopupOpen] = useState(false);
+  const [executionStatus, setExecutionStatus] = useState<IExecutionStatus>(
+    createInitialExecutionStatus
+  );
+  const isRunning =
+    executionStatus.executionStatus === 'busy' || executionStatus.kernelStatus === 'busy';
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const executionCountRef = useRef<number>(0);
+  const executionStatusRef = useRef<IExecutionStatus>(createInitialExecutionStatus());
+  const intervalRef = useRef<number>(0);
+  const resetTimeoutRef = useRef<number>(0);
+  const idleTimeoutRef = useRef<number>(0);
 
   // Track execution state for this specific notebook panel
   useEffect(() => {
     const sessionContext = notebookPanel.context?.sessionContext;
     if (!sessionContext) {
-      setIsRunning(false);
+      setExecutionStatus(createInitialExecutionStatus());
       return;
     }
 
-    // Listen to iopub messages to track execution
-    const handleIOPubMessage = (sender: ISessionContext, msg: KernelMessage.IMessage): void => {
-      const msgType = msg.header.msg_type;
-      
-      // When a cell starts executing
-      if (msgType === 'execute_input') {
-        executionCountRef.current += 1;
-        setIsRunning(true);
-        setIsDropdownOpen(false); // Close dropdown when execution starts
-      }
-      
-      // When a cell finishes executing
-      if (msgType === 'execute_reply') {
-        executionCountRef.current = Math.max(0, executionCountRef.current - 1);
-        // Only set to not running if no cells are executing
-        if (executionCountRef.current === 0) {
-          setIsRunning(false);
-        }
+    const publishExecutionStatus = (): void => {
+      setExecutionStatus({
+        ...executionStatusRef.current,
+        scheduledCellIds: new Set(executionStatusRef.current.scheduledCellIds)
+      });
+    };
+
+    const clearTimer = (): void => {
+      if (intervalRef.current !== 0) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = 0;
       }
     };
 
-    // Listen to kernel status changes - this is the primary way to detect completion
-    const handleStatusChange = (sender: ISessionContext, status: Kernel.Status): void => {
-      // When kernel becomes idle, execution has finished - reset to "Run all" state
-      if (status === 'idle') {
-        executionCountRef.current = 0;
-        setIsRunning(false);
+    const clearResetTimeout = (): void => {
+      if (resetTimeoutRef.current !== 0) {
+        window.clearTimeout(resetTimeoutRef.current);
+        resetTimeoutRef.current = 0;
       }
     };
 
-    // Handle kernel disconnection
-    const handleKernelChange = (): void => {
-      const kernel = sessionContext.session?.kernel;
-      if (!kernel) {
-        executionCountRef.current = 0;
-        setIsRunning(false);
+    const clearIdleTimeout = (): void => {
+      if (idleTimeoutRef.current !== 0) {
+        window.clearTimeout(idleTimeoutRef.current);
+        idleTimeoutRef.current = 0;
       }
     };
 
-    sessionContext.iopubMessage.connect(handleIOPubMessage);
+    const resetExecutionStatus = (): void => {
+      executionStatusRef.current = {
+        ...executionStatusRef.current,
+        executionStatus: 'idle',
+        totalTime: 0,
+        scheduledCellIds: new Set<string>(),
+        scheduledCellNumber: 0,
+        needReset: false
+      };
+      clearResetTimeout();
+      clearIdleTimeout();
+      clearTimer();
+      publishExecutionStatus();
+    };
+
+    const scheduleSwitchToIdle = (): void => {
+      clearIdleTimeout();
+      idleTimeoutRef.current = window.setTimeout(() => {
+        executionStatusRef.current = {
+          ...executionStatusRef.current,
+          executionStatus: 'idle'
+        };
+        clearTimer();
+        publishExecutionStatus();
+      }, 150);
+
+      clearResetTimeout();
+      resetTimeoutRef.current = window.setTimeout(() => {
+        executionStatusRef.current = {
+          ...executionStatusRef.current,
+          needReset: true
+        };
+      }, 1000);
+    };
+
+    const handleScheduledCell = (messageId: string): void => {
+      const state = executionStatusRef.current;
+      if (state.scheduledCellIds.has(messageId)) {
+        return;
+      }
+
+      if (state.needReset) {
+        resetExecutionStatus();
+      }
+
+      executionStatusRef.current = {
+        ...executionStatusRef.current,
+        scheduledCellIds: new Set([...executionStatusRef.current.scheduledCellIds, messageId]),
+        scheduledCellNumber: executionStatusRef.current.scheduledCellNumber + 1
+      };
+      publishExecutionStatus();
+    };
+
+    const handleExecutedCell = (messageId: string): void => {
+      const state = executionStatusRef.current;
+      if (!state.scheduledCellIds.has(messageId)) {
+        return;
+      }
+
+      const scheduledCellIds = new Set(state.scheduledCellIds);
+      scheduledCellIds.delete(messageId);
+      executionStatusRef.current = {
+        ...state,
+        scheduledCellIds
+      };
+
+      if (scheduledCellIds.size === 0) {
+        scheduleSwitchToIdle();
+      }
+
+      publishExecutionStatus();
+    };
+
+    const startTimer = (): void => {
+      if (executionStatusRef.current.scheduledCellIds.size === 0) {
+        resetExecutionStatus();
+        return;
+      }
+
+      if (executionStatusRef.current.executionStatus === 'busy') {
+        return;
+      }
+
+      clearResetTimeout();
+      executionStatusRef.current = {
+        ...executionStatusRef.current,
+        executionStatus: 'busy'
+      };
+      setIsDropdownOpen(false);
+      publishExecutionStatus();
+      intervalRef.current = window.setInterval(() => {
+        executionStatusRef.current = {
+          ...executionStatusRef.current,
+          totalTime: executionStatusRef.current.totalTime + 1
+        };
+        publishExecutionStatus();
+      }, 1000);
+    };
+
+    const handleAnyMessage = (
+      sender: Kernel.IKernelConnection,
+      args: Kernel.IAnyMessageArgs
+    ): void => {
+      const message = args.msg;
+
+      if (message.header.msg_type === 'execute_request') {
+        handleScheduledCell(message.header.msg_id);
+      } else if (
+        KernelMessage.isStatusMsg(message) &&
+        message.content.execution_state === 'idle'
+      ) {
+        const parentId = (message.parent_header as KernelMessage.IHeader).msg_id;
+        handleExecutedCell(parentId);
+      } else if (
+        KernelMessage.isStatusMsg(message) &&
+        message.content.execution_state === 'restarting'
+      ) {
+        resetExecutionStatus();
+      } else if (message.header.msg_type === 'execute_input') {
+        startTimer();
+      }
+    };
+
+    const handleStatusChange = (): void => {
+      executionStatusRef.current = {
+        ...executionStatusRef.current,
+        kernelStatus: sessionContext.kernelDisplayStatus
+      };
+      publishExecutionStatus();
+    };
+
+    const handleKernelChange = (
+      sender: ISessionContext,
+      kernelData: IChangedArgs<
+        Kernel.IKernelConnection | null,
+        Kernel.IKernelConnection | null,
+        'kernel'
+      >
+    ): void => {
+      if (kernelData.oldValue) {
+        kernelData.oldValue.anyMessage.disconnect(handleAnyMessage);
+      }
+      if (kernelData.newValue) {
+        kernelData.newValue.anyMessage.connect(handleAnyMessage);
+      }
+      resetExecutionStatus();
+      handleStatusChange();
+    };
+
+    executionStatusRef.current = {
+      ...createInitialExecutionStatus(),
+      kernelStatus: sessionContext.kernelDisplayStatus
+    };
+    publishExecutionStatus();
+
+    sessionContext.session?.kernel?.anyMessage.connect(handleAnyMessage);
     sessionContext.statusChanged.connect(handleStatusChange);
+    sessionContext.connectionStatusChanged.connect(handleStatusChange);
     sessionContext.kernelChanged.connect(handleKernelChange);
 
     return () => {
-      sessionContext.iopubMessage.disconnect(handleIOPubMessage);
+      sessionContext.session?.kernel?.anyMessage.disconnect(handleAnyMessage);
       sessionContext.statusChanged.disconnect(handleStatusChange);
+      sessionContext.connectionStatusChanged.disconnect(handleStatusChange);
       sessionContext.kernelChanged.disconnect(handleKernelChange);
+      clearResetTimeout();
+      clearIdleTimeout();
+      clearTimer();
     };
   }, [notebookPanel]);
 
@@ -173,6 +365,12 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ notebookPanel }) => {
   const handleDropdownButtonClick = (): void => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  const scheduledCellNumber = executionStatus.scheduledCellNumber || 0;
+  const remainingCellNumber = executionStatus.scheduledCellIds.size || 0;
+  const executedCellNumber = Math.max(0, scheduledCellNumber - remainingCellNumber);
+  const hasScheduledCells = scheduledCellNumber > 0;
+  const elapsedTimeLabel = executionStatus.totalTime
 
   const menuSections = [
     {
@@ -254,7 +452,10 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ notebookPanel }) => {
       <div className={classNames(
         'mito-run-cell-button-group',
         {'mito-run-cell-button-running': isRunning},
-      )}>
+      )}
+        onMouseEnter={() => setIsStatusPopupOpen(true)}
+        onMouseLeave={() => setIsStatusPopupOpen(false)}
+      >
         <button
           className="mito-run-cell-button mito-run-cell-button-main"
           onClick={handleMainButtonClick}
@@ -281,6 +482,35 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ notebookPanel }) => {
           <ChevronIcon direction="down" />
         </button>
       </div>
+      {isRunning && isStatusPopupOpen && !isDropdownOpen && (
+        <div
+          className="mito-run-cell-status-popup"
+          onMouseEnter={() => setIsStatusPopupOpen(true)}
+          onMouseLeave={() => setIsStatusPopupOpen(false)}
+        >
+          <div className="mito-run-cell-status-popup-row">
+            <span className="mito-run-cell-status-popup-label">Kernel status</span>
+            <span className="mito-run-cell-status-popup-value">
+              {getKernelStatusLabel(executionStatus.kernelStatus)}
+            </span>
+          </div>
+          {hasScheduledCells && (
+            <>
+              <div className="mito-run-cell-status-popup-row">
+                <span className="mito-run-cell-status-popup-label">Executed</span>
+                <span className="mito-run-cell-status-popup-value">
+                  {/* "cells" mirrors JupyterLab, but this count is really kernel execution requests, including Variable Manager requests. */}
+                  {executedCellNumber}/{scheduledCellNumber} cells
+                </span>
+              </div>
+              <div className="mito-run-cell-status-popup-row">
+                <span className="mito-run-cell-status-popup-label">Elapsed Time (seconds) </span>
+                <span className="mito-run-cell-status-popup-value">{elapsedTimeLabel}</span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
       {isDropdownOpen && (
         <div className="mito-run-cell-dropdown-menu">
           {menuSections.map((section, sectionIndex) => (

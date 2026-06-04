@@ -4,10 +4,39 @@
  */
 
 .settings-widget {
+    position: relative;
     height: 100%;
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
+}
+
+.settings-close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--jp-content-font-color2);
+    cursor: pointer;
+}
+
+.settings-close-button:hover {
+    background: var(--jp-layout-color2);
+    color: var(--jp-content-font-color0);
+}
+
+.settings-close-button:focus-visible {
+    outline: 2px solid var(--jp-input-active-border-color);
+    outline-offset: 2px;
 }
 
 .settings-layout {

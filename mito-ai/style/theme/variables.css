@@ -326,6 +326,11 @@ all of MD as it is not optimized for dense, information rich UIs.
   --jp-toolbar-box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.24);
   --jp-toolbar-header-margin: 4px 4px 0 4px;
   --jp-toolbar-active-background: var(--md-grey-300, #90a4ae);
+  --jp-mito-toolbar-secondary-control-background: color-mix(
+    in srgb,
+    var(--jp-layout-color2) 30%,
+    var(--jp-layout-color1)
+  );
 
   /* Statusbar specific styles */
 

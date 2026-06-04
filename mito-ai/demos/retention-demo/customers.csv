@@ -1,0 +1,501 @@
+customer_id,company_name,plan_type,is_trial,segment,industry,signup_date,mrr
+C1000,Customer 1000,Starter,False,SMB,Healthcare,2024-09-23,49
+C1001,Customer 1001,Team,False,SMB,Healthcare,2026-01-26,399
+C1002,Customer 1002,Starter,False,Mid-Market,Technology,2025-12-27,99
+C1003,Customer 1003,Business,False,SMB,Retail,2024-06-07,599
+C1004,Customer 1004,Starter,False,SMB,Manufacturing,2025-05-11,99
+C1005,Customer 1005,Team,False,Enterprise,Retail,2025-09-14,399
+C1006,Customer 1006,Starter,False,SMB,Professional Services,2026-01-13,49
+C1007,Customer 1007,Team,False,SMB,Education,2024-09-12,199
+C1008,Customer 1008,Business,False,Mid-Market,Professional Services,2025-01-01,999
+C1009,Customer 1009,Business,False,SMB,Retail,2025-11-29,999
+C1010,Customer 1010,Business,False,Mid-Market,Healthcare,2025-04-29,799
+C1011,Customer 1011,Starter,False,Enterprise,Professional Services,2024-08-07,99
+C1012,Customer 1012,Business,False,Mid-Market,Healthcare,2025-07-11,599
+C1013,Customer 1013,Team,False,Mid-Market,Manufacturing,2026-01-20,199
+C1014,Customer 1014,Business,False,Enterprise,Healthcare,2024-09-02,799
+C1015,Customer 1015,Team,False,Enterprise,Technology,2025-06-30,399
+C1016,Customer 1016,Business,False,Mid-Market,Manufacturing,2025-12-02,799
+C1017,Customer 1017,Starter,False,Mid-Market,Professional Services,2025-09-08,99
+C1018,Customer 1018,Starter,False,Mid-Market,Technology,2026-03-03,49
+C1019,Customer 1019,Enterprise,False,Enterprise,Financial Services,2025-12-05,1500
+C1020,Customer 1020,Business,False,Mid-Market,Manufacturing,2025-06-07,599
+C1021,Customer 1021,Business,False,Mid-Market,Education,2024-08-27,999
+C1022,Customer 1022,Starter,False,SMB,Technology,2025-12-15,99
+C1023,Customer 1023,Team,False,Mid-Market,Manufacturing,2025-04-16,399
+C1024,Customer 1024,Starter,False,SMB,Technology,2025-02-09,49
+C1025,Customer 1025,Business,False,SMB,Financial Services,2024-08-12,599
+C1026,Customer 1026,Business,False,SMB,Healthcare,2025-03-13,799
+C1027,Customer 1027,Starter,False,Mid-Market,Manufacturing,2024-12-12,99
+C1028,Customer 1028,Starter,False,Mid-Market,Education,2024-09-09,49
+C1029,Customer 1029,Team,False,SMB,Manufacturing,2025-12-02,199
+C1030,Customer 1030,Starter,False,Mid-Market,Technology,2025-12-16,49
+C1031,Customer 1031,Team,False,SMB,Retail,2025-07-22,199
+C1032,Customer 1032,Starter,False,Mid-Market,Retail,2025-07-05,99
+C1033,Customer 1033,Starter,False,SMB,Financial Services,2024-11-06,49
+C1034,Customer 1034,Team,False,SMB,Education,2024-07-22,199
+C1035,Customer 1035,Starter,False,SMB,Education,2024-12-08,49
+C1036,Customer 1036,Team,False,Mid-Market,Retail,2026-01-14,299
+C1037,Customer 1037,Starter,False,SMB,Professional Services,2025-01-31,99
+C1038,Customer 1038,Team,False,Enterprise,Financial Services,2024-06-10,399
+C1039,Customer 1039,Enterprise,False,Enterprise,Healthcare,2024-10-14,6000
+C1040,Customer 1040,Business,False,Mid-Market,Education,2025-12-09,999
+C1041,Customer 1041,Enterprise,False,SMB,Financial Services,2024-09-15,2500
+C1042,Customer 1042,Starter,False,SMB,Manufacturing,2025-03-06,49
+C1043,Customer 1043,Team,False,Enterprise,Education,2025-10-31,199
+C1044,Customer 1044,Starter,False,SMB,Healthcare,2025-03-11,99
+C1045,Customer 1045,Business,False,Mid-Market,Financial Services,2025-12-17,599
+C1046,Customer 1046,Team,False,SMB,Healthcare,2025-06-14,299
+C1047,Customer 1047,Starter,False,SMB,Financial Services,2025-06-02,99
+C1048,Customer 1048,Business,False,Enterprise,Education,2025-01-29,599
+C1049,Customer 1049,Business,False,SMB,Professional Services,2025-05-07,599
+C1050,Customer 1050,Business,False,Enterprise,Healthcare,2025-06-27,799
+C1051,Customer 1051,Starter,False,Mid-Market,Retail,2025-01-20,99
+C1052,Customer 1052,Team,False,SMB,Education,2025-05-26,199
+C1053,Customer 1053,Team,False,Enterprise,Financial Services,2024-11-30,399
+C1054,Customer 1054,Team,False,Enterprise,Financial Services,2025-04-18,399
+C1055,Customer 1055,Business,False,SMB,Education,2024-07-16,799
+C1056,Customer 1056,Team,False,Mid-Market,Financial Services,2025-05-05,399
+C1057,Customer 1057,Team,False,SMB,Healthcare,2025-05-01,299
+C1058,Customer 1058,Team,False,SMB,Technology,2024-11-26,299
+C1059,Customer 1059,Business,False,Mid-Market,Manufacturing,2025-08-15,799
+C1060,Customer 1060,Team,False,Enterprise,Education,2025-11-06,399
+C1061,Customer 1061,Business,False,Mid-Market,Financial Services,2025-11-10,799
+C1062,Customer 1062,Starter,False,SMB,Retail,2024-12-21,49
+C1063,Customer 1063,Team,False,SMB,Professional Services,2025-06-29,199
+C1064,Customer 1064,Business,False,Mid-Market,Retail,2024-11-28,599
+C1065,Customer 1065,Starter,False,SMB,Technology,2025-09-11,99
+C1066,Customer 1066,Team,False,SMB,Education,2025-12-14,299
+C1067,Customer 1067,Starter,False,Mid-Market,Retail,2026-03-15,49
+C1068,Customer 1068,Starter,False,SMB,Technology,2025-03-20,49
+C1069,Customer 1069,Business,False,Mid-Market,Financial Services,2025-06-28,799
+C1070,Customer 1070,Starter,False,Mid-Market,Retail,2025-07-31,49
+C1071,Customer 1071,Enterprise,False,SMB,Retail,2024-06-07,2500
+C1072,Customer 1072,Starter,False,SMB,Financial Services,2025-10-13,99
+C1073,Customer 1073,Business,False,Enterprise,Technology,2024-11-17,999
+C1074,Customer 1074,Team,False,SMB,Retail,2024-08-25,199
+C1075,Customer 1075,Starter,False,SMB,Education,2025-05-02,99
+C1076,Customer 1076,Team,False,Mid-Market,Financial Services,2024-08-23,199
+C1077,Customer 1077,Business,False,Enterprise,Healthcare,2024-07-12,599
+C1078,Customer 1078,Team,False,SMB,Healthcare,2024-10-08,399
+C1079,Customer 1079,Team,False,Enterprise,Professional Services,2024-11-19,199
+C1080,Customer 1080,Starter,False,SMB,Professional Services,2026-01-14,99
+C1081,Customer 1081,Team,False,Mid-Market,Healthcare,2024-08-17,399
+C1082,Customer 1082,Business,False,SMB,Retail,2026-01-01,999
+C1083,Customer 1083,Business,False,Mid-Market,Financial Services,2024-06-13,999
+C1084,Customer 1084,Team,False,Mid-Market,Professional Services,2024-11-04,399
+C1085,Customer 1085,Team,False,Mid-Market,Manufacturing,2025-09-20,199
+C1086,Customer 1086,Starter,False,SMB,Technology,2025-09-05,99
+C1087,Customer 1087,Starter,False,SMB,Education,2025-04-29,99
+C1088,Customer 1088,Starter,False,Enterprise,Financial Services,2025-12-22,49
+C1089,Customer 1089,Business,False,Mid-Market,Professional Services,2025-12-21,599
+C1090,Customer 1090,Starter,False,Mid-Market,Manufacturing,2025-03-29,99
+C1091,Customer 1091,Enterprise,False,Mid-Market,Manufacturing,2025-08-10,4000
+C1092,Customer 1092,Starter,False,SMB,Financial Services,2025-01-23,49
+C1093,Customer 1093,Business,False,Enterprise,Technology,2025-03-11,599
+C1094,Customer 1094,Team,False,SMB,Professional Services,2025-01-19,299
+C1095,Customer 1095,Starter,False,Enterprise,Professional Services,2025-12-19,99
+C1096,Customer 1096,Team,False,SMB,Financial Services,2025-09-24,299
+C1097,Customer 1097,Team,False,Mid-Market,Professional Services,2025-07-16,199
+C1098,Customer 1098,Enterprise,False,SMB,Education,2024-08-27,2500
+C1099,Customer 1099,Team,False,Enterprise,Manufacturing,2025-11-18,299
+C1100,Customer 1100,Enterprise,False,SMB,Education,2026-02-15,4000
+C1101,Customer 1101,Starter,False,SMB,Financial Services,2024-08-23,49
+C1102,Customer 1102,Team,False,SMB,Manufacturing,2026-01-30,399
+C1103,Customer 1103,Enterprise,False,Mid-Market,Professional Services,2025-01-26,2500
+C1104,Customer 1104,Enterprise,False,Mid-Market,Financial Services,2024-10-31,4000
+C1105,Customer 1105,Starter,False,Mid-Market,Professional Services,2025-08-24,99
+C1106,Customer 1106,Starter,False,SMB,Retail,2025-08-23,99
+C1107,Customer 1107,Starter,False,Mid-Market,Education,2024-09-02,49
+C1108,Customer 1108,Team,False,Mid-Market,Manufacturing,2024-11-27,399
+C1109,Customer 1109,Team,False,SMB,Manufacturing,2024-09-02,199
+C1110,Customer 1110,Starter,False,Enterprise,Education,2025-10-21,49
+C1111,Customer 1111,Starter,False,Enterprise,Retail,2025-02-14,49
+C1112,Customer 1112,Starter,False,SMB,Technology,2025-07-29,99
+C1113,Customer 1113,Starter,False,SMB,Manufacturing,2024-12-26,99
+C1114,Customer 1114,Enterprise,False,Mid-Market,Healthcare,2024-06-30,1500
+C1115,Customer 1115,Team,False,SMB,Education,2025-12-18,299
+C1116,Customer 1116,Enterprise,False,SMB,Professional Services,2025-10-24,6000
+C1117,Customer 1117,Team,False,SMB,Healthcare,2025-02-05,199
+C1118,Customer 1118,Enterprise,False,SMB,Education,2025-05-15,4000
+C1119,Customer 1119,Team,False,Mid-Market,Education,2026-01-23,299
+C1120,Customer 1120,Starter,False,Mid-Market,Retail,2025-05-20,99
+C1121,Customer 1121,Team,False,Enterprise,Retail,2026-01-07,299
+C1122,Customer 1122,Team,False,Mid-Market,Education,2025-06-26,299
+C1123,Customer 1123,Enterprise,False,SMB,Financial Services,2025-10-28,6000
+C1124,Customer 1124,Business,False,SMB,Professional Services,2024-06-16,799
+C1125,Customer 1125,Team,False,SMB,Financial Services,2025-05-13,399
+C1126,Customer 1126,Team,False,Enterprise,Retail,2025-04-21,399
+C1127,Customer 1127,Business,False,SMB,Healthcare,2026-03-09,599
+C1128,Customer 1128,Starter,False,SMB,Financial Services,2025-08-29,49
+C1129,Customer 1129,Team,False,SMB,Technology,2025-06-03,399
+C1130,Customer 1130,Starter,False,Mid-Market,Retail,2024-11-22,49
+C1131,Customer 1131,Team,False,SMB,Manufacturing,2025-01-24,299
+C1132,Customer 1132,Team,False,SMB,Technology,2024-08-15,399
+C1133,Customer 1133,Business,False,SMB,Retail,2025-09-11,599
+C1134,Customer 1134,Team,False,SMB,Professional Services,2026-01-07,199
+C1135,Customer 1135,Starter,False,Enterprise,Education,2025-03-09,49
+C1136,Customer 1136,Business,False,SMB,Education,2025-03-21,999
+C1137,Customer 1137,Starter,False,Mid-Market,Education,2026-02-26,49
+C1138,Customer 1138,Business,False,SMB,Manufacturing,2025-04-13,799
+C1139,Customer 1139,Starter,False,SMB,Technology,2025-07-31,99
+C1140,Customer 1140,Starter,False,Mid-Market,Retail,2024-11-16,99
+C1141,Customer 1141,Enterprise,False,SMB,Healthcare,2025-09-23,1500
+C1142,Customer 1142,Starter,False,SMB,Retail,2025-07-10,99
+C1143,Customer 1143,Team,False,Mid-Market,Manufacturing,2026-01-20,399
+C1144,Customer 1144,Team,False,Enterprise,Manufacturing,2024-06-26,399
+C1145,Customer 1145,Team,False,SMB,Financial Services,2025-04-06,299
+C1146,Customer 1146,Starter,False,SMB,Retail,2024-09-08,99
+C1147,Customer 1147,Business,False,SMB,Retail,2026-01-23,999
+C1148,Customer 1148,Starter,False,SMB,Retail,2025-03-14,99
+C1149,Customer 1149,Team,False,Enterprise,Manufacturing,2025-06-12,299
+C1150,Customer 1150,Enterprise,False,Mid-Market,Financial Services,2024-10-04,1500
+C1151,Customer 1151,Business,False,SMB,Healthcare,2024-07-22,999
+C1152,Customer 1152,Starter,False,Enterprise,Manufacturing,2026-01-22,49
+C1153,Customer 1153,Enterprise,False,SMB,Education,2024-10-27,1500
+C1154,Customer 1154,Starter,False,Mid-Market,Healthcare,2024-10-13,99
+C1155,Customer 1155,Starter,False,SMB,Financial Services,2024-07-24,49
+C1156,Customer 1156,Team,False,SMB,Healthcare,2025-11-08,399
+C1157,Customer 1157,Team,False,SMB,Retail,2025-09-13,299
+C1158,Customer 1158,Business,False,SMB,Financial Services,2025-10-16,599
+C1159,Customer 1159,Starter,False,Mid-Market,Technology,2024-10-08,99
+C1160,Customer 1160,Team,False,SMB,Education,2025-09-08,399
+C1161,Customer 1161,Team,False,SMB,Manufacturing,2025-08-15,299
+C1162,Customer 1162,Team,False,Mid-Market,Manufacturing,2025-04-17,399
+C1163,Customer 1163,Business,False,SMB,Financial Services,2024-09-02,999
+C1164,Customer 1164,Enterprise,False,Mid-Market,Professional Services,2026-01-22,6000
+C1165,Customer 1165,Enterprise,False,Mid-Market,Manufacturing,2024-07-23,2500
+C1166,Customer 1166,Business,False,SMB,Financial Services,2024-11-06,799
+C1167,Customer 1167,Team,False,Mid-Market,Education,2025-03-13,399
+C1168,Customer 1168,Starter,False,Mid-Market,Manufacturing,2024-06-30,99
+C1169,Customer 1169,Team,False,SMB,Healthcare,2024-10-25,199
+C1170,Customer 1170,Team,False,SMB,Manufacturing,2025-06-21,399
+C1171,Customer 1171,Starter,False,Mid-Market,Financial Services,2024-07-24,49
+C1172,Customer 1172,Team,False,SMB,Healthcare,2025-10-11,299
+C1173,Customer 1173,Business,False,Mid-Market,Technology,2025-03-18,599
+C1174,Customer 1174,Starter,False,SMB,Healthcare,2026-02-04,49
+C1175,Customer 1175,Starter,False,Mid-Market,Healthcare,2024-10-01,49
+C1176,Customer 1176,Team,False,Mid-Market,Manufacturing,2025-10-26,299
+C1177,Customer 1177,Starter,False,Enterprise,Education,2025-08-21,99
+C1178,Customer 1178,Starter,False,SMB,Manufacturing,2025-08-02,49
+C1179,Customer 1179,Team,False,SMB,Retail,2024-08-30,399
+C1180,Customer 1180,Business,False,SMB,Education,2025-04-14,999
+C1181,Customer 1181,Team,False,Enterprise,Manufacturing,2025-11-26,399
+C1182,Customer 1182,Starter,False,SMB,Healthcare,2025-01-28,49
+C1183,Customer 1183,Team,False,Mid-Market,Education,2026-03-06,399
+C1184,Customer 1184,Starter,False,SMB,Retail,2026-03-05,99
+C1185,Customer 1185,Starter,False,SMB,Manufacturing,2026-01-27,99
+C1186,Customer 1186,Business,False,SMB,Education,2025-06-13,999
+C1187,Customer 1187,Team,False,Enterprise,Professional Services,2025-09-17,299
+C1188,Customer 1188,Team,False,SMB,Financial Services,2025-04-26,199
+C1189,Customer 1189,Team,False,SMB,Professional Services,2025-10-30,299
+C1190,Customer 1190,Team,False,SMB,Retail,2025-06-08,399
+C1191,Customer 1191,Team,False,SMB,Financial Services,2026-03-09,299
+C1192,Customer 1192,Starter,False,Mid-Market,Manufacturing,2025-05-08,99
+C1193,Customer 1193,Team,False,Enterprise,Manufacturing,2024-10-11,399
+C1194,Customer 1194,Starter,False,Mid-Market,Technology,2025-11-22,99
+C1195,Customer 1195,Enterprise,False,SMB,Education,2024-12-02,2500
+C1196,Customer 1196,Starter,False,Mid-Market,Financial Services,2024-11-06,49
+C1197,Customer 1197,Team,False,SMB,Education,2026-02-02,399
+C1198,Customer 1198,Team,False,Mid-Market,Retail,2025-07-26,399
+C1199,Customer 1199,Starter,False,Enterprise,Education,2025-11-29,99
+C1200,Customer 1200,Business,False,Mid-Market,Technology,2025-09-16,599
+C1201,Customer 1201,Starter,False,SMB,Manufacturing,2025-02-12,49
+C1202,Customer 1202,Starter,False,SMB,Retail,2025-03-19,49
+C1203,Customer 1203,Business,False,Enterprise,Retail,2025-09-05,999
+C1204,Customer 1204,Team,False,SMB,Healthcare,2025-01-28,299
+C1205,Customer 1205,Starter,False,SMB,Education,2024-10-28,99
+C1206,Customer 1206,Team,False,Enterprise,Financial Services,2025-09-03,199
+C1207,Customer 1207,Business,False,SMB,Financial Services,2024-09-22,799
+C1208,Customer 1208,Starter,False,Enterprise,Technology,2024-08-04,49
+C1209,Customer 1209,Starter,False,SMB,Manufacturing,2024-10-26,49
+C1210,Customer 1210,Team,False,SMB,Technology,2024-08-27,299
+C1211,Customer 1211,Team,False,SMB,Professional Services,2026-03-13,299
+C1212,Customer 1212,Business,False,Mid-Market,Education,2025-02-02,599
+C1213,Customer 1213,Starter,False,Mid-Market,Education,2025-12-12,99
+C1214,Customer 1214,Starter,False,Mid-Market,Retail,2024-10-17,49
+C1215,Customer 1215,Business,False,SMB,Manufacturing,2024-12-22,799
+C1216,Customer 1216,Business,False,SMB,Manufacturing,2024-07-08,799
+C1217,Customer 1217,Business,False,SMB,Retail,2024-10-06,799
+C1218,Customer 1218,Business,False,SMB,Education,2025-10-22,999
+C1219,Customer 1219,Team,False,Enterprise,Healthcare,2024-08-20,299
+C1220,Customer 1220,Business,False,SMB,Technology,2025-05-02,999
+C1221,Customer 1221,Team,False,Mid-Market,Manufacturing,2025-05-26,299
+C1222,Customer 1222,Business,False,SMB,Technology,2024-08-16,599
+C1223,Customer 1223,Starter,False,SMB,Professional Services,2024-07-06,99
+C1224,Customer 1224,Starter,False,SMB,Manufacturing,2026-02-10,99
+C1225,Customer 1225,Team,False,SMB,Manufacturing,2025-11-25,199
+C1226,Customer 1226,Team,False,Enterprise,Financial Services,2025-10-25,299
+C1227,Customer 1227,Enterprise,False,SMB,Retail,2025-01-06,1500
+C1228,Customer 1228,Starter,False,Mid-Market,Financial Services,2025-09-06,99
+C1229,Customer 1229,Team,False,Enterprise,Education,2025-12-16,399
+C1230,Customer 1230,Team,False,SMB,Healthcare,2025-06-06,199
+C1231,Customer 1231,Team,False,SMB,Education,2025-06-05,399
+C1232,Customer 1232,Team,False,Mid-Market,Retail,2025-04-13,299
+C1233,Customer 1233,Enterprise,False,Mid-Market,Retail,2024-10-07,4000
+C1234,Customer 1234,Business,False,Mid-Market,Professional Services,2024-10-10,799
+C1235,Customer 1235,Team,False,SMB,Healthcare,2024-10-06,399
+C1236,Customer 1236,Business,False,Mid-Market,Manufacturing,2025-11-14,999
+C1237,Customer 1237,Team,False,Mid-Market,Financial Services,2024-10-07,399
+C1238,Customer 1238,Business,False,Mid-Market,Technology,2024-11-23,599
+C1239,Customer 1239,Starter,False,Mid-Market,Technology,2024-08-23,99
+C1240,Customer 1240,Team,False,SMB,Professional Services,2026-02-23,399
+C1241,Customer 1241,Business,False,Mid-Market,Manufacturing,2025-02-06,999
+C1242,Customer 1242,Team,False,SMB,Healthcare,2024-11-09,399
+C1243,Customer 1243,Business,False,Enterprise,Retail,2025-04-23,999
+C1244,Customer 1244,Starter,False,SMB,Retail,2025-04-23,49
+C1245,Customer 1245,Enterprise,False,Enterprise,Retail,2025-03-25,4000
+C1246,Customer 1246,Business,False,SMB,Technology,2024-12-12,799
+C1247,Customer 1247,Starter,False,SMB,Retail,2024-06-24,49
+C1248,Customer 1248,Starter,False,SMB,Education,2024-07-20,99
+C1249,Customer 1249,Team,False,Enterprise,Professional Services,2024-09-19,299
+C1250,Customer 1250,Starter,False,Mid-Market,Manufacturing,2025-07-16,99
+C1251,Customer 1251,Starter,False,Enterprise,Professional Services,2025-12-16,49
+C1252,Customer 1252,Business,False,SMB,Manufacturing,2025-06-18,999
+C1253,Customer 1253,Starter,False,SMB,Professional Services,2025-10-26,99
+C1254,Customer 1254,Team,False,SMB,Manufacturing,2024-10-31,199
+C1255,Customer 1255,Starter,False,Mid-Market,Technology,2026-01-29,99
+C1256,Customer 1256,Business,False,SMB,Professional Services,2025-09-30,999
+C1257,Customer 1257,Starter,False,SMB,Professional Services,2026-03-07,49
+C1258,Customer 1258,Team,False,Mid-Market,Education,2024-11-22,199
+C1259,Customer 1259,Team,False,Mid-Market,Healthcare,2024-07-03,299
+C1260,Customer 1260,Team,False,SMB,Technology,2024-11-03,399
+C1261,Customer 1261,Team,False,Mid-Market,Professional Services,2024-10-20,399
+C1262,Customer 1262,Team,False,SMB,Technology,2024-11-25,399
+C1263,Customer 1263,Team,False,Enterprise,Manufacturing,2026-02-15,199
+C1264,Customer 1264,Business,False,SMB,Retail,2024-12-30,999
+C1265,Customer 1265,Starter,False,Mid-Market,Retail,2025-03-22,99
+C1266,Customer 1266,Starter,False,Mid-Market,Manufacturing,2024-07-14,99
+C1267,Customer 1267,Starter,False,SMB,Technology,2025-01-06,99
+C1268,Customer 1268,Starter,False,Enterprise,Healthcare,2025-02-04,49
+C1269,Customer 1269,Business,False,SMB,Education,2025-05-05,999
+C1270,Customer 1270,Business,False,Enterprise,Retail,2025-07-22,599
+C1271,Customer 1271,Starter,False,SMB,Education,2025-04-25,49
+C1272,Customer 1272,Business,False,Enterprise,Financial Services,2025-11-30,599
+C1273,Customer 1273,Business,False,SMB,Professional Services,2025-07-12,599
+C1274,Customer 1274,Team,False,Enterprise,Manufacturing,2026-01-03,299
+C1275,Customer 1275,Business,False,SMB,Healthcare,2024-10-16,599
+C1276,Customer 1276,Business,False,SMB,Manufacturing,2025-02-19,999
+C1277,Customer 1277,Team,False,Mid-Market,Retail,2024-11-27,399
+C1278,Customer 1278,Business,False,SMB,Healthcare,2025-07-16,599
+C1279,Customer 1279,Team,False,SMB,Manufacturing,2025-02-23,299
+C1280,Customer 1280,Trial,True,SMB,Professional Services,2026-02-03,0
+C1281,Customer 1281,Trial,True,SMB,Financial Services,2026-01-31,0
+C1282,Customer 1282,Trial,True,SMB,Retail,2026-03-01,0
+C1283,Customer 1283,Trial,True,SMB,Professional Services,2026-03-29,0
+C1284,Customer 1284,Trial,True,SMB,Financial Services,2026-04-09,0
+C1285,Customer 1285,Trial,True,Mid-Market,Manufacturing,2026-03-23,0
+C1286,Customer 1286,Trial,True,SMB,Healthcare,2026-02-17,0
+C1287,Customer 1287,Trial,True,SMB,Retail,2026-01-18,0
+C1288,Customer 1288,Trial,True,Enterprise,Manufacturing,2026-04-06,0
+C1289,Customer 1289,Trial,True,SMB,Retail,2026-02-23,0
+C1290,Customer 1290,Trial,True,SMB,Professional Services,2026-04-07,0
+C1291,Customer 1291,Trial,True,Mid-Market,Professional Services,2026-01-28,0
+C1292,Customer 1292,Trial,True,SMB,Education,2026-04-07,0
+C1293,Customer 1293,Trial,True,SMB,Technology,2026-01-11,0
+C1294,Customer 1294,Trial,True,SMB,Technology,2026-04-01,0
+C1295,Customer 1295,Trial,True,SMB,Technology,2026-01-15,0
+C1296,Customer 1296,Trial,True,SMB,Technology,2026-03-06,0
+C1297,Customer 1297,Trial,True,SMB,Education,2026-01-20,0
+C1298,Customer 1298,Trial,True,SMB,Professional Services,2026-03-08,0
+C1299,Customer 1299,Trial,True,SMB,Retail,2026-01-27,0
+C1300,Customer 1300,Trial,True,Mid-Market,Retail,2026-01-12,0
+C1301,Customer 1301,Trial,True,SMB,Healthcare,2026-04-14,0
+C1302,Customer 1302,Trial,True,SMB,Technology,2026-03-07,0
+C1303,Customer 1303,Trial,True,SMB,Professional Services,2026-01-08,0
+C1304,Customer 1304,Trial,True,SMB,Financial Services,2026-04-14,0
+C1305,Customer 1305,Trial,True,SMB,Financial Services,2026-02-20,0
+C1306,Customer 1306,Trial,True,SMB,Financial Services,2026-04-06,0
+C1307,Customer 1307,Trial,True,SMB,Professional Services,2026-01-06,0
+C1308,Customer 1308,Trial,True,SMB,Financial Services,2026-01-09,0
+C1309,Customer 1309,Trial,True,Enterprise,Retail,2026-01-09,0
+C1310,Customer 1310,Trial,True,SMB,Healthcare,2026-01-05,0
+C1311,Customer 1311,Trial,True,SMB,Professional Services,2026-04-09,0
+C1312,Customer 1312,Trial,True,SMB,Retail,2026-04-04,0
+C1313,Customer 1313,Trial,True,Enterprise,Retail,2026-02-17,0
+C1314,Customer 1314,Trial,True,Mid-Market,Retail,2026-02-27,0
+C1315,Customer 1315,Trial,True,SMB,Professional Services,2026-02-18,0
+C1316,Customer 1316,Trial,True,SMB,Education,2026-03-11,0
+C1317,Customer 1317,Trial,True,SMB,Technology,2026-02-14,0
+C1318,Customer 1318,Trial,True,SMB,Professional Services,2026-02-20,0
+C1319,Customer 1319,Trial,True,Mid-Market,Education,2026-01-29,0
+C1320,Customer 1320,Trial,True,Enterprise,Retail,2026-01-03,0
+C1321,Customer 1321,Trial,True,SMB,Retail,2026-03-28,0
+C1322,Customer 1322,Trial,True,SMB,Healthcare,2026-03-10,0
+C1323,Customer 1323,Trial,True,SMB,Healthcare,2026-02-01,0
+C1324,Customer 1324,Trial,True,SMB,Professional Services,2026-02-05,0
+C1325,Customer 1325,Trial,True,SMB,Education,2026-04-08,0
+C1326,Customer 1326,Trial,True,SMB,Education,2026-03-26,0
+C1327,Customer 1327,Trial,True,SMB,Financial Services,2026-01-03,0
+C1328,Customer 1328,Trial,True,SMB,Retail,2026-01-13,0
+C1329,Customer 1329,Trial,True,SMB,Education,2026-03-18,0
+C1330,Customer 1330,Trial,True,SMB,Financial Services,2026-01-07,0
+C1331,Customer 1331,Trial,True,SMB,Technology,2026-02-21,0
+C1332,Customer 1332,Trial,True,Mid-Market,Education,2026-01-28,0
+C1333,Customer 1333,Trial,True,SMB,Manufacturing,2026-01-08,0
+C1334,Customer 1334,Trial,True,Mid-Market,Professional Services,2026-01-30,0
+C1335,Customer 1335,Trial,True,SMB,Technology,2026-03-15,0
+C1336,Customer 1336,Trial,True,SMB,Manufacturing,2026-04-09,0
+C1337,Customer 1337,Trial,True,SMB,Healthcare,2026-01-31,0
+C1338,Customer 1338,Trial,True,SMB,Retail,2026-03-26,0
+C1339,Customer 1339,Trial,True,SMB,Technology,2026-02-08,0
+C1340,Customer 1340,Trial,True,Mid-Market,Healthcare,2026-03-17,0
+C1341,Customer 1341,Trial,True,SMB,Technology,2026-03-22,0
+C1342,Customer 1342,Trial,True,SMB,Manufacturing,2026-03-05,0
+C1343,Customer 1343,Trial,True,SMB,Education,2026-03-24,0
+C1344,Customer 1344,Trial,True,SMB,Retail,2026-03-09,0
+C1345,Customer 1345,Trial,True,SMB,Retail,2026-02-22,0
+C1346,Customer 1346,Trial,True,Mid-Market,Retail,2026-01-24,0
+C1347,Customer 1347,Trial,True,Mid-Market,Manufacturing,2026-01-31,0
+C1348,Customer 1348,Trial,True,SMB,Retail,2026-04-01,0
+C1349,Customer 1349,Trial,True,SMB,Retail,2026-01-08,0
+C1350,Customer 1350,Trial,True,SMB,Retail,2026-03-13,0
+C1351,Customer 1351,Trial,True,SMB,Manufacturing,2026-02-01,0
+C1352,Customer 1352,Trial,True,SMB,Retail,2026-03-24,0
+C1353,Customer 1353,Trial,True,SMB,Professional Services,2026-02-17,0
+C1354,Customer 1354,Trial,True,SMB,Retail,2026-01-25,0
+C1355,Customer 1355,Trial,True,SMB,Financial Services,2026-03-28,0
+C1356,Customer 1356,Trial,True,SMB,Education,2026-01-10,0
+C1357,Customer 1357,Trial,True,SMB,Technology,2026-03-17,0
+C1358,Customer 1358,Trial,True,SMB,Education,2026-01-28,0
+C1359,Customer 1359,Trial,True,SMB,Financial Services,2026-02-12,0
+C1360,Customer 1360,Trial,True,Mid-Market,Professional Services,2026-01-28,0
+C1361,Customer 1361,Trial,True,SMB,Education,2026-01-16,0
+C1362,Customer 1362,Trial,True,Mid-Market,Professional Services,2026-03-03,0
+C1363,Customer 1363,Trial,True,SMB,Retail,2026-03-19,0
+C1364,Customer 1364,Trial,True,SMB,Education,2026-01-31,0
+C1365,Customer 1365,Trial,True,SMB,Technology,2026-02-06,0
+C1366,Customer 1366,Trial,True,SMB,Manufacturing,2026-03-25,0
+C1367,Customer 1367,Trial,True,SMB,Retail,2026-02-16,0
+C1368,Customer 1368,Trial,True,SMB,Professional Services,2026-03-01,0
+C1369,Customer 1369,Trial,True,Mid-Market,Manufacturing,2026-03-02,0
+C1370,Customer 1370,Trial,True,SMB,Retail,2026-01-27,0
+C1371,Customer 1371,Trial,True,SMB,Healthcare,2026-01-06,0
+C1372,Customer 1372,Trial,True,SMB,Manufacturing,2026-04-05,0
+C1373,Customer 1373,Trial,True,Mid-Market,Technology,2026-03-12,0
+C1374,Customer 1374,Trial,True,SMB,Healthcare,2026-04-03,0
+C1375,Customer 1375,Trial,True,SMB,Retail,2026-01-26,0
+C1376,Customer 1376,Trial,True,Mid-Market,Retail,2026-03-14,0
+C1377,Customer 1377,Trial,True,SMB,Professional Services,2026-03-12,0
+C1378,Customer 1378,Trial,True,SMB,Education,2026-02-13,0
+C1379,Customer 1379,Trial,True,Enterprise,Professional Services,2026-03-04,0
+C1380,Customer 1380,Trial,True,SMB,Healthcare,2026-04-05,0
+C1381,Customer 1381,Trial,True,Mid-Market,Healthcare,2026-04-04,0
+C1382,Customer 1382,Trial,True,SMB,Retail,2026-01-18,0
+C1383,Customer 1383,Trial,True,Mid-Market,Technology,2026-01-24,0
+C1384,Customer 1384,Trial,True,Enterprise,Technology,2026-03-24,0
+C1385,Customer 1385,Trial,True,Mid-Market,Financial Services,2026-01-05,0
+C1386,Customer 1386,Trial,True,SMB,Education,2026-04-15,0
+C1387,Customer 1387,Trial,True,SMB,Education,2026-01-01,0
+C1388,Customer 1388,Trial,True,SMB,Professional Services,2026-03-22,0
+C1389,Customer 1389,Trial,True,SMB,Technology,2026-01-20,0
+C1390,Customer 1390,Trial,True,SMB,Technology,2026-02-28,0
+C1391,Customer 1391,Trial,True,SMB,Technology,2026-03-23,0
+C1392,Customer 1392,Trial,True,SMB,Financial Services,2026-03-03,0
+C1393,Customer 1393,Trial,True,SMB,Retail,2026-01-01,0
+C1394,Customer 1394,Trial,True,SMB,Professional Services,2026-01-02,0
+C1395,Customer 1395,Trial,True,SMB,Manufacturing,2026-02-05,0
+C1396,Customer 1396,Trial,True,SMB,Professional Services,2026-01-03,0
+C1397,Customer 1397,Trial,True,SMB,Healthcare,2026-03-28,0
+C1398,Customer 1398,Trial,True,Mid-Market,Technology,2026-01-14,0
+C1399,Customer 1399,Trial,True,SMB,Technology,2026-01-20,0
+C1400,Customer 1400,Trial,True,SMB,Manufacturing,2026-03-09,0
+C1401,Customer 1401,Trial,True,Mid-Market,Financial Services,2026-02-04,0
+C1402,Customer 1402,Trial,True,Enterprise,Retail,2026-02-17,0
+C1403,Customer 1403,Trial,True,SMB,Professional Services,2026-03-14,0
+C1404,Customer 1404,Trial,True,SMB,Education,2026-01-29,0
+C1405,Customer 1405,Trial,True,SMB,Education,2026-01-11,0
+C1406,Customer 1406,Trial,True,Mid-Market,Financial Services,2026-03-25,0
+C1407,Customer 1407,Trial,True,SMB,Technology,2026-02-21,0
+C1408,Customer 1408,Trial,True,SMB,Financial Services,2026-03-02,0
+C1409,Customer 1409,Trial,True,SMB,Retail,2026-03-31,0
+C1410,Customer 1410,Trial,True,SMB,Manufacturing,2026-02-25,0
+C1411,Customer 1411,Trial,True,Enterprise,Financial Services,2026-03-14,0
+C1412,Customer 1412,Trial,True,Mid-Market,Healthcare,2026-03-09,0
+C1413,Customer 1413,Trial,True,Mid-Market,Professional Services,2026-01-28,0
+C1414,Customer 1414,Trial,True,SMB,Financial Services,2026-03-14,0
+C1415,Customer 1415,Trial,True,SMB,Manufacturing,2026-01-10,0
+C1416,Customer 1416,Trial,True,SMB,Financial Services,2026-03-11,0
+C1417,Customer 1417,Trial,True,Mid-Market,Manufacturing,2026-01-23,0
+C1418,Customer 1418,Trial,True,Enterprise,Technology,2026-01-03,0
+C1419,Customer 1419,Trial,True,Mid-Market,Professional Services,2026-01-19,0
+C1420,Customer 1420,Trial,True,Mid-Market,Manufacturing,2026-02-20,0
+C1421,Customer 1421,Trial,True,SMB,Technology,2026-01-21,0
+C1422,Customer 1422,Trial,True,SMB,Technology,2026-02-19,0
+C1423,Customer 1423,Trial,True,SMB,Professional Services,2026-02-12,0
+C1424,Customer 1424,Trial,True,Mid-Market,Professional Services,2026-01-18,0
+C1425,Customer 1425,Trial,True,SMB,Professional Services,2026-04-03,0
+C1426,Customer 1426,Trial,True,SMB,Retail,2026-02-14,0
+C1427,Customer 1427,Trial,True,Mid-Market,Manufacturing,2026-01-30,0
+C1428,Customer 1428,Trial,True,Mid-Market,Technology,2026-03-19,0
+C1429,Customer 1429,Trial,True,Enterprise,Manufacturing,2026-02-20,0
+C1430,Customer 1430,Trial,True,SMB,Education,2026-01-04,0
+C1431,Customer 1431,Trial,True,SMB,Manufacturing,2026-02-27,0
+C1432,Customer 1432,Trial,True,Mid-Market,Retail,2026-03-12,0
+C1433,Customer 1433,Trial,True,SMB,Professional Services,2026-01-24,0
+C1434,Customer 1434,Trial,True,SMB,Technology,2026-02-18,0
+C1435,Customer 1435,Trial,True,Mid-Market,Professional Services,2026-02-07,0
+C1436,Customer 1436,Trial,True,SMB,Healthcare,2026-01-10,0
+C1437,Customer 1437,Trial,True,SMB,Professional Services,2026-02-18,0
+C1438,Customer 1438,Trial,True,SMB,Manufacturing,2026-01-20,0
+C1439,Customer 1439,Trial,True,SMB,Financial Services,2026-02-16,0
+C1440,Customer 1440,Trial,True,SMB,Education,2026-02-09,0
+C1441,Customer 1441,Trial,True,SMB,Financial Services,2026-02-04,0
+C1442,Customer 1442,Trial,True,SMB,Technology,2026-01-24,0
+C1443,Customer 1443,Trial,True,SMB,Financial Services,2026-03-13,0
+C1444,Customer 1444,Trial,True,SMB,Technology,2026-01-04,0
+C1445,Customer 1445,Trial,True,SMB,Education,2026-01-12,0
+C1446,Customer 1446,Trial,True,Mid-Market,Financial Services,2026-02-11,0
+C1447,Customer 1447,Trial,True,SMB,Education,2026-02-07,0
+C1448,Customer 1448,Trial,True,SMB,Technology,2026-01-11,0
+C1449,Customer 1449,Trial,True,SMB,Healthcare,2026-02-01,0
+C1450,Customer 1450,Trial,True,SMB,Healthcare,2026-03-29,0
+C1451,Customer 1451,Trial,True,SMB,Retail,2026-02-04,0
+C1452,Customer 1452,Trial,True,SMB,Retail,2026-01-19,0
+C1453,Customer 1453,Trial,True,SMB,Retail,2026-02-05,0
+C1454,Customer 1454,Trial,True,SMB,Manufacturing,2026-04-11,0
+C1455,Customer 1455,Trial,True,SMB,Retail,2026-02-01,0
+C1456,Customer 1456,Trial,True,SMB,Retail,2026-03-18,0
+C1457,Customer 1457,Trial,True,SMB,Financial Services,2026-01-14,0
+C1458,Customer 1458,Trial,True,SMB,Technology,2026-02-20,0
+C1459,Customer 1459,Trial,True,Mid-Market,Manufacturing,2026-02-18,0
+C1460,Customer 1460,Trial,True,SMB,Education,2026-02-26,0
+C1461,Customer 1461,Trial,True,Enterprise,Healthcare,2026-03-25,0
+C1462,Customer 1462,Trial,True,SMB,Professional Services,2026-02-08,0
+C1463,Customer 1463,Trial,True,SMB,Healthcare,2026-01-26,0
+C1464,Customer 1464,Trial,True,Enterprise,Manufacturing,2026-02-20,0
+C1465,Customer 1465,Trial,True,SMB,Retail,2026-04-05,0
+C1466,Customer 1466,Trial,True,Mid-Market,Manufacturing,2026-03-15,0
+C1467,Customer 1467,Trial,True,SMB,Education,2026-02-18,0
+C1468,Customer 1468,Trial,True,SMB,Technology,2026-02-20,0
+C1469,Customer 1469,Trial,True,SMB,Technology,2026-01-26,0
+C1470,Customer 1470,Trial,True,SMB,Technology,2026-01-24,0
+C1471,Customer 1471,Trial,True,Enterprise,Retail,2026-01-04,0
+C1472,Customer 1472,Trial,True,SMB,Education,2026-04-01,0
+C1473,Customer 1473,Trial,True,Mid-Market,Financial Services,2026-02-07,0
+C1474,Customer 1474,Trial,True,Mid-Market,Education,2026-04-15,0
+C1475,Customer 1475,Trial,True,SMB,Healthcare,2026-02-22,0
+C1476,Customer 1476,Trial,True,SMB,Manufacturing,2026-03-23,0
+C1477,Customer 1477,Trial,True,SMB,Retail,2026-03-26,0
+C1478,Customer 1478,Trial,True,SMB,Retail,2026-04-12,0
+C1479,Customer 1479,Trial,True,SMB,Retail,2026-03-18,0
+C1480,Customer 1480,Trial,True,SMB,Education,2026-03-10,0
+C1481,Customer 1481,Trial,True,SMB,Financial Services,2026-03-30,0
+C1482,Customer 1482,Trial,True,Enterprise,Professional Services,2026-04-12,0
+C1483,Customer 1483,Trial,True,SMB,Professional Services,2026-04-14,0
+C1484,Customer 1484,Trial,True,SMB,Healthcare,2026-01-11,0
+C1485,Customer 1485,Trial,True,SMB,Healthcare,2026-03-26,0
+C1486,Customer 1486,Trial,True,SMB,Technology,2026-03-24,0
+C1487,Customer 1487,Trial,True,SMB,Retail,2026-03-24,0
+C1488,Customer 1488,Trial,True,SMB,Education,2026-04-07,0
+C1489,Customer 1489,Trial,True,SMB,Financial Services,2026-02-25,0
+C1490,Customer 1490,Trial,True,SMB,Professional Services,2026-02-03,0
+C1491,Customer 1491,Trial,True,SMB,Professional Services,2026-03-08,0
+C1492,Customer 1492,Trial,True,SMB,Manufacturing,2026-03-15,0
+C1493,Customer 1493,Trial,True,SMB,Professional Services,2026-02-20,0
+C1494,Customer 1494,Trial,True,SMB,Healthcare,2026-03-17,0
+C1495,Customer 1495,Trial,True,Enterprise,Retail,2026-02-14,0
+C1496,Customer 1496,Trial,True,SMB,Financial Services,2026-01-14,0
+C1497,Customer 1497,Trial,True,Mid-Market,Professional Services,2026-01-15,0
+C1498,Customer 1498,Trial,True,SMB,Manufacturing,2026-01-19,0
+C1499,Customer 1499,Trial,True,Mid-Market,Technology,2026-02-28,0

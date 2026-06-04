@@ -6,13 +6,6 @@ This module contains constants used in prompts across the codebase.
 These constants ensure consistency between prompt building and message trimming.
 """
 
-import os
-import json
-from typing import Final
-
-from mito_ai_core.completions.prompt_builders.excel_to_python_rules import EXCEL_TO_PYTHON_RULES
-from mito_ai_core.utils.schema import MITO_FOLDER
-
 CHART_CONFIG_RULES = """
 When creating a matplotlib chart, you must use the `# === CHART CONFIG ===` and `# === END CONFIG ===` markers to indicate the start and end of the chart configuration section.
 
@@ -58,14 +51,18 @@ FIGURE_SIZE = (12, 6)
 # === END CONFIG ===
 """
 
-LATEX_RULES = """
+MARKDOWN_RULES = """
 
+Dollar signs and math:
+- Jupyter renders Markdown cells through MathJax, so a bare `$` starts inline math and the next `$` closes it. Unescaped dollar amounts like `$1 billion ... $19 billion` get parsed as one math expression, which collapses spaces, italicizes text, and breaks any `**bold**` between them.
+- When writing literal dollar amounts in a Markdown cell, ALWAYS escape the dollar sign as `\\\\$` (e.g. `\\\\$1 billion`, `\\\\$19 billion`). Do this for every `$` that is not meant to be math.
+- Use `$...$` for inline math and `$$...$$` (on its own line) for centered display math. No spaces directly inside the delimiters — `$x^2$` works, `$ x^2 $` may not.
+
+LaTeX (inside `$...$` / `$$...$$`):
 - Rendering engine is MathJax, not a LaTeX compiler. Only math/equation syntax is supported — no custom packages, document-level commands, or non-math environments.
 - LaTeX only renders in Markdown cells, not code cells.
-- Use $...$ for inline math and $$...$$ (on its own line) for centered display math.
-- No spaces directly inside the delimiters — $x^2$ works, $ x^2 $ may not.
-- If generating markdown programmatically in Python, use raw strings (r"...") or double-escape backslashes (\\frac) to avoid broken syntax.
-- Stray underscores outside math delimiters can break rendering — keep _ inside $...$ only.
+- If generating markdown programmatically in Python, use raw strings (r"...") or double-escape backslashes (\\\\frac) to avoid broken syntax.
+- Stray underscores outside math delimiters can break rendering — keep `_` inside `$...$` only.
 - Avoid mixing LaTeX display blocks inside HTML tags in the same cell.
 """
 
@@ -114,101 +111,14 @@ Only when the user explicitly asks about Mito as a product (e.g. how to use Mito
 Do NOT include the founders email when the user is asking for data analysis, insights, code to analyze their data, or any task about their notebook/data—only when they are asking about the Mito product itself.
 """
 
-def redact_sensitive_info(connections: dict) -> dict:
-    """
-    Redacts sensitive information from connections data.
-    Returns a copy of the connections dict with sensitive fields masked.
-    """
-    redacted = {}
-    for conn_name, conn_data in connections.items():
-        redacted[conn_name] = conn_data.copy()
-        for key, value in redacted[conn_name].items():
-            redacted[conn_name][key] = 'redacted'
-    return redacted
-
 def get_database_rules() -> str:
-    """
-    Reads the user's database configurations,
-    and returns the rules for the AI to follow.
-    """
+    """Return database rules for chat mode. Agent mode loads these via read_skill."""
+    from mito_ai_core.skills.connect_to_db import ConnectToDbSkill
 
-    # Get the db configuration from the user's mito folder
-
-    APP_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER)
-    connections_path: Final[str] = os.path.join(APP_DIR_PATH, 'db', 'connections.json')
-    schemas_path: Final[str] = os.path.join(APP_DIR_PATH, 'db', 'schemas.json')
-    
-    try:
-        with open(connections_path, 'r') as f:
-            connections = json.load(f)
-            sanitized_connections = redact_sensitive_info(connections)
-    except FileNotFoundError:
-        connections = None
-        sanitized_connections = None
-
-    try:
-        with open(schemas_path, 'r') as f:
-            schemas = json.load(f)
-    except FileNotFoundError:
-        schemas = None
-
-    # If there is a db configuration, add return the rules
-
-    if connections is not None:
-        DATABASE_RULES = f"""DATABASE RULES:
-If the user has requested data that you believe is stored in the database:
-- Use the provided schema.
-- Only use SQLAlchemy to query the database.
-- Do not use a with statement when creating the SQLAlchemy engine. Instead, initialize it once so it can be reused for multiple queries.
-- Always return the results of the query in a pandas DataFrame, unless instructed otherwise.
-- Every schema has a unique connection ID. This ID can be used to find the connection details in the connections.json file.
-- Do not use the connection ID to query the database. It is only for matching the schema to the correct connection.
-- When using the connection ID, do not include any comments about it in your code.
-- Connection details are stored in a JSON file located at: `{connections_path}`
-- Here is the sanitized contents of the connections.json file:
-
-{sanitized_connections}
-
-- Do not hard-code connection credentials into your code. Instead, load the connections.json file and access connection fields dynamically like so:
-
-```
-connections[connection_name]["username"]
-```
-
-- The user may colloquially ask for a "list of x", always assume they want a pandas DataFrame. 
-- When working with dataframes created from an SQL query, ALWAYS use lowercase column names. 
-- If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
-
-## Additional MSSQL Rules
-
-- When connecting to a Microsoft SQL Server (MSSQL) database, use the following format:
-
-```
-import urllib.parse
-
-encoded_password = urllib.parse.quote_plus(password) 
-conn_str = f"mssql+pyodbc://username:encoded_password@host:port/database?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
-```
-
-- Always URL-encode passwords for MSSQL connections to handle special characters properly.
-- Include the port number in MSSQL connection strings.
-- Use "ODBC+Driver+18+for+SQL+Server" (with plus signs) in the driver parameter.
-- Always include "TrustServerCertificate=yes" for MSSQL connections to avoid SSL certificate issues.
-
-## Additional Oracle Rules
-
-- When connecting to an Oracle database, use the following format:
-```
-conn_str = f"oracle+oracledb://username:password@host:port?service_name=service_name"
-```
-
-Here is the schema:
-{schemas}
-        """
-    else:
-        DATABASE_RULES = ""
-
-    return DATABASE_RULES
+    skill = ConnectToDbSkill()
+    if not skill.is_available:
+        return ""
+    return skill.get_content()
 
 
 CHAT_CODE_FORMATTING_RULES = """

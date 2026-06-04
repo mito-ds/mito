@@ -48,7 +48,7 @@ export type MCPToolCall = {
 }
 
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad' | 'mcp_tool_call'
+  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad' | 'mcp_tool_call' | 'read_skill'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
@@ -60,6 +60,7 @@ export type AgentResponse = {
   scratchpad_code?: string | null | undefined
   scratchpad_summary?: string | null | undefined
   mcp_tool_call?: MCPToolCall | null | undefined
+  skill_name?: string | null | undefined
 }
 
 /* 
