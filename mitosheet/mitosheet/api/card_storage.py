@@ -5,7 +5,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 """
-Parse and serialize column card definitions (Streamlit code + explore links).
+Parse and serialize column card definitions (glance + full Streamlit code + explore links).
 """
 
 from __future__ import annotations
@@ -19,26 +19,48 @@ import pandas as pd
 _PLACEHOLDER_RE = re.compile(r"\{([^}]+)\}")
 
 
-def parse_card_definition(stored: str) -> Tuple[str, List[Dict[str, Any]]]:
+def parse_card_definition(stored: str) -> Tuple[str, str, List[Dict[str, Any]]]:
+    """
+    Returns (glance_code, full_code, explore).
+    glance_code may be empty — caller should fall back to filtering full render.
+    """
     stripped = stored.strip()
     if not stripped:
-        return "", []
+        return "", "", []
     try:
         parsed = json.loads(stripped)
         if isinstance(parsed, dict) and isinstance(parsed.get("code"), str):
+            full_code = parsed["code"]
             explore = parsed.get("explore", [])
             if not isinstance(explore, list):
                 explore = []
-            return parsed["code"], explore
+            glance_raw = parsed.get("glance_code", "")
+            glance_code = glance_raw if isinstance(glance_raw, str) else ""
+            return glance_code.strip(), full_code, explore
     except json.JSONDecodeError:
         pass
-    return stripped, []
+    return "", stripped, []
 
 
-def serialize_card_definition(code: str, explore: List[Dict[str, Any]]) -> str:
-    if len(explore) == 0:
+def serialize_card_definition(
+    code: str,
+    explore: List[Dict[str, Any]],
+    glance_code: str = "",
+) -> str:
+    glance = glance_code.strip()
+    full = code.strip()
+    has_distinct_glance = glance != "" and glance != full
+    has_explore = len(explore) > 0
+
+    if not has_distinct_glance and not has_explore:
         return code
-    return json.dumps({"code": code, "explore": explore})
+
+    payload: Dict[str, Any] = {"code": code}
+    if has_distinct_glance:
+        payload["glance_code"] = glance
+    if has_explore:
+        payload["explore"] = explore
+    return json.dumps(payload)
 
 
 def _format_cell_value(value: Any) -> str:

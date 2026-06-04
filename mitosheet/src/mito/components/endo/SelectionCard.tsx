@@ -9,6 +9,7 @@ import { useCardContent } from "../../hooks/useCardContent";
 import { ColumnID, GridState, SheetData, UIState } from "../../types";
 import { ExploreLink } from "../../utils/cardStorage";
 import CardContentView from "../cards/CardContentView";
+import { CardBlock } from "./CardBlockDisplay";
 import { OpenFullscreenIcon } from "../icons/FullscreenIcons";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 
@@ -42,6 +43,7 @@ const SelectionCard = (props: {
         rowIndex,
         columnID,
         sheetData,
+        'glance',
     );
 
     const openExploreView = async (link: ExploreLink): Promise<void> => {
@@ -117,23 +119,41 @@ const SelectionCard = (props: {
         return null;
     }
 
+    const expandButton = (
+        <button
+            type="button"
+            className="mito-selection-card-expand"
+            title="Open full details in sidebar"
+            aria-label="Open full card details in sidebar"
+            onClick={openCardSidebar}
+        >
+            <OpenFullscreenIcon />
+        </button>
+    );
+
+    let bodyBlocks: CardBlock[] | undefined = blocks;
+    let banner: JSX.Element | null = null;
+
+    if (blocks !== undefined && blocks.length > 0 && blocks[0].type === 'header') {
+        bodyBlocks = blocks.slice(1);
+        banner = (
+            <div className="mito-selection-card-banner">
+                <div className="mito-card-header">{blocks[0].content}</div>
+                {expandButton}
+            </div>
+        );
+    }
+
     return (
         <div
             ref={cardRef}
             className="mito-selection-card"
             style={style ?? { visibility: 'hidden' }}
         >
-            <button
-                type="button"
-                className="mito-selection-card-expand"
-                title="Open in sidebar"
-                aria-label="Open card in sidebar"
-                onClick={openCardSidebar}
-            >
-                <OpenFullscreenIcon />
-            </button>
+            {banner}
+            {banner === null && expandButton}
             <CardContentView
-                blocks={blocks}
+                blocks={bodyBlocks}
                 explore={explore}
                 openingView={openingView}
                 onOpenExploreView={(link) => { void openExploreView(link); }}

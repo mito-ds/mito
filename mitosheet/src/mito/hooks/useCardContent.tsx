@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { MitoAPI } from "../api/api";
 import { CardBlock } from "../components/endo/CardBlockDisplay";
 import { ColumnID, SheetData } from "../types";
-import { ExploreLink } from "../utils/cardStorage";
+import { CardContentMode, ExploreLink } from "../utils/cardStorage";
 
 export const useCardContent = (
     mitoAPI: MitoAPI,
@@ -15,6 +15,7 @@ export const useCardContent = (
     rowIndex: number,
     columnID: ColumnID | undefined,
     sheetData: SheetData | undefined,
+    mode: CardContentMode = 'full',
 ): {
     blocks: CardBlock[] | undefined;
     explore: ExploreLink[];
@@ -33,7 +34,7 @@ export const useCardContent = (
 
         let cancelled = false;
         void (async () => {
-            const response = await mitoAPI.getCardContent(sheetIndex, rowIndex, columnID);
+            const response = await mitoAPI.getCardContent(sheetIndex, rowIndex, columnID, mode);
             if (cancelled) {
                 return;
             }
@@ -50,7 +51,7 @@ export const useCardContent = (
         return () => {
             cancelled = true;
         };
-    }, [hasCard, sheetIndex, rowIndex, columnID, mitoAPI, sheetData?.columnCards]);
+    }, [hasCard, sheetIndex, rowIndex, columnID, mitoAPI, sheetData?.columnCards, mode]);
 
     return { blocks, explore, hasCard };
 };

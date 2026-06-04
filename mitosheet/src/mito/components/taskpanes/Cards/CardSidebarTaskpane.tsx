@@ -41,6 +41,7 @@ const CardSidebarTaskpane = (props: CardSidebarTaskpaneProps): JSX.Element => {
         rowIndex,
         columnID,
         sheetData,
+        'full',
     );
 
     const openExploreView = async (link: ExploreLink): Promise<void> => {
@@ -64,8 +65,8 @@ const CardSidebarTaskpane = (props: CardSidebarTaskpaneProps): JSX.Element => {
     }
 
     const header = hasCard && columnID !== undefined
-        ? `Card · ${sheetData.columnIDsMap[columnID]}`
-        : 'Card';
+        ? `${sheetData.columnIDsMap[columnID]}`
+        : 'Card details';
 
     return (
         <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>

@@ -637,12 +637,14 @@ export class MitoAPI {
         userInput: string,
     ): Promise<MitoAPIResult<{error: string} | {
         prompt_version: string,
+        glance_code: string,
         code: string,
         explore: {label: string, view_code: string}[],
         card_code: string,
     }>> {
         return await this.send<{error: string} | {
             prompt_version: string,
+            glance_code: string,
             code: string,
             explore: {label: string, view_code: string}[],
             card_code: string,
@@ -662,6 +664,7 @@ export class MitoAPI {
         sheetIndex: number,
         rowIndex: number,
         columnID: ColumnID,
+        mode: 'glance' | 'full' = 'full',
     ): Promise<MitoAPIResult<{error: string} | {
         blocks: CardBlock[],
         explore: {label: string, view_code: string}[],
@@ -676,6 +679,7 @@ export class MitoAPI {
                 'sheet_index': sheetIndex,
                 'row_index': rowIndex,
                 'column_id': columnID,
+                'mode': mode,
             },
         })
     }

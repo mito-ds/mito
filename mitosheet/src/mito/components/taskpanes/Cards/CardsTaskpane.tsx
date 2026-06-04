@@ -29,8 +29,10 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
 
     const [userInput, setUserInput] = useState('');
     const initialStored = sheetData?.columnCards?.[props.columnID] ?? '';
-    const [cardCode, setCardCode] = useState(() => parseCardDefinition(initialStored).code);
-    const [exploreLinks, setExploreLinks] = useState(() => parseCardDefinition(initialStored).explore);
+    const parsedInitial = parseCardDefinition(initialStored);
+    const [glanceCode, setGlanceCode] = useState(parsedInitial.glanceCode);
+    const [cardCode, setCardCode] = useState(parsedInitial.code);
+    const [exploreLinks, setExploreLinks] = useState(parsedInitial.explore);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
 
@@ -51,6 +53,7 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             setError(result !== undefined && 'error' in result ? result.error : 'Something went wrong generating the card.');
             return;
         }
+        setGlanceCode(result.glance_code);
         setCardCode(result.code);
         setExploreLinks(result.explore);
     }
@@ -59,7 +62,7 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
         await props.mitoAPI.editSetColumnCard(
             props.sheetIndex,
             props.columnID,
-            serializeCardDefinition(cardCode, exploreLinks),
+            serializeCardDefinition(cardCode, exploreLinks, glanceCode),
         );
         props.setUIState(prevUIState => {
             return {...prevUIState, currOpenTaskpane: {type: TaskpaneType.NONE}}
@@ -74,8 +77,8 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
             />
             <DefaultTaskpaneBody>
                 <p className="text-body-1">
-                    Describe the card. AI builds a dashboard-style layout: title, metrics, insight, and key fields.
-                    Use <code>row</code> for the selected row and <code>df</code> for sheet-wide stats.
+                    Describe the card. AI builds a compact at-a-glance popup and a fuller sidebar view with
+                    insights, detail fields, and explore links. Edit the full sidebar code below.
                 </p>
                 <TextArea
                     value={userInput}
@@ -95,7 +98,7 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
                 {error !== undefined &&
                     <p className="text-color-error">{error}</p>
                 }
-                <p className="text-header-3">Card code</p>
+                <p className="text-header-3">Full card code (sidebar)</p>
                 <TextArea
                     value={cardCode}
                     placeholder={'st.metric("Rating", row["IMDB_Rating"])'}
@@ -106,8 +109,8 @@ const CardsTaskpane = (props: CardsTaskpaneProps): JSX.Element => {
                     <TextButton
                         variant="light"
                         width="hug-contents"
-                        onClick={() => { setCardCode(''); setExploreLinks([]); }}
-                        disabled={cardCode === '' && exploreLinks.length === 0}
+                        onClick={() => { setGlanceCode(''); setCardCode(''); setExploreLinks([]); }}
+                        disabled={cardCode === '' && glanceCode === '' && exploreLinks.length === 0}
                     >
                         Clear
                     </TextButton>

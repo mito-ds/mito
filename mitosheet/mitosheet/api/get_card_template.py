@@ -26,9 +26,17 @@ from mitosheet.api.suggestions_api_utils import (
 from mitosheet.api.card_storage import serialize_card_definition
 from mitosheet.types import StepsManagerType
 
-CARD_CODE_PROMPT_VERSION = "card-code-v4"
+CARD_CODE_PROMPT_VERSION = "card-code-v5"
 
-_EXAMPLE_CODE = """st.header(str(row["Series_Title"]))
+_EXAMPLE_GLANCE_CODE = """st.header(str(row["Series_Title"]))
+st.caption(f"{row['Genre']} · {row['Released_Year']}")
+
+c1, c2, c3 = st.columns(3)
+c1.metric("IMDB", f"{row['IMDB_Rating']:.1f}")
+c2.metric("Gross", f"${row['Gross']:,.0f}")
+c3.metric("Votes", f"{row['No_of_Votes']:,}")"""
+
+_EXAMPLE_FULL_CODE = """st.header(str(row["Series_Title"]))
 st.caption(f"{row['Genre']} · {row['Released_Year']}")
 
 c1, c2, c3 = st.columns(3)
@@ -46,6 +54,7 @@ else:
 st.table({
     "Director": row["Director"],
     "Runtime": row["Runtime"],
+    "Meta score": row["Meta_score"],
 })"""
 
 
@@ -60,8 +69,10 @@ def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: s
         df_snippet = "(unable to display sample data)"
 
     return (
-        "You are writing a short Streamlit script that renders an \"at-a-glance\" card for ONE "
-        "selected row. The card opens from the column named " + repr(focused_column) + ".\n\n"
+        "You are writing TWO Streamlit scripts for a column card on ONE selected row. "
+        "The card opens from the column named " + repr(focused_column) + ".\n\n"
+        "- glance_code: tiny popup \"at a glance\" (title, caption, 2-3 metrics ONLY)\n"
+        "- code: full sidebar view with insight, detail table, and richer context\n\n"
         f"The user described the card they want:\n{user_input}\n\n"
         f"Available columns (access via row['Column Name'] or df['Column Name']):\n{col_catalog}\n\n"
         f"Sample rows:\n{df_snippet}\n\n"
@@ -73,30 +84,32 @@ def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: s
         "  - row_index  (int index of the selected row in df)\n"
         "  - pd, np     (pandas and numpy)\n\n"
         "Use pandas on df for dynamic values (averages, percentiles, comparisons, boolean flags).\n\n"
-        "Visual layout (follow this structure in order):\n"
-        "  1. st.header — primary label for the row (title/name column)\n"
-        "  2. st.caption — one line of context (genre, year, category, etc.)\n"
-        "  3. st.columns(3) with col.metric for 2-3 headline numbers (format with f-strings)\n"
-        "  4. Exactly one st.info OR st.success OR st.warning — a short insight vs df\n"
-        "  5. st.table({...}) with 2-4 key fields OR a tiny st.dataframe (at most 4 rows)\n"
-        "Do NOT use st.divider() or st.write for paragraphs. Avoid st.dataframe for large tables.\n"
-        "For comparisons in metrics use delta= with +/- prefix, e.g. metric(\"vs avg\", val, delta=f\"{d:+.1f}\").\n\n"
-        "Example:\n" + _EXAMPLE_CODE + "\n\n"
+        "glance_code layout (8-12 lines, NO tables/alerts/explore in script):\n"
+        "  1. st.header — primary label\n"
+        "  2. st.caption — one context line\n"
+        "  3. st.columns(3) with 2-3 col.metric calls\n\n"
+        "code layout (full detail, 15-28 lines):\n"
+        "  Same header/caption/metrics as glance, then:\n"
+        "  4. One st.info OR st.success OR st.warning — insight vs df\n"
+        "  5. st.table({...}) with 3-6 key fields OR tiny st.dataframe (max 4 rows)\n"
+        "Do NOT use st.divider() or st.write paragraphs. Avoid large dataframes.\n\n"
+        "glance_code example:\n" + _EXAMPLE_GLANCE_CODE + "\n\n"
+        "code example:\n" + _EXAMPLE_FULL_CODE + "\n\n"
         "Also suggest 3-5 related table views the user might open from this row. Each view is a "
         "pandas expression using df and row that returns a DataFrame.\n\n"
         "Respond with ONLY valid JSON (no markdown fences):\n"
-        '{"code": "...", "explore": [{"label": "...", "view_code": "..."}, ...]}\n\n'
+        '{"glance_code": "...", "code": "...", "explore": [{"label": "...", "view_code": "..."}, ...]}\n\n'
         "Explore rules:\n"
         "- label: short link text; use {Column Name} placeholders filled from the selected row "
         "(e.g. \"All plays from {Released_Year}\").\n"
         "- view_code: one expression evaluating to a DataFrame, e.g. "
         "df[df['Released_Year'] == row['Released_Year']] or df.nlargest(20, 'Gross').\n"
         "- Only use columns from the catalog; views should be relevant to the focused column and user request.\n\n"
-        "Card code rules:\n"
+        "Rules for both scripts:\n"
         "- Only use columns that exist in the catalog.\n"
-        "- Keep the script short (roughly 12-22 lines).\n"
-        "- Use f-strings for currency ($), commas, and +/- deltas.\n"
+        "- Use f-strings for currency ($), commas, and +/- deltas on metrics.\n"
         "- Put larger values first in divisions.\n"
+        "- glance_code must be a strict subset of the same facts shown in code (no extra columns).\n"
     )
 
 
@@ -151,6 +164,10 @@ def get_card_template(params: Dict[str, Any], steps_manager: StepsManagerType) -
     if not isinstance(code, str) or code.strip() == "":
         return {"error": "The model did not return valid Streamlit card code."}
 
+    glance_code = parsed.get("glance_code") if isinstance(parsed, dict) else None
+    if not isinstance(glance_code, str) or glance_code.strip() == "":
+        glance_code = ""
+
     explore = parsed.get("explore", []) if isinstance(parsed, dict) else []
     if not isinstance(explore, list):
         explore = []
@@ -166,7 +183,8 @@ def get_card_template(params: Dict[str, Any], steps_manager: StepsManagerType) -
 
     return {
         "prompt_version": CARD_CODE_PROMPT_VERSION,
+        "glance_code": glance_code,
         "code": code,
         "explore": valid_explore,
-        "card_code": serialize_card_definition(code, valid_explore),
+        "card_code": serialize_card_definition(code, valid_explore, glance_code),
     }
