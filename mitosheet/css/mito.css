@@ -125,12 +125,39 @@
     border: 1px solid var(--mito-highlight-light, #d4c4ff);
     border-radius: 10px;
     box-shadow: 0 6px 20px rgba(80, 40, 140, 0.14), 0 1px 3px rgba(0, 0, 0, 0.06);
-    padding: 14px 16px;
+    padding: 28px 16px 14px 16px;
+}
+
+.mito-selection-card-expand {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: var(--mito-background, #fff);
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 0.12s ease, background 0.12s ease;
+}
+
+.mito-selection-card-expand:hover {
+    opacity: 1;
+    background: var(--mito-background-highlight, #f3f0fa);
 }
 
 .mito-selection-card-loading {
     font-size: 13px;
     color: var(--mito-text-secondary, #888);
+}
+
+.mito-card-sidebar-body {
+    width: 100%;
 }
 
 .mito-selection-card-explore {

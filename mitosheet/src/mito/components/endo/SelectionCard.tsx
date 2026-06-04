@@ -3,12 +3,14 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { MitoAPI } from "../../api/api";
+import { useCardContent } from "../../hooks/useCardContent";
 import { ColumnID, GridState, SheetData, UIState } from "../../types";
-import { TaskpaneType } from "../taskpanes/taskpanes";
 import { ExploreLink } from "../../utils/cardStorage";
-import CardBlockDisplay, { CardBlock } from "./CardBlockDisplay";
+import CardContentView from "../cards/CardContentView";
+import { OpenFullscreenIcon } from "../icons/FullscreenIcons";
+import { TaskpaneType } from "../taskpanes/taskpanes";
 
 const GAP_PX = 6;
 
@@ -18,11 +20,10 @@ const SelectionCard = (props: {
     gridState: GridState;
     mitoContainerRef: React.RefObject<HTMLDivElement>;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
+    cardSidebarOpen: boolean;
 }): JSX.Element | null => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [style, setStyle] = useState<React.CSSProperties | undefined>(undefined);
-    const [blocks, setBlocks] = useState<CardBlock[] | undefined>(undefined);
-    const [explore, setExplore] = useState<ExploreLink[]>([]);
     const [openingView, setOpeningView] = useState<string | undefined>(undefined);
 
     const sheetIndex = props.gridState.sheetIndex;
@@ -34,38 +35,17 @@ const SelectionCard = (props: {
     const columnID: ColumnID | undefined = (sheetData !== undefined && rowIndex >= 0 && columnIndex >= 0)
         ? sheetData.data[columnIndex]?.columnID
         : undefined;
-    const hasCard = columnID !== undefined && sheetData?.columnCards?.[columnID] !== undefined;
 
-    useEffect(() => {
-        if (!hasCard || columnID === undefined) {
-            setBlocks(undefined);
-            setExplore([]);
-            return;
-        }
-
-        let cancelled = false;
-        void (async () => {
-            const response = await props.mitoAPI.getCardContent(sheetIndex, rowIndex, columnID);
-            if (cancelled) {
-                return;
-            }
-            const result = 'result' in response ? response.result : undefined;
-            if (result !== undefined && !('error' in result)) {
-                setBlocks(result.blocks);
-                setExplore(result.explore ?? []);
-            } else {
-                setBlocks([]);
-                setExplore([]);
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [hasCard, sheetIndex, rowIndex, columnID, props.mitoAPI, sheetData?.columnCards]);
+    const { blocks, explore, hasCard } = useCardContent(
+        props.mitoAPI,
+        sheetIndex,
+        rowIndex,
+        columnID,
+        sheetData,
+    );
 
     const openExploreView = async (link: ExploreLink): Promise<void> => {
-        if (openingView !== undefined) {
+        if (openingView !== undefined || columnID === undefined) {
             return;
         }
         setOpeningView(link.label);
@@ -75,15 +55,24 @@ const SelectionCard = (props: {
             ...prevUIState,
             selectedTabType: 'data',
             selectedSheetIndex: newSheetIndex,
-            currOpenTaskpane: prevUIState.currOpenTaskpane.type === TaskpaneType.GRAPH
-                ? { type: TaskpaneType.NONE }
-                : prevUIState.currOpenTaskpane,
+            currOpenTaskpane: prevUIState.currOpenTaskpane.type === TaskpaneType.CARD_SIDEBAR
+                ? { type: TaskpaneType.CARD_SIDEBAR }
+                : prevUIState.currOpenTaskpane.type === TaskpaneType.GRAPH
+                    ? { type: TaskpaneType.NONE }
+                    : prevUIState.currOpenTaskpane,
         }));
         setOpeningView(undefined);
     };
 
+    const openCardSidebar = (): void => {
+        props.setUIState(prevUIState => ({
+            ...prevUIState,
+            currOpenTaskpane: { type: TaskpaneType.CARD_SIDEBAR },
+        }));
+    };
+
     useLayoutEffect(() => {
-        if (!hasCard) {
+        if (!hasCard || props.cardSidebarOpen) {
             return;
         }
         const cardEl = cardRef.current;
@@ -122,9 +111,9 @@ const SelectionCard = (props: {
         }
 
         setStyle({ top, left });
-    }, [hasCard, rowIndex, columnIndex, blocks, explore, props.gridState.scrollPosition, props.gridState.viewport, props.mitoContainerRef]);
+    }, [hasCard, props.cardSidebarOpen, rowIndex, columnIndex, blocks, explore, props.gridState.scrollPosition, props.gridState.viewport, props.mitoContainerRef]);
 
-    if (!hasCard) {
+    if (!hasCard || props.cardSidebarOpen) {
         return null;
     }
 
@@ -134,38 +123,23 @@ const SelectionCard = (props: {
             className="mito-selection-card"
             style={style ?? { visibility: 'hidden' }}
         >
-            {blocks === undefined
-                ? <div className="mito-selection-card-loading">…</div>
-                : <>
-                    <CardBlockDisplay blocks={blocks} />
-                    {explore.length > 0 &&
-                        <div className="mito-selection-card-explore">
-                            <p className="mito-selection-card-explore-title">Explore more</p>
-                            <div className="mito-selection-card-explore-list" role="list">
-                                {explore.map((link) =>
-                                    <button
-                                        key={link.view_code + link.label}
-                                        type="button"
-                                        role="listitem"
-                                        className="mito-selection-card-explore-item"
-                                        disabled={openingView !== undefined}
-                                        onClick={() => { void openExploreView(link); }}
-                                    >
-                                        <span className="mito-selection-card-explore-item-label">
-                                            {link.label}
-                                        </span>
-                                        <span className="mito-selection-card-explore-item-chevron" aria-hidden>
-                                            ›
-                                        </span>
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    }
-                </>
-            }
+            <button
+                type="button"
+                className="mito-selection-card-expand"
+                title="Open in sidebar"
+                aria-label="Open card in sidebar"
+                onClick={openCardSidebar}
+            >
+                <OpenFullscreenIcon />
+            </button>
+            <CardContentView
+                blocks={blocks}
+                explore={explore}
+                openingView={openingView}
+                onOpenExploreView={(link) => { void openExploreView(link); }}
+            />
         </div>
-    )
-}
+    );
+};
 
 export default SelectionCard;
