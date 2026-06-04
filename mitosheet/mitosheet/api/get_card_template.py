@@ -38,7 +38,6 @@ c3.metric("Votes", f"{row['No_of_Votes']:,}")
 
 avg_rating = df["IMDB_Rating"].mean()
 delta = row["IMDB_Rating"] - avg_rating
-st.divider()
 if delta >= 0:
     st.success(f"Above sheet average IMDB ({avg_rating:.1f})")
 else:
@@ -78,10 +77,9 @@ def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: s
         "  1. st.header — primary label for the row (title/name column)\n"
         "  2. st.caption — one line of context (genre, year, category, etc.)\n"
         "  3. st.columns(3) with col.metric for 2-3 headline numbers (format with f-strings)\n"
-        "  4. st.divider()\n"
-        "  5. Exactly one st.info OR st.success OR st.warning — a short insight vs df\n"
-        "  6. st.table({...}) with 2-4 key fields OR a tiny st.dataframe (at most 4 rows)\n"
-        "Do NOT use st.write for paragraphs. Avoid st.dataframe for large tables.\n"
+        "  4. Exactly one st.info OR st.success OR st.warning — a short insight vs df\n"
+        "  5. st.table({...}) with 2-4 key fields OR a tiny st.dataframe (at most 4 rows)\n"
+        "Do NOT use st.divider() or st.write for paragraphs. Avoid st.dataframe for large tables.\n"
         "For comparisons in metrics use delta= with +/- prefix, e.g. metric(\"vs avg\", val, delta=f\"{d:+.1f}\").\n\n"
         "Example:\n" + _EXAMPLE_CODE + "\n\n"
         "Also suggest 3-5 related table views the user might open from this row. Each view is a "

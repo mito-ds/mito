@@ -134,9 +134,10 @@
 }
 
 .mito-selection-card-explore {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--mito-border, #e8e4f0);
+    margin-top: 16px;
+    padding-top: 0;
+    border: none;
+    border-top: none;
 }
 
 .mito-selection-card-explore-title {
@@ -151,11 +152,7 @@
 .mito-selection-card-explore-list {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-}
-
-.mito-selection-card-explore-item:not(:last-child) {
-    border-bottom: 1px solid var(--mito-border, #f0eef5);
+    gap: 4px;
 }
 
 .mito-selection-card-explore-item {
@@ -241,10 +238,12 @@
     word-break: break-word;
 }
 
-.mito-card-divider {
+.mito-selection-card .mito-card-divider {
+    display: none;
+    margin: 0;
+    padding: 0;
     border: none;
-    border-top: 1px solid var(--mito-border, #e8e4f0);
-    margin: 4px 0;
+    height: 0;
 }
 
 .mito-card-metrics-row {
@@ -303,7 +302,7 @@
 
 .mito-card-table {
     width: 100%;
-    border-collapse: separate;
+    border-collapse: collapse;
     border-spacing: 0;
     font-size: 13px;
     background: var(--mito-background, #fff);
@@ -312,8 +311,22 @@
     overflow: hidden;
 }
 
-.mito-card-table tr:not(:last-child) td {
-    border-bottom: 1px solid var(--mito-border, #f0eef5);
+/* No zebra striping — keep our row borders */
+.mito-selection-card .mito-card-table tbody tr,
+.mito-selection-card .mito-card-table tbody tr:nth-child(odd),
+.mito-selection-card .mito-card-table tbody tr:nth-child(even),
+.mito-selection-card .mito-card-table tbody tr td,
+.mito-selection-card .mito-card-table tbody tr:nth-child(odd) td,
+.mito-selection-card .mito-card-table tbody tr:nth-child(even) td {
+    background-color: var(--mito-background, #fff) !important;
+}
+
+.mito-selection-card .mito-card-table tr:not(:last-child) td {
+    border-bottom: 1px solid var(--mito-border, #f0eef5) !important;
+}
+
+.mito-selection-card .mito-card-table tr:last-child td {
+    border-bottom: none !important;
 }
 
 .mito-card-table-label {
@@ -322,15 +335,16 @@
     vertical-align: top;
     white-space: nowrap;
     font-weight: 500;
-    width: 42%;
+    width: 38%;
+    text-align: left;
 }
 
 .mito-card-table-value {
     padding: 8px 10px;
     color: var(--mito-text, #222);
-    text-align: right;
+    text-align: left;
     word-break: break-word;
-    font-variant-numeric: tabular-nums;
+    font-weight: 500;
 }
 
 .mito-card-caption {
@@ -357,48 +371,65 @@
     padding: 10px 12px;
     border-radius: 8px;
     word-break: break-word;
-    border: 1px solid transparent;
+    border: none;
 }
 
 .mito-card-alert-info {
     background: #eff6ff;
     color: #1e3a5f;
-    border-color: #bfdbfe;
 }
 
 .mito-card-alert-success {
     background: #ecfdf3;
     color: #14532d;
-    border-color: #bbf7d0;
 }
 
 .mito-card-alert-warning {
     background: #fffbeb;
     color: #713f12;
-    border-color: #fde68a;
 }
 
 .mito-card-alert-error {
     background: #fef2f2;
     color: #7f1d1d;
-    border-color: #fecaca;
 }
 
 .mito-card-dataframe {
     width: 100%;
-    border-collapse: separate;
+    border-collapse: collapse;
     border-spacing: 0;
     font-size: 12px;
+    background: var(--mito-background, #fff);
     border: 1px solid var(--mito-border, #ebe8f2);
     border-radius: 8px;
     overflow: hidden;
 }
 
+.mito-selection-card .mito-card-dataframe tbody tr,
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(odd),
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(even),
+.mito-selection-card .mito-card-dataframe tbody tr td,
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(odd) td,
+.mito-selection-card .mito-card-dataframe tbody tr:nth-child(even) td {
+    background-color: var(--mito-background, #fff) !important;
+}
+
+.mito-selection-card .mito-card-dataframe thead th {
+    border-bottom: 1px solid var(--mito-border, #ebe8f2) !important;
+}
+
+.mito-selection-card .mito-card-dataframe tbody tr:not(:last-child) td {
+    border-bottom: 1px solid var(--mito-border, #f0eef5) !important;
+}
+
+.mito-selection-card .mito-card-dataframe tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
 .mito-card-dataframe th {
     text-align: left;
     font-weight: 600;
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--mito-border, #ddd);
+    padding: 8px 10px;
     color: var(--mito-text-secondary, #555);
     background: var(--mito-background-highlight, #f8f7fb);
     font-size: 11px;
@@ -407,15 +438,11 @@
 }
 
 .mito-card-dataframe td {
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--mito-border, #f0eef5);
+    padding: 7px 10px;
+    text-align: left;
     color: var(--mito-text, #222);
     word-break: break-word;
     font-variant-numeric: tabular-nums;
-}
-
-.mito-card-dataframe tr:last-child td {
-    border-bottom: none;
 }
 
 .mito-sheet-and-formula-bar-container-wide-taskpane-open {
