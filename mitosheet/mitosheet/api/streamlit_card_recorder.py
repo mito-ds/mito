@@ -16,6 +16,7 @@ Calls are recorded and rendered in the mitosheet card UI.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
@@ -53,6 +54,85 @@ _SAFE_BUILTINS = {
     "all": all,
     "any": any,
 }
+
+
+_METRIC_VALUE_RE = re.compile(
+    r"^(\s*)([+\-]?)([\$\u00a3€]?)\s*([\d,]+(?:\.\d+)?)\s*(.*)$"
+)
+
+
+def _format_compact_number(value: float) -> Optional[str]:
+    """Shorten large numbers for metric tiles, e.g. 107928762 -> 107M."""
+    if pd.isna(value):
+        return None
+    af = abs(value)
+    if af < 10_000:
+        return None
+
+    sign = "-" if value < 0 else ""
+
+    if af >= 1_000_000_000:
+        scaled = abs(value) / 1_000_000_000
+        if scaled >= 10:
+            body = str(int(scaled))
+        elif abs(scaled - round(scaled)) < 0.05:
+            body = str(int(round(scaled)))
+        else:
+            body = f"{scaled:.1f}".rstrip("0").rstrip(".")
+        return f"{sign}{body}B"
+
+    if af >= 1_000_000:
+        scaled = abs(value) / 1_000_000
+        if scaled >= 10:
+            body = str(int(scaled))
+        elif abs(scaled - round(scaled)) < 0.05:
+            body = str(int(round(scaled)))
+        else:
+            body = f"{scaled:.1f}".rstrip("0").rstrip(".")
+        return f"{sign}{body}M"
+
+    scaled = af / 1_000
+    if scaled >= 100 or abs(scaled - round(scaled)) < 0.05:
+        body = str(int(round(scaled)))
+    else:
+        body = f"{scaled:.1f}".rstrip("0").rstrip(".")
+    return f"{sign}{body}K"
+
+
+def _format_metric_display(value: Any) -> str:
+    """Format metric values; compact large numbers and preserve $ / +/- prefixes."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return ""
+
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        compact = _format_compact_number(float(value))
+        if compact is not None:
+            return compact
+        return _format_display_value(value)
+
+    text = str(value).strip()
+    if text == "":
+        return ""
+
+    match = _METRIC_VALUE_RE.match(text)
+    if match is not None:
+        lead, sign_prefix, currency, num_part, trailing = match.groups()
+        try:
+            num = float(num_part.replace(",", ""))
+            if sign_prefix == "-":
+                num = -num
+            compact = _format_compact_number(num)
+            if compact is not None:
+                compact_sign = ""
+                compact_body = compact
+                if compact[0] in "+-":
+                    compact_sign = compact[0]
+                    compact_body = compact[1:]
+                return f"{lead}{compact_sign}{currency}{compact_body}{trailing}".strip()
+        except ValueError:
+            pass
+
+    return text
 
 
 def _format_display_value(value: Any) -> str:
@@ -171,10 +251,10 @@ class StreamlitCardRecorder:
         block: Dict[str, Any] = {
             "type": "metric",
             "label": str(label),
-            "value": _format_display_value(value),
+            "value": _format_metric_display(value),
         }
         if delta is not None:
-            delta_str = _format_display_value(delta)
+            delta_str = _format_metric_display(delta)
             if delta_str != "":
                 block["delta"] = delta_str
                 tone = self._delta_tone(delta_str, delta_color)

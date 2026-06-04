@@ -276,7 +276,7 @@
     font-weight: 700;
     line-height: 1.15;
     color: var(--mito-text, #111);
-    word-break: break-word;
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
 
