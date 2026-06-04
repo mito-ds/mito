@@ -25,7 +25,8 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
         'finished_task', 
         'create_streamlit_app', 
         'edit_streamlit_app',
-        'scratchpad'
+        'scratchpad',
+        'mcp_tool_call'
     ];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 

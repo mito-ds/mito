@@ -36,6 +36,7 @@ import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQu
 import ScratchpadToolUI from '../../../components/AgentComponents/ScratchpadToolUI';
 import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
 import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
+import MCPToolCallToolUI from '../../../components/AgentComponents/MCPToolCallToolUI';
 
 interface IChatMessageProps {
     app: JupyterFrontEnd;
@@ -60,6 +61,8 @@ interface IChatMessageProps {
     agentModeEnabled: boolean
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
     scratchpadResult?: string
+    mcpToolResult?: string
+    mcpToolError?: string
     canSendMessages?: boolean
 }
 
@@ -86,6 +89,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     agentModeEnabled,
     handleSubmitUserMessage,
     scratchpadResult,
+    mcpToolResult,
+    mcpToolError,
     canSendMessages = true,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
@@ -156,8 +161,10 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         )
     }
 
-    // If the message is empty, don't render anything
-    if (messageContent === undefined || messageContent === '') {
+    // If the message is empty, don't render anything (unless it's a tool call
+    // that needs to render its own UI even without text content).
+    const hasTrailingToolUI = agentResponse?.type === 'mcp_tool_call';
+    if ((messageContent === undefined || messageContent === '') && !hasTrailingToolUI) {
         return <></>
     }
 
@@ -322,6 +329,13 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'edit_streamlit_app' && agentModeEnabled &&
                 <EditStreamlitAppToolUI isRunning={isLastMessage} />
+            }
+            {agentResponse?.type === 'mcp_tool_call' && agentResponse.mcp_tool_call &&
+                <MCPToolCallToolUI
+                    mcpToolCall={agentResponse.mcp_tool_call}
+                    mcpToolResult={mcpToolResult}
+                    mcpToolError={mcpToolError}
+                />
             }
         </div>
     )
