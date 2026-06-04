@@ -62,6 +62,7 @@ describe('acceptAndRunCellUpdate', () => {
             'markdown',
         );
         expect(NotebookActions.changeCellType).toHaveBeenCalledWith(notebookPanel.content, 'markdown');
+        expect(NotebookActions.run).not.toHaveBeenCalled();
     });
 
     test('passes code cell_type for code cell updates', async () => {
@@ -85,5 +86,9 @@ describe('acceptAndRunCellUpdate', () => {
             'code',
         );
         expect(NotebookActions.changeCellType).toHaveBeenCalledWith(notebookPanel.content, 'code');
+        expect(NotebookActions.run).toHaveBeenCalledWith(
+            notebookPanel.content,
+            notebookPanel.context.sessionContext,
+        );
     });
 });

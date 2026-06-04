@@ -77,6 +77,7 @@ export const acceptAndRunCellUpdate = async (
         };
     }
 
+    
     const cellID = getActiveCellIDInNotebookPanel(notebookPanel)
     if (!cellID) {
         return {
@@ -85,12 +86,10 @@ export const acceptAndRunCellUpdate = async (
         };
     }
 
-    writeContentToCellByIDInNotebookPanel(
-        notebookPanel,
-        cellUpdate.code,
-        cellID,
-        cellUpdate.cell_type,
-    )
+    const targetCellId =
+        cellUpdate.type === 'modification' ? cellUpdate.id! : cellID;
+
+    setActiveCellByIDInNotebookPanel(notebookPanel, targetCellId)
 
     // We always create code cells, and then convert to markdown if necessary.
     if (cellUpdate.cell_type === 'markdown') {
@@ -98,12 +97,23 @@ export const acceptAndRunCellUpdate = async (
     } else if (cellUpdate.cell_type === 'code') {
         NotebookActions.changeCellType(notebook, 'code');
     }
-    
-    // This awaits until after the execution is finished.
-    // Note that it is important that we just run the cell and don't run and advance the cell. 
-    // We rely on the active cell remaining the same after running the cell in order to get the output
-    // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
-    await NotebookActions.run(notebook, context?.sessionContext);
+
+    writeContentToCellByIDInNotebookPanel(
+        notebookPanel,
+        cellUpdate.code,
+        targetCellId,
+        cellUpdate.cell_type,
+    )
+
+    // Markdown cells must not be executed as code (avoids SyntaxError on prose).
+    if (cellUpdate.cell_type === 'code') {
+        setActiveCellByIDInNotebookPanel(notebookPanel, targetCellId)
+        // This awaits until after the execution is finished.
+        // Note that it is important that we just run the cell and don't run and advance the cell.
+        // We rely on the active cell remaining the same after running the cell in order to get the output
+        // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
+        await NotebookActions.run(notebook, context?.sessionContext);
+    }
     
     // Scroll to the bottom of the active cell to show the output
     // as long as we are not operating in background agent mode.
