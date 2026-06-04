@@ -37,6 +37,7 @@ import LoadingCircle from '../../components/LoadingCircle';
 import ModelSelector from '../../components/ModelSelector';
 import NextStepsPills from '../../components/NextStepsPills';
 import ToggleButton from '../../components/ToggleButton';
+import VoiceInputButton from '../../components/VoiceInputButton';
 
 // Internal imports - Icons
 import { OpenIndicatorLabIcon } from '../../icons';
@@ -185,6 +186,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
+    const voiceTranscriptRef = useRef<((text: string) => void) | null>(null);
+    const stopDictationRef = useRef<(() => void) | null>(null);
+    const stopDictation = (): void => {
+        stopDictationRef.current?.();
+    };
 
     /** Brief border glow on the taskpane when context arrives from the DataFrame viewer */
     const [attentionGlowActive, setAttentionGlowActive] = useState(false);
@@ -317,6 +323,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
         // Check if user is in agent mode and switch to chat mode if needed
         if (agentModeEnabledRef.current) {
             await startNewChat();
@@ -352,6 +359,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -386,6 +394,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
 
         // Step 0: reset the state for a new message
         resetForNewMessage()
@@ -431,6 +440,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (copilotBlocksChatRef.current) {
             return;
         }
+        stopDictation();
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -1200,6 +1210,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     onDataframeViewerContextAdded={handleDataframeViewerContextAdded}
                     attentionGlowActive={attentionGlowActive}
                     onAttentionGlowAnimationEnd={() => setAttentionGlowActive(false)}
+                    voiceTranscriptRef={voiceTranscriptRef}
                 />
             </div>
             {agentExecution.agentExecutionStatus !== 'working' && agentExecution.agentExecutionStatus !== 'stopping' && (
@@ -1228,31 +1239,38 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             void updateModelOnBackend(config.model);
                         }} />
                     </div>
-                    <button
-                        className="button-base submit-button"
-                        disabled={ghCopilot.copilotBlocksChat}
-                        onClick={() => {
-                            if (ghCopilot.copilotBlocksChat) {
-                                return;
-                            }
-                            const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
-                            if (chatInput && chatInput.value) {
-                                // Simulate an Enter keypress
-                                // This triggers the existing submission logic in ChatInput.tsx
-                                const enterEvent = new KeyboardEvent('keydown', {
-                                    key: 'Enter',
-                                    code: 'Enter',
-                                    keyCode: 13,
-                                    which: 13,
-                                    bubbles: true,
-                                    cancelable: true
-                                });
-                                chatInput.dispatchEvent(enterEvent);
-                            }
-                        }}
-                    >
-                        <span className="submit-text">Submit</span> ⏎
-                    </button>
+                    <div className="chat-controls-right">
+                        <VoiceInputButton
+                            onTranscript={(text) => voiceTranscriptRef.current?.(text)}
+                            stopDictationRef={stopDictationRef}
+                            disabled={ghCopilot.copilotBlocksChat}
+                        />
+                        <button
+                            className="button-base submit-button"
+                            disabled={ghCopilot.copilotBlocksChat}
+                            onClick={() => {
+                                if (ghCopilot.copilotBlocksChat) {
+                                    return;
+                                }
+                                const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                if (chatInput && chatInput.value) {
+                                    // Simulate an Enter keypress
+                                    // This triggers the existing submission logic in ChatInput.tsx
+                                    const enterEvent = new KeyboardEvent('keydown', {
+                                        key: 'Enter',
+                                        code: 'Enter',
+                                        keyCode: 13,
+                                        which: 13,
+                                        bubbles: true,
+                                        cancelable: true
+                                    });
+                                    chatInput.dispatchEvent(enterEvent);
+                                }
+                            }}
+                        >
+                            <span className="submit-text">Submit</span> ⏎
+                        </button>
+                    </div>
                 </div>
             )}
             {(agentExecution.agentExecutionStatus === 'working' || agentExecution.agentExecutionStatus === 'stopping') && (

@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
@@ -57,6 +57,8 @@ interface ChatInputProps {
     onAttentionGlowAnimationEnd?: () => void;
     /** Fired when DataFrame viewer selection is added via the Jupyter command (for attention glow, etc.). */
     onDataframeViewerContextAdded?: () => void;
+    /** Parent can call this to append dictated text into the input (e.g. voice button in chat controls). */
+    voiceTranscriptRef?: React.MutableRefObject<((text: string) => void) | null>;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -97,6 +99,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     attentionGlowActive = false,
     onAttentionGlowAnimationEnd,
     onDataframeViewerContextAdded,
+    voiceTranscriptRef,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -423,6 +426,26 @@ const ChatInput: React.FC<ChatInputProps> = ({
     useEffect(() => {
         adjustHeight();
     }, [textAreaRef?.current?.value]);
+
+    const appendVoiceTranscript = useCallback((text: string): void => {
+        const trimmed = text.trim();
+        if (!trimmed) {
+            return;
+        }
+        setInput((prev) => (prev ? `${prev} ${trimmed}` : trimmed));
+        textAreaRef.current?.focus();
+        setTimeout(() => adjustHeight(), 0);
+    }, []);
+
+    useEffect(() => {
+        if (!voiceTranscriptRef) {
+            return;
+        }
+        voiceTranscriptRef.current = appendVoiceTranscript;
+        return () => {
+            voiceTranscriptRef.current = null;
+        };
+    }, [voiceTranscriptRef, appendVoiceTranscript]);
 
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
         const value = event.target.value;
