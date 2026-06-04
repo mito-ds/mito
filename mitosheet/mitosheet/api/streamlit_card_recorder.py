@@ -142,6 +142,24 @@ class StreamlitCardRecorder:
         if str(content).strip() != "":
             self.blocks.append({"type": "alert", "variant": variant, "content": str(content)})
 
+    def _delta_tone(self, delta_str: str, delta_color: str) -> Optional[str]:
+        """Map Streamlit delta_color + delta text to up | down | neutral for CSS."""
+        if delta_color == "off":
+            return None
+        stripped = delta_str.strip()
+        if stripped == "":
+            return None
+        inferred: Optional[str] = None
+        if stripped[0] in "+▲↑":
+            inferred = "up"
+        elif stripped[0] in "-▼↓":
+            inferred = "down"
+        if inferred is None:
+            return "neutral"
+        if delta_color == "inverse":
+            return "down" if inferred == "up" else "up" if inferred == "down" else "neutral"
+        return inferred
+
     def metric(
         self,
         label: str,
@@ -155,8 +173,13 @@ class StreamlitCardRecorder:
             "label": str(label),
             "value": _format_display_value(value),
         }
-        if delta is not None and _format_display_value(delta) != "":
-            block["delta"] = _format_display_value(delta)
+        if delta is not None:
+            delta_str = _format_display_value(delta)
+            if delta_str != "":
+                block["delta"] = delta_str
+                tone = self._delta_tone(delta_str, delta_color)
+                if tone is not None:
+                    block["delta_tone"] = tone
         self.blocks.append(block)
 
     def write(self, *args: Any, **kwargs: Any) -> None:

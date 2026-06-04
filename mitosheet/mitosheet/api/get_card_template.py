@@ -26,21 +26,28 @@ from mitosheet.api.suggestions_api_utils import (
 from mitosheet.api.card_storage import serialize_card_definition
 from mitosheet.types import StepsManagerType
 
-CARD_CODE_PROMPT_VERSION = "card-code-v3"
+CARD_CODE_PROMPT_VERSION = "card-code-v4"
 
-_EXAMPLE_CODE = """genre = row["Genre"]
-col1, col2, col3 = st.columns(3)
-col1.metric("IMDB", row["IMDB_Rating"])
-col2.metric("Gross", f"${row['Gross']:,.0f}")
-col3.metric("Votes", f"{row['No_of_Votes']:,}")
+_EXAMPLE_CODE = """st.header(str(row["Series_Title"]))
+st.caption(f"{row['Genre']} · {row['Released_Year']}")
+
+c1, c2, c3 = st.columns(3)
+c1.metric("IMDB", f"{row['IMDB_Rating']:.1f}")
+c2.metric("Gross", f"${row['Gross']:,.0f}")
+c3.metric("Votes", f"{row['No_of_Votes']:,}")
 
 avg_rating = df["IMDB_Rating"].mean()
 delta = row["IMDB_Rating"] - avg_rating
-st.metric("vs avg rating", f"{delta:+.1f}")
-
 st.divider()
-st.caption("Compared to all rows in this sheet")
-st.dataframe(df[["IMDB_Rating", "Gross"]].describe().round(2))"""
+if delta >= 0:
+    st.success(f"Above sheet average IMDB ({avg_rating:.1f})")
+else:
+    st.info(f"Below sheet average IMDB ({avg_rating:.1f})")
+
+st.table({
+    "Director": row["Director"],
+    "Runtime": row["Runtime"],
+})"""
 
 
 def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: str) -> str:
@@ -66,8 +73,16 @@ def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: s
         "  - df         (full dataframe for this sheet — use for means, ranks, filters, describe)\n"
         "  - row_index  (int index of the selected row in df)\n"
         "  - pd, np     (pandas and numpy)\n\n"
-        "Use pandas on df for dynamic values (averages, percentiles, comparisons, boolean flags).\n"
-        "Then display results with st.metric, st.write, st.dataframe, st.table, st.info, etc.\n\n"
+        "Use pandas on df for dynamic values (averages, percentiles, comparisons, boolean flags).\n\n"
+        "Visual layout (follow this structure in order):\n"
+        "  1. st.header — primary label for the row (title/name column)\n"
+        "  2. st.caption — one line of context (genre, year, category, etc.)\n"
+        "  3. st.columns(3) with col.metric for 2-3 headline numbers (format with f-strings)\n"
+        "  4. st.divider()\n"
+        "  5. Exactly one st.info OR st.success OR st.warning — a short insight vs df\n"
+        "  6. st.table({...}) with 2-4 key fields OR a tiny st.dataframe (at most 4 rows)\n"
+        "Do NOT use st.write for paragraphs. Avoid st.dataframe for large tables.\n"
+        "For comparisons in metrics use delta= with +/- prefix, e.g. metric(\"vs avg\", val, delta=f\"{d:+.1f}\").\n\n"
         "Example:\n" + _EXAMPLE_CODE + "\n\n"
         "Also suggest 3-5 related table views the user might open from this row. Each view is a "
         "pandas expression using df and row that returns a DataFrame.\n\n"
@@ -81,9 +96,9 @@ def _build_card_code_prompt(df: pd.DataFrame, focused_column: str, user_input: s
         "- Only use columns from the catalog; views should be relevant to the focused column and user request.\n\n"
         "Card code rules:\n"
         "- Only use columns that exist in the catalog.\n"
-        "- Keep the script short (roughly 8-25 lines).\n"
-        "- Prefer st.metric for headline numbers; st.dataframe for small summary tables.\n"
-        "- Use f-strings to format numbers; put larger values first in divisions.\n"
+        "- Keep the script short (roughly 12-22 lines).\n"
+        "- Use f-strings for currency ($), commas, and +/- deltas.\n"
+        "- Put larger values first in divisions.\n"
     )
 
 

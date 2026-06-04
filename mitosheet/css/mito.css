@@ -112,16 +112,20 @@
     position: absolute;
     top: 0;
     left: 0;
-    min-width: 200px;
-    max-width: 340px;
-    max-height: 50%;
+    min-width: 220px;
+    max-width: 380px;
+    max-height: 55%;
     overflow: auto;
     z-index: 5;
-    background-color: var(--mito-background, white);
-    border: 1px solid var(--mito-highlight, #9d6cff);
-    border-radius: 8px;
-    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.12);
-    padding: 12px 14px;
+    background: linear-gradient(
+        180deg,
+        var(--mito-background-highlight, #faf8ff) 0%,
+        var(--mito-background, white) 48px
+    );
+    border: 1px solid var(--mito-highlight-light, #d4c4ff);
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(80, 40, 140, 0.14), 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 14px 16px;
 }
 
 .mito-selection-card-loading {
@@ -177,15 +181,21 @@
 .mito-selection-card-blocks {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .mito-card-header {
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--mito-text, #222);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--mito-text, #1a1a1a);
     word-break: break-word;
+    margin-bottom: -2px;
+}
+
+.mito-card-header + .mito-card-caption {
+    margin-top: -4px;
 }
 
 .mito-card-text {
@@ -198,72 +208,100 @@
 
 .mito-card-divider {
     border: none;
-    border-top: 1px solid var(--mito-border, #e0e0e0);
-    margin: 2px 0;
+    border-top: 1px solid var(--mito-border, #e8e4f0);
+    margin: 4px 0;
 }
 
 .mito-card-metrics-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px 16px;
+    gap: 8px;
 }
 
 .mito-card-metric {
-    flex: 1 1 auto;
-    min-width: 72px;
+    flex: 1 1 0;
+    min-width: 88px;
+    background: var(--mito-background, #fff);
+    border: 1px solid var(--mito-border, #ebe8f2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .mito-card-metric-label {
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 10px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
     color: var(--mito-text-secondary, #6b6b6b);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .mito-card-metric-value {
-    font-size: 22px;
-    font-weight: 600;
-    line-height: 1.2;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.15;
     color: var(--mito-text, #111);
     word-break: break-word;
+    font-variant-numeric: tabular-nums;
 }
 
 .mito-card-metric-delta {
     font-size: 12px;
+    font-weight: 500;
     color: var(--mito-text-secondary, #6b6b6b);
-    margin-top: 2px;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.mito-card-metric-delta-up {
+    color: #15803d;
+}
+
+.mito-card-metric-delta-down {
+    color: #b91c1c;
+}
+
+.mito-card-metric-delta-neutral {
+    color: var(--mito-text-secondary, #6b6b6b);
 }
 
 .mito-card-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 13px;
+    background: var(--mito-background, #fff);
+    border: 1px solid var(--mito-border, #ebe8f2);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .mito-card-table tr:not(:last-child) td {
-    border-bottom: 1px solid var(--mito-border, #eee);
+    border-bottom: 1px solid var(--mito-border, #f0eef5);
 }
 
 .mito-card-table-label {
-    padding: 4px 8px 4px 0;
+    padding: 8px 10px;
     color: var(--mito-text-secondary, #6b6b6b);
     vertical-align: top;
     white-space: nowrap;
+    font-weight: 500;
+    width: 42%;
 }
 
 .mito-card-table-value {
-    padding: 4px 0;
+    padding: 8px 10px;
     color: var(--mito-text, #222);
     text-align: right;
     word-break: break-word;
+    font-variant-numeric: tabular-nums;
 }
 
 .mito-card-caption {
     font-size: 12px;
     color: var(--mito-text-secondary, #6b6b6b);
-    line-height: 1.3;
+    line-height: 1.35;
 }
 
 .mito-card-code {
@@ -280,51 +318,69 @@
 
 .mito-card-alert {
     font-size: 13px;
-    line-height: 1.4;
-    padding: 8px 10px;
-    border-radius: 4px;
+    line-height: 1.45;
+    padding: 10px 12px;
+    border-radius: 8px;
     word-break: break-word;
+    border: 1px solid transparent;
 }
 
 .mito-card-alert-info {
-    background: #e8f4fd;
-    color: #0c4a6e;
+    background: #eff6ff;
+    color: #1e3a5f;
+    border-color: #bfdbfe;
 }
 
 .mito-card-alert-success {
-    background: #e8f7ee;
+    background: #ecfdf3;
     color: #14532d;
+    border-color: #bbf7d0;
 }
 
 .mito-card-alert-warning {
-    background: #fef9e8;
+    background: #fffbeb;
     color: #713f12;
+    border-color: #fde68a;
 }
 
 .mito-card-alert-error {
-    background: #fdecec;
+    background: #fef2f2;
     color: #7f1d1d;
+    border-color: #fecaca;
 }
 
 .mito-card-dataframe {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 12px;
+    border: 1px solid var(--mito-border, #ebe8f2);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .mito-card-dataframe th {
     text-align: left;
     font-weight: 600;
-    padding: 4px 6px;
+    padding: 6px 8px;
     border-bottom: 1px solid var(--mito-border, #ddd);
     color: var(--mito-text-secondary, #555);
+    background: var(--mito-background-highlight, #f8f7fb);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .mito-card-dataframe td {
-    padding: 4px 6px;
-    border-bottom: 1px solid var(--mito-border, #eee);
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--mito-border, #f0eef5);
     color: var(--mito-text, #222);
     word-break: break-word;
+    font-variant-numeric: tabular-nums;
+}
+
+.mito-card-dataframe tr:last-child td {
+    border-bottom: none;
 }
 
 .mito-sheet-and-formula-bar-container-wide-taskpane-open {

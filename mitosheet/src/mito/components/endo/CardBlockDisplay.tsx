@@ -10,11 +10,25 @@ export type CardBlock =
     | { type: 'caption'; content: string }
     | { type: 'code'; content: string }
     | { type: 'header'; content: string }
-    | { type: 'metric'; label: string; value: string; delta?: string }
+    | { type: 'metric'; label: string; value: string; delta?: string; delta_tone?: 'up' | 'down' | 'neutral' }
     | { type: 'table'; rows: [string, string][] }
     | { type: 'dataframe'; columns: string[]; rows: string[][] }
     | { type: 'alert'; variant: 'info' | 'success' | 'warning' | 'error'; content: string }
     | { type: 'divider' };
+
+const inferDeltaTone = (delta: string): 'up' | 'down' | 'neutral' | undefined => {
+    const stripped = delta.trim();
+    if (stripped === '') {
+        return undefined;
+    }
+    if (stripped.startsWith('+') || stripped.startsWith('▲') || stripped.startsWith('↑')) {
+        return 'up';
+    }
+    if (stripped.startsWith('-') || stripped.startsWith('▼') || stripped.startsWith('↓')) {
+        return 'down';
+    }
+    return 'neutral';
+};
 
 const CardBlockDisplay = (props: { blocks: CardBlock[] }): JSX.Element => {
     const elements: React.ReactNode[] = [];
@@ -26,15 +40,25 @@ const CardBlockDisplay = (props: { blocks: CardBlock[] }): JSX.Element => {
         }
         elements.push(
             <div key={`metrics-${elements.length}`} className="mito-card-metrics-row">
-                {metricBuffer.map((block, i) => (
-                    <div key={i} className="mito-card-metric">
-                        <div className="mito-card-metric-label">{block.label}</div>
-                        <div className="mito-card-metric-value">{block.value}</div>
-                        {block.delta !== undefined && block.delta !== '' &&
-                            <div className="mito-card-metric-delta">{block.delta}</div>
-                        }
-                    </div>
-                ))}
+                {metricBuffer.map((block, i) => {
+                    const deltaTone = block.delta_tone ?? (
+                        block.delta !== undefined ? inferDeltaTone(block.delta) : undefined
+                    );
+                    const deltaClass = deltaTone !== undefined
+                        ? `mito-card-metric-delta-${deltaTone}`
+                        : '';
+                    return (
+                        <div key={i} className="mito-card-metric">
+                            <div className="mito-card-metric-label">{block.label}</div>
+                            <div className="mito-card-metric-value">{block.value}</div>
+                            {block.delta !== undefined && block.delta !== '' &&
+                                <div className={`mito-card-metric-delta ${deltaClass}`.trim()}>
+                                    {block.delta}
+                                </div>
+                            }
+                        </div>
+                    );
+                })}
             </div>
         );
         metricBuffer.length = 0;
