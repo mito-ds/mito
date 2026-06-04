@@ -10,10 +10,11 @@
   border-radius: 3px;
   background-color: transparent;
   border: none;
+  color: var(--purple-700);
 }
 
 .voice-input-button:hover:not(:disabled) {
-  background-color: var(--jp-layout-color3);
+  background-color: var(--purple-400);
 }
 
 .voice-input-button svg {
@@ -24,21 +25,20 @@
 @keyframes voice-input-pulse {
   0%,
   100% {
-    background-color: rgba(157, 108, 255, 0.12);
+    background-color: var(--purple-300);
   }
   50% {
-    background-color: rgba(157, 108, 255, 0.28);
+    background-color: var(--purple-400);
   }
 }
 
 .voice-input-button--listening {
-  color: var(--purple-500);
   animation: voice-input-pulse 1.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .voice-input-button--listening {
     animation: none;
-    background-color: rgba(157, 108, 255, 0.15);
+    background-color: var(--purple-400);
   }
 }
