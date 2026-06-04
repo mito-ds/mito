@@ -134,47 +134,82 @@
 }
 
 .mito-selection-card-explore {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--mito-border, #e0e0e0);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--mito-border, #e8e4f0);
 }
 
 .mito-selection-card-explore-title {
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     color: var(--mito-text-secondary, #888);
-    margin: 0 0 6px 0;
+    margin: 0 0 12px 0;
 }
 
-.mito-selection-card-explore-links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.mito-selection-card-explore-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
-.mito-selection-card-explore-link {
-    background: none;
-    border: none;
-    padding: 0;
+.mito-selection-card-explore-item:not(:last-child) {
+    border-bottom: 1px solid var(--mito-border, #f0eef5);
+}
+
+.mito-selection-card-explore-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 4px;
     text-align: left;
+    font-family: inherit;
     font-size: 13px;
+    font-weight: 500;
     line-height: 1.35;
-    color: var(--mito-highlight, #9d6cff);
+    color: var(--mito-text, #2a2a2a);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
 }
 
-.mito-selection-card-explore-link:hover:not(:disabled) {
-    color: var(--mito-text, #333);
+.mito-selection-card-explore-item-label {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
 }
 
-.mito-selection-card-explore-link:disabled {
-    opacity: 0.6;
+.mito-selection-card-explore-item-chevron {
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--mito-highlight, #9d6cff);
+    opacity: 0.85;
+}
+
+.mito-selection-card-explore-item:hover:not(:disabled) {
+    background: var(--mito-background-highlight, #f3f0fa);
+    color: var(--mito-highlight, #7c4dff);
+}
+
+.mito-selection-card-explore-item:hover:not(:disabled) .mito-selection-card-explore-item-chevron {
+    opacity: 1;
+}
+
+.mito-selection-card-explore-item:active:not(:disabled) {
+    background: var(--mito-highlight-very-light, #ede8ff);
+}
+
+.mito-selection-card-explore-item:disabled {
+    opacity: 0.55;
     cursor: wait;
 }
 

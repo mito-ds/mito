@@ -141,20 +141,25 @@ const SelectionCard = (props: {
                     {explore.length > 0 &&
                         <div className="mito-selection-card-explore">
                             <p className="mito-selection-card-explore-title">Explore more</p>
-                            <ul className="mito-selection-card-explore-links">
+                            <div className="mito-selection-card-explore-list" role="list">
                                 {explore.map((link) =>
-                                    <li key={link.view_code + link.label}>
-                                        <button
-                                            type="button"
-                                            className="mito-selection-card-explore-link"
-                                            disabled={openingView !== undefined}
-                                            onClick={() => { void openExploreView(link); }}
-                                        >
+                                    <button
+                                        key={link.view_code + link.label}
+                                        type="button"
+                                        role="listitem"
+                                        className="mito-selection-card-explore-item"
+                                        disabled={openingView !== undefined}
+                                        onClick={() => { void openExploreView(link); }}
+                                    >
+                                        <span className="mito-selection-card-explore-item-label">
                                             {link.label}
-                                        </button>
-                                    </li>
+                                        </span>
+                                        <span className="mito-selection-card-explore-item-chevron" aria-hidden>
+                                            ›
+                                        </span>
+                                    </button>
                                 )}
-                            </ul>
+                            </div>
                         </div>
                     }
                 </>
