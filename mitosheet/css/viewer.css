@@ -9,11 +9,15 @@
 .mito-viewer {
   position: relative;
   /* Mito brand purple — same values as mitosheet/src/mito/utils/colors.tsx & :root in mito_frontend */
-  --mito-viewer-purple: #9d6cff;
-  --mito-viewer-purple-medium: #ba9bf8;
-  --mito-viewer-purple-light: #d0b9fe;
+  --mito-viewer-purple: var(--jp-brand-color1, #9d6cff);
+  --mito-viewer-purple-medium: var(--jp-brand-color2, #ba9bf8);
+  --mito-viewer-purple-light: var(--jp-brand-color3, #d0b9fe);
   --mito-viewer-selection-border: var(--mito-viewer-purple);
-  --mito-viewer-selection-fill: rgba(157, 108, 255, 0.14);
+  --mito-viewer-selection-fill: color-mix(
+    in srgb,
+    var(--mito-viewer-purple) 14%,
+    transparent
+  );
   font-family: var(--jp-ui-font-family, system-ui, -apple-system, sans-serif);
   font-size: var(--jp-ui-font-size1, 13px);
   color: var(--jp-ui-font-color1, black);

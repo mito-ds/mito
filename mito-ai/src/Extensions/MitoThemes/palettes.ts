@@ -3,6 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { OPTO_THEME_OVERRIDES } from './optoPalette';
+
 /**
  * Configuration object defining CSS variables for light and dark themes.
  * This ensures both themes have the same variables defined and reduces duplication.
@@ -216,5 +218,16 @@ export class MitoPalettes {
    */
   setColorsDark(): void {
     this.setThemeColors(false);
+  }
+
+  /**
+   * Set CSS variables for the Opto light theme (institutional green palette).
+   */
+  setColorsOpto(): void {
+    this.setThemeColors(true);
+    const style = document.documentElement.style;
+    Object.entries(OPTO_THEME_OVERRIDES).forEach(([variable, value]) => {
+      style.setProperty(variable, value);
+    });
   }
 }

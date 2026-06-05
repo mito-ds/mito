@@ -13,6 +13,7 @@
 @import './icons.css';
 @import './CellNumbering.css';
 @import url('./IpywidgetsOutput.css');
+@import './opto.css';
 
 /* Set the default typography for monospace elements */
 .jp-ThemedContainer tt,

@@ -31,15 +31,15 @@
     font-size: 13px;
     font-family: inherit;
     color: var(--mito-white);
-    background-color: var(--mito-purple);
-    border: 1px solid var(--mito-medium-purple);
+    background-color: var(--mito-highlight);
+    border: 1px solid var(--mito-highlight-medium);
     border-radius: 4px;
     cursor: pointer;
 }
 
 .mito-endo-grid__selection-action:hover {
-    background-color: var(--mito-medium-purple);
-    border-color: var(--mito-medium-purple);
+    background-color: var(--mito-highlight-medium);
+    border-color: var(--mito-highlight-medium);
 }
 
 .endo-grid-container {

@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Opto palette for mitosheet when Mito AI Opto theme is active.
+ */
+
+body[data-mito-theme='opto'],
+body[data-jp-theme-name='Opto'] {
+  --mito-purple: #0f4a3f;
+  --mito-medium-purple: #7fb8a8;
+  --mito-light-purple: #d4e8e0;
+  --mito-very-light-purple: #e8f4f0;
+  --mito-gray: #1a1a1a;
+  --mito-medium-gray: #6b6b6b;
+  --mito-light-gray: #9a9a9a;
+  --mito-pretty-light-gray: #e8e8e5;
+  --mito-very-light-gray: #fafaf7;
+  --mito-white: #ffffff;
+  --mito-light-blue: #d4e8e0;
+}
