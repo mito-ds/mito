@@ -85,8 +85,10 @@ class AgentResponse(BaseModel):
     scratchpad_summary: Optional[str]
     mcp_tool_call: Optional[MCPToolCall]
     skill_name: Optional[str]
-    verified_report_name: Optional[str]
-    verified_snippet_ref: Optional[VerifiedSnippetRef]
+    # Defaults so existing AgentResponse construction sites and LLM responses
+    # that omit these keys still validate.
+    verified_report_name: Optional[str] = None
+    verified_snippet_ref: Optional[VerifiedSnippetRef] = None
     
     
 @dataclass(frozen=True)

@@ -19,24 +19,29 @@ import { ITranslator } from '@jupyterlab/translation';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { enableLineNumbersIfNeeded } from '../../utils/lineNumbers';
 import { MitoPalettes } from './palettes';
-import {
-  OPTO_THEME_BODY_ATTR,
-  OPTO_THEME_BODY_VALUE
-} from './optoPalette';
+import { LAVENDER_THEME_BODY_VALUE } from './lavenderPalette';
+import { OPTO_THEME_BODY_VALUE } from './optoPalette';
 
-const MITO_THEME_NAMES = ['Mito Light', 'Mito Dark', 'Opto'] as const;
+const MITO_THEME_NAMES = ['Mito Light', 'Mito Dark', 'Opto', 'Lavender'] as const;
+
+const THEME_BODY_ATTR = 'data-mito-theme';
+
+const THEME_BODY_VALUES: Record<string, string> = {
+  Opto: OPTO_THEME_BODY_VALUE,
+  Lavender: LAVENDER_THEME_BODY_VALUE
+};
 
 const isMitoThemeName = (themeName: string | null): boolean =>
   themeName !== null &&
   (MITO_THEME_NAMES as readonly string[]).includes(themeName);
 
-const setOptoBodyAttribute = (active: boolean): void => {
-  if (active) {
-    document.body.setAttribute(OPTO_THEME_BODY_ATTR, OPTO_THEME_BODY_VALUE);
-  } else if (
-    document.body.getAttribute(OPTO_THEME_BODY_ATTR) === OPTO_THEME_BODY_VALUE
-  ) {
-    document.body.removeAttribute(OPTO_THEME_BODY_ATTR);
+const setThemeBodyAttribute = (themeName: string | null): void => {
+  const themeValue =
+    themeName !== null ? THEME_BODY_VALUES[themeName] ?? null : null;
+  if (themeValue) {
+    document.body.setAttribute(THEME_BODY_ATTR, themeValue);
+  } else {
+    document.body.removeAttribute(THEME_BODY_ATTR);
   }
 };
 
@@ -102,15 +107,15 @@ function setupCellNumbering(notebookPanel: NotebookPanel): (() => void) | null {
 }
 
 /**
- * A plugin for the Mito Themes (Light, Dark, and Opto).
+ * A plugin for the Mito Themes (Light, Dark, Opto, and Lavender).
  *
- * Registers Mito Light, Mito Dark, and Opto themes.
+ * Registers Mito Light, Mito Dark, Opto, and Lavender themes.
  * Cell numbering and hidden default toolbar buttons apply when any Mito theme
  * is active.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'mito_ai:themes',
-  description: 'Adds the Mito Light, Dark, and Opto themes.',
+  description: 'Adds the Mito Light, Dark, Opto, and Lavender themes.',
   requires: [IThemeManager, ITranslator, INotebookTracker],
   activate: (
     app: JupyterFrontEnd,
@@ -128,6 +133,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     let lightWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
     let darkWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
     let optoWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
+    let lavenderWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
     
     // Store cell numbering cleanup functions for each notebook
     const cellNumberingCleanups = new Map<NotebookPanel, () => void>();
@@ -191,6 +197,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       } else if (themeName === 'Opto') {
         optoWidgetAddedConnection = widgetAddedHandler;
         notebookTracker.widgetAdded.connect(optoWidgetAddedConnection);
+      } else if (themeName === 'Lavender') {
+        lavenderWidgetAddedConnection = widgetAddedHandler;
+        notebookTracker.widgetAdded.connect(lavenderWidgetAddedConnection);
       }
     };
 
@@ -209,8 +218,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
         notebookTracker.widgetAdded.disconnect(optoWidgetAddedConnection);
         optoWidgetAddedConnection = null;
       }
+      if (lavenderWidgetAddedConnection) {
+        notebookTracker.widgetAdded.disconnect(lavenderWidgetAddedConnection);
+        lavenderWidgetAddedConnection = null;
+      }
 
-      setOptoBodyAttribute(false);
+      setThemeBodyAttribute(null);
 
       // Remove from all existing notebooks
       notebookTracker.forEach(widget => {
@@ -228,7 +241,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isLight: true,
       themeScrollbars: false,
       load: async () => {
-        setOptoBodyAttribute(false);
+        setThemeBodyAttribute(null);
         // Set CSS variables for light theme before loading CSS
         palettes.setColorsLight();
         // Load theme CSS (hides default buttons, applies light theme variables)
@@ -249,7 +262,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       isLight: false,
       themeScrollbars: false,
       load: async () => {
-        setOptoBodyAttribute(false);
+        setThemeBodyAttribute(null);
         // Set CSS variables for dark theme before loading CSS
         palettes.setColorsDark();
         // Load theme CSS (hides default buttons, applies dark theme variables)
@@ -271,9 +284,26 @@ const plugin: JupyterFrontEndPlugin<void> = {
       themeScrollbars: false,
       load: async () => {
         palettes.setColorsOpto();
-        setOptoBodyAttribute(true);
+        setThemeBodyAttribute('Opto');
         await manager.loadCSS(style);
         addThemeEnhancementsToAllNotebooks('Opto');
+      },
+      unload: async () => {
+        removeThemeEnhancementsFromAllNotebooks();
+      }
+    });
+
+    // Register Lavender theme (cool lavender-gray light theme)
+    manager.register({
+      name: 'Lavender',
+      displayName: trans.__('Lavender'),
+      isLight: true,
+      themeScrollbars: false,
+      load: async () => {
+        palettes.setColorsLavender();
+        setThemeBodyAttribute('Lavender');
+        await manager.loadCSS(style);
+        addThemeEnhancementsToAllNotebooks('Lavender');
       },
       unload: async () => {
         removeThemeEnhancementsFromAllNotebooks();

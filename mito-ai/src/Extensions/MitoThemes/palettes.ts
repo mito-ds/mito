@@ -3,6 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { LAVENDER_THEME_OVERRIDES } from './lavenderPalette';
 import { OPTO_THEME_OVERRIDES } from './optoPalette';
 
 /**
@@ -227,6 +228,17 @@ export class MitoPalettes {
     this.setThemeColors(true);
     const style = document.documentElement.style;
     Object.entries(OPTO_THEME_OVERRIDES).forEach(([variable, value]) => {
+      style.setProperty(variable, value);
+    });
+  }
+
+  /**
+   * Set CSS variables for the Lavender light theme (cool lavender-gray palette).
+   */
+  setColorsLavender(): void {
+    this.setThemeColors(true);
+    const style = document.documentElement.style;
+    Object.entries(LAVENDER_THEME_OVERRIDES).forEach(([variable, value]) => {
       style.setProperty(variable, value);
     });
   }
