@@ -95,6 +95,29 @@ a {
     color: var(--jp-ui-font-color1);
 }
 
+.settings-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--purple-500, #7a7d98) 14%, transparent);
+    color: var(--purple-700, #484b6a);
+    flex-shrink: 0;
+}
+
+.settings-header-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
 .settings-option {
     margin: 12px 0;
 }

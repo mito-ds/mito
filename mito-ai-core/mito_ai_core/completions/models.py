@@ -33,6 +33,17 @@ class VerifiedSnippetRef(BaseModel):
     end_line: int
 
 
+class AnalysisAssumptionOptions(BaseModel):
+    # The EXACT assumption statement the agent is following in its analysis.
+    # Must appear verbatim in options so there is zero ambiguity about which
+    # assumption the analysis actually follows.
+    selected: str
+    # Complete alternative statements (1-4). Must contain selected verbatim.
+    options: List[str]
+    # 1-2 sentences citing the concrete data that motivated the choice.
+    evidence: Optional[str] = None
+
+
 class MCPToolCall(BaseModel):
     mcp_server_id: str
     tool_name: str
@@ -77,7 +88,7 @@ class AgentResponse(BaseModel):
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
     next_steps: Optional[List[str]]
-    analysis_assumptions: Optional[List[str]]
+    analysis_assumptions: Optional[List[AnalysisAssumptionOptions]]
     streamlit_app_prompt: Optional[str]
     question: Optional[str]
     answers: Optional[List[str]]

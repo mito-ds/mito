@@ -7,6 +7,10 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem } from '../../Extensions/
 import { IContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { AnalysisAssumptionOptions } from '../../websockets/completions/CompletionModels';
+
+// Helper to build a structured assumption with no alternatives
+const makeAssumption = (selected: string): AnalysisAssumptionOptions => ({ selected, options: [selected] });
 
 // Mock the notebook utilities
 jest.mock('../../utils/notebook', () => ({
@@ -105,7 +109,7 @@ describe('ChatHistoryManager', () => {
                     agentResponse: {
                         type: 'finished_task',
                         message: 'Test response',
-                        analysis_assumptions: ['assumption1', 'assumption2']
+                        analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption2')]
                     }
                 }
             ];
@@ -121,7 +125,7 @@ describe('ChatHistoryManager', () => {
             const duplicateResponse = {
                 type: 'finished_task' as const,
                 message: 'Another response',
-                analysis_assumptions: ['assumption1', 'assumption3'] // assumption1 is duplicate
+                analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption3')] // assumption1 is duplicate
             };
 
             chatHistoryManager.addAIMessageFromAgentResponse(duplicateResponse);
@@ -130,7 +134,32 @@ describe('ChatHistoryManager', () => {
             const lastMessage = history[history.length - 1];
 
             // Should only include the new assumption (assumption3), not the duplicate (assumption1)
-            expect(lastMessage?.agentResponse?.analysis_assumptions).toEqual(['assumption3']);
+            expect(lastMessage?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption3')]);
+        });
+
+        it('should coerce legacy string assumptions from old chat histories into structured assumptions', () => {
+            const initialHistory: IDisplayOptimizedChatItem[] = [
+                {
+                    message: { role: 'assistant', content: 'Response with legacy assumptions' },
+                    type: 'openai message',
+                    promptType: 'agent:execution',
+                    agentResponse: {
+                        type: 'finished_task',
+                        message: 'Test response',
+                        analysis_assumptions: ['legacy assumption'] as any
+                    }
+                }
+            ];
+
+            const chatHistoryManager = new ChatHistoryManager(
+                mockContextManager,
+                mockNotebookTracker,
+                mockApp,
+                initialHistory
+            );
+
+            const history = chatHistoryManager.getDisplayOptimizedHistory();
+            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('legacy assumption')]);
         });
     });
 
@@ -284,7 +313,7 @@ describe('ChatHistoryManager', () => {
                     agentResponse: {
                         type: 'finished_task' as const,
                         message: 'First response',
-                        analysis_assumptions: ['assumption1', 'assumption2']
+                        analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption2')]
                     }
                 },
                 {
@@ -294,7 +323,7 @@ describe('ChatHistoryManager', () => {
                     agentResponse: {
                         type: 'finished_task' as const,
                         message: 'Second response',
-                        analysis_assumptions: ['assumption3', 'assumption4']
+                        analysis_assumptions: [makeAssumption('assumption3'), makeAssumption('assumption4')]
                     }
                 }
             ];
@@ -313,7 +342,7 @@ describe('ChatHistoryManager', () => {
             const newResponse = {
                 type: 'finished_task' as const,
                 message: 'New response',
-                analysis_assumptions: ['assumption1', 'assumption5'] // assumption1 is duplicate
+                analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption5')] // assumption1 is duplicate
             };
 
             duplicateManager.addAIMessageFromAgentResponse(newResponse);
@@ -323,7 +352,7 @@ describe('ChatHistoryManager', () => {
             const lastMessage = duplicateHistory[duplicateHistory.length - 1];
 
             // Should only include the new assumption (assumption5), not the duplicate (assumption1)
-            expect(lastMessage?.agentResponse?.analysis_assumptions).toEqual(['assumption5']);
+            expect(lastMessage?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption5')]);
         });
 
         it('should correctly deduplicate assumptions across multiple agent responses', () => {
@@ -337,7 +366,7 @@ describe('ChatHistoryManager', () => {
             const firstResponse = {
                 type: 'finished_task' as const,
                 message: 'First response',
-                analysis_assumptions: ['assumption1', 'assumption2', 'assumption3']
+                analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption2'), makeAssumption('assumption3')]
             };
             chatHistoryManager.addAIMessageFromAgentResponse(firstResponse);
 
@@ -345,7 +374,7 @@ describe('ChatHistoryManager', () => {
             const secondResponse = {
                 type: 'finished_task' as const,
                 message: 'Second response',
-                analysis_assumptions: ['assumption2', 'assumption4', 'assumption5'] // assumption2 is duplicate
+                analysis_assumptions: [makeAssumption('assumption2'), makeAssumption('assumption4'), makeAssumption('assumption5')] // assumption2 is duplicate
             };
             chatHistoryManager.addAIMessageFromAgentResponse(secondResponse);
 
@@ -353,16 +382,16 @@ describe('ChatHistoryManager', () => {
             const thirdResponse = {
                 type: 'finished_task' as const,
                 message: 'Third response',
-                analysis_assumptions: ['assumption1', 'assumption3', 'assumption6'] // assumption1 and assumption3 are duplicates
+                analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption3'), makeAssumption('assumption6')] // assumption1 and assumption3 are duplicates
             };
             chatHistoryManager.addAIMessageFromAgentResponse(thirdResponse);
 
             const history = chatHistoryManager.getDisplayOptimizedHistory();
 
             // Check that each response only contains new assumptions
-            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual(['assumption1', 'assumption2', 'assumption3']);
-            expect(history[1]?.agentResponse?.analysis_assumptions).toEqual(['assumption4', 'assumption5']);
-            expect(history[2]?.agentResponse?.analysis_assumptions).toEqual(['assumption6']);
+            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption1'), makeAssumption('assumption2'), makeAssumption('assumption3')]);
+            expect(history[1]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption4'), makeAssumption('assumption5')]);
+            expect(history[2]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption6')]);
         });
 
         it('should handle agent responses without assumptions correctly', () => {
@@ -376,7 +405,7 @@ describe('ChatHistoryManager', () => {
             const firstResponse = {
                 type: 'finished_task' as const,
                 message: 'First response',
-                analysis_assumptions: ['assumption1', 'assumption2']
+                analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption2')]
             };
             chatHistoryManager.addAIMessageFromAgentResponse(firstResponse);
 
@@ -392,16 +421,16 @@ describe('ChatHistoryManager', () => {
             const thirdResponse = {
                 type: 'finished_task' as const,
                 message: 'Third response',
-                analysis_assumptions: ['assumption1', 'assumption3'] // assumption1 is duplicate
+                analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption3')] // assumption1 is duplicate
             };
             chatHistoryManager.addAIMessageFromAgentResponse(thirdResponse);
 
             const history = chatHistoryManager.getDisplayOptimizedHistory();
 
             // Check that responses are handled correctly
-            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual(['assumption1', 'assumption2']);
+            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption1'), makeAssumption('assumption2')]);
             expect(history[1]?.agentResponse?.analysis_assumptions).toBeUndefined();
-            expect(history[2]?.agentResponse?.analysis_assumptions).toEqual(['assumption3']);
+            expect(history[2]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption3')]);
         });
 
         it('should handle empty assumptions array correctly', () => {
@@ -415,7 +444,7 @@ describe('ChatHistoryManager', () => {
             const firstResponse = {
                 type: 'finished_task' as const,
                 message: 'First response',
-                analysis_assumptions: ['assumption1']
+                analysis_assumptions: [makeAssumption('assumption1')]
             };
             chatHistoryManager.addAIMessageFromAgentResponse(firstResponse);
 
@@ -431,16 +460,16 @@ describe('ChatHistoryManager', () => {
             const thirdResponse = {
                 type: 'finished_task' as const,
                 message: 'Third response',
-                analysis_assumptions: ['assumption1', 'assumption2'] // assumption1 is duplicate
+                analysis_assumptions: [makeAssumption('assumption1'), makeAssumption('assumption2')] // assumption1 is duplicate
             };
             chatHistoryManager.addAIMessageFromAgentResponse(thirdResponse);
 
             const history = chatHistoryManager.getDisplayOptimizedHistory();
 
             // Check that responses are handled correctly
-            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual(['assumption1']);
+            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption1')]);
             expect(history[1]?.agentResponse?.analysis_assumptions).toEqual(undefined);
-            expect(history[2]?.agentResponse?.analysis_assumptions).toEqual(['assumption2']);
+            expect(history[2]?.agentResponse?.analysis_assumptions).toEqual([makeAssumption('assumption2')]);
         });
 
         it('should handle empty string assumptions', () => {
@@ -454,7 +483,7 @@ describe('ChatHistoryManager', () => {
             const firstResponse = {
                 type: 'finished_task' as const,
                 message: 'First response',
-                analysis_assumptions: ['']
+                analysis_assumptions: [''] as any
             };
             chatHistoryManager.addAIMessageFromAgentResponse(firstResponse);
 

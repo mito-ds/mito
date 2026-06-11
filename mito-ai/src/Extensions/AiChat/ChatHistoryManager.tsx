@@ -98,7 +98,7 @@ export class ChatHistoryManager {
             // Process the assumptions
             if (item.agentResponse?.analysis_assumptions) {
                 item.agentResponse.analysis_assumptions.forEach(assumption => {
-                    this._allAssumptions.add(assumption);
+                    this._allAssumptions.add(assumption.selected);
                 });
             }
         });
@@ -112,10 +112,10 @@ export class ChatHistoryManager {
         }
 
         const newAssumptions = agentResponse.analysis_assumptions.filter(
-            assumption => !this._allAssumptions.has(assumption)
+            assumption => !this._allAssumptions.has(assumption.selected)
         );
         
-        newAssumptions.forEach(assumption => this._allAssumptions.add(assumption));
+        newAssumptions.forEach(assumption => this._allAssumptions.add(assumption.selected));
         
         return {
             ...agentResponse,

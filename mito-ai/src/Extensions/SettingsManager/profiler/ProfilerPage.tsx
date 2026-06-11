@@ -9,6 +9,8 @@ import { ContextManagerSection } from './ContextManagerSection';
 import { CapturedRequestsSection } from './CapturedRequestsSection';
 import { EVENT_NAMES } from '../../../utils/constants';
 import { getSetting, updateSettings } from '../../../restAPI/RestAPI';
+import { SettingsPageHeader } from '../SettingsPageHeader';
+import MagnifyingGlassIcon from '../../../icons/MagnifyingGlassIcon';
 import '../../../../style/ProfilerPage.css';
 
 interface ProfilerPageProps {
@@ -58,9 +60,7 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
     if (!hasAcceptedDisclaimer) {
         return (
             <div>
-                <div className="settings-header">
-                    <h2>Profiler</h2>
-                </div>
+                <SettingsPageHeader icon={<MagnifyingGlassIcon />} title="Profiler" />
                 <p>The profiler is an internal debugging tool intended for use by the Mito development team. It is not designed, tested, or supported for general usage. Running the profiler may impact performance, produce unstable behavior, or generate incomplete results. Use at your own discretion.</p>
                 <button
                     className="button-base button-gray"
@@ -75,9 +75,7 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
     // Show the actual profiler content after disclaimer is accepted
     return (
         <div>
-            <div className="settings-header">
-                <h2>Profiler</h2>
-            </div>
+            <SettingsPageHeader icon={<MagnifyingGlassIcon />} title="Profiler" />
 
             <p className="profiler-warning">For internal debugging only.</p>
 

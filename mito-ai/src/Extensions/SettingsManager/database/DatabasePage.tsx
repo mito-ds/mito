@@ -9,6 +9,8 @@ import { ConnectionList } from './ConnectionList';
 import { ConnectionForm } from './ConnectionForm';
 import { GettingStartedVideo } from './GettingStartedVideo';
 import { requestAPI } from '../../../restAPI/utils';
+import { SettingsPageHeader } from '../SettingsPageHeader';
+import DatabaseOutlineIcon from '../../../icons/DatabaseOutlineIcon';
 import '../../../../style/DatabasePage.css';
 
 export const DatabasePage = (): JSX.Element => {
@@ -99,8 +101,7 @@ export const DatabasePage = (): JSX.Element => {
 
     return (
         <div className="db-connections">
-            <div className="settings-header">
-                <h2>Database Connections</h2>
+            <SettingsPageHeader icon={<DatabaseOutlineIcon />} title="Database Connections">
                 <div className="header-buttons">
                     {/* Show the getting started button if there are connections */}
                     {Object.keys(connections).length > 0 && (
@@ -118,7 +119,7 @@ export const DatabasePage = (): JSX.Element => {
                         <b>＋ Add Connection</b>
                     </button>
                 </div>
-            </div>
+            </SettingsPageHeader>
 
             <ConnectionList
                 connections={connections}

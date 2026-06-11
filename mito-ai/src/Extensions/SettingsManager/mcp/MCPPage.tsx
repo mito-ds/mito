@@ -13,6 +13,8 @@ import {
     parseArgs,
     parseEnv
 } from './model';
+import { SettingsPageHeader } from '../SettingsPageHeader';
+import WrenchAndScrewdriverIcon from '../../../icons/WrenchAndScrewdriverIcon';
 import '../../../../style/DatabasePage.css';
 import '../../../../style/MCPPage.css';
 import '../../../../style/SettingsPage.css';
@@ -189,8 +191,7 @@ export const MCPPage = (): JSX.Element => {
 
     return (
         <div className="mcp-servers">
-            <div className="settings-header">
-                <h2>MCP Servers</h2>
+            <SettingsPageHeader icon={<WrenchAndScrewdriverIcon />} title="MCP Servers">
                 <div className="header-buttons">
                     <button
                         className="button-base button-purple"
@@ -203,7 +204,7 @@ export const MCPPage = (): JSX.Element => {
                         <b>＋ Add Server</b>
                     </button>
                 </div>
-            </div>
+            </SettingsPageHeader>
             <div className="settings-page-muted-description">
                 Changes to MCP servers apply to new chats only. Start a new chat to
                 use newly added or updated MCP tools.

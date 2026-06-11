@@ -15,6 +15,7 @@ import {
     VerifiedReportListItem,
     VerifiedSnippet,
 } from '../../../restAPI/RestAPI';
+import { SettingsPageHeader } from '../SettingsPageHeader';
 import VerifiedShieldIcon from '../../../icons/VerifiedShieldIcon';
 import { slugifyRuleName } from '../../../utils/fileName';
 import '../../../../style/button.css';
@@ -31,10 +32,10 @@ interface IVerifiedReportsPageProps {
 }
 
 export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JSX.Element => {
+    const [modalStatus, setModalStatus] = useState<'new report' | 'view report' | undefined>(undefined);
     const [reports, setReports] = useState<VerifiedReportListItem[]>([]);
     const [selectedReport, setSelectedReport] = useState<VerifiedReport | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [isCreating, setIsCreating] = useState(false);
     const [newReportName, setNewReportName] = useState('');
     const [newReportDescription, setNewReportDescription] = useState('');
     const [highlightedSnippetId, setHighlightedSnippetId] = useState<string | undefined>();
@@ -49,15 +50,22 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
         }
     };
 
-    const loadReport = useCallback(async (reportName: string): Promise<void> => {
+    const openReport = useCallback(async (reportName: string): Promise<void> => {
         try {
             const report = await getVerifiedReport(reportName);
             setSelectedReport(report);
-            setIsCreating(false);
+            setModalStatus('view report');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load report');
         }
     }, []);
+
+    const closeModal = (): void => {
+        setModalStatus(undefined);
+        setSelectedReport(null);
+        setNewReportName('');
+        setNewReportDescription('');
+    };
 
     useEffect(() => {
         void fetchReports();
@@ -65,12 +73,12 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
 
     useEffect(() => {
         if (deepLink?.reportName) {
-            void loadReport(deepLink.reportName);
+            void openReport(deepLink.reportName);
             if (deepLink.snippetId) {
                 setHighlightedSnippetId(deepLink.snippetId);
             }
         }
-    }, [deepLink, loadReport]);
+    }, [deepLink, openReport]);
 
     useEffect(() => {
         if (highlightedSnippetId && snippetRefs.current[highlightedSnippetId]) {
@@ -81,7 +89,8 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
         return undefined;
     }, [highlightedSnippetId, selectedReport]);
 
-    const handleCreateReport = async (): Promise<void> => {
+    const handleCreateReport = async (e: React.FormEvent): Promise<void> => {
+        e.preventDefault();
         const slugifiedName = slugifyRuleName(newReportName);
         if (!slugifiedName) {
             setError('Report name is required.');
@@ -89,24 +98,22 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
         }
         try {
             await setVerifiedReport(slugifiedName, newReportDescription);
-            setNewReportName('');
-            setNewReportDescription('');
-            setIsCreating(false);
+            closeModal();
             await fetchReports();
-            await loadReport(slugifiedName);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create report');
         }
     };
 
-    const handleDeleteReport = async (reportName: string): Promise<void> => {
-        if (!window.confirm(`Delete verified report "${reportName}"?`)) {
+    const handleDeleteReport = async (e: React.MouseEvent, reportName: string): Promise<void> => {
+        e.stopPropagation();
+        if (!window.confirm(`Are you sure you want to delete the verified report "${reportName}"?`)) {
             return;
         }
         try {
             await deleteVerifiedReport(reportName);
             if (selectedReport?.name === reportName) {
-                setSelectedReport(null);
+                closeModal();
             }
             await fetchReports();
         } catch (err) {
@@ -135,7 +142,6 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
                 comment: snippet.comment,
                 ai_context: snippet.ai_context,
             });
-            await loadReport(selectedReport.name);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to update snippet');
         }
@@ -150,7 +156,10 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
         }
         try {
             await deleteVerifiedSnippet(selectedReport.name, snippetId);
-            await loadReport(selectedReport.name);
+            setSelectedReport({
+                ...selectedReport,
+                snippets: selectedReport.snippets.filter(s => s.id !== snippetId),
+            });
             await fetchReports();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete snippet');
@@ -165,25 +174,16 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
         });
 
     return (
-        <div className="verified-reports-page">
-            <div className="settings-header verified-reports-header">
-                <div className="verified-reports-header-title">
-                    <span className="verified-reports-header-icon" aria-hidden="true">
-                        <VerifiedShieldIcon />
-                    </span>
-                    <h2>Verified Reports</h2>
-                </div>
+        <div>
+            <SettingsPageHeader icon={<VerifiedShieldIcon />} title="Verified Reports">
                 <button
                     type="button"
                     className="button-base button-purple"
-                    onClick={() => {
-                        setIsCreating(true);
-                        setSelectedReport(null);
-                    }}
+                    onClick={() => setModalStatus('new report')}
                 >
                     <b>＋ New Report</b>
                 </button>
-            </div>
+            </SettingsPageHeader>
             <p className="settings-page-muted-description">
                 Save annotated code snippets your team has verified. The agent reads these reports on demand and
                 cites them when it reuses your verified approaches.
@@ -191,198 +191,213 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
 
             {error && <p className="error">{error}</p>}
 
-            <div className="verified-reports-layout">
-                <div className="verified-reports-list">
-                    <div className="verified-reports-list-header">Reports</div>
-                    {isCreating && (
-                        <div className="verified-reports-create-form">
-                            <input
-                                type="text"
-                                placeholder="Report name"
-                                value={newReportName}
-                                onChange={(e) => setNewReportName(e.target.value)}
-                            />
-                            <textarea
-                                placeholder="What can the agent learn from this report?"
-                                value={newReportDescription}
-                                onChange={(e) => setNewReportDescription(e.target.value)}
-                                rows={3}
-                            />
-                            <div className="verified-reports-create-actions">
-                                <button type="button" className="button-base button-purple" onClick={() => void handleCreateReport()}>
-                                    Create
-                                </button>
-                                <button type="button" className="button-base button-gray" onClick={() => setIsCreating(false)}>
-                                    Cancel
-                                </button>
-                            </div>
+            <div className="verified-reports-list">
+                {reports.length > 0 ? reports.map((report) => (
+                    <div
+                        key={report.name}
+                        className="verified-report-item"
+                        onClick={() => void openReport(report.name)}
+                    >
+                        <div className="verified-report-content">
+                            <h4 className="verified-report-name">
+                                {report.name}
+                                <span className="verified-report-badge">
+                                    {report.snippetCount} snippet{report.snippetCount !== 1 ? 's' : ''}
+                                </span>
+                            </h4>
+                            {report.description && (
+                                <p className="verified-report-description">{report.description}</p>
+                            )}
                         </div>
-                    )}
-
-                    {reports.length === 0 && !isCreating ? (
-                        <div className="empty-state">
-                            <p>
-                                No verified reports yet. Select code in a notebook and click
-                                &quot;Add Verified Snippet&quot;, or create a report here.
-                            </p>
+                        <div className="verified-report-actions">
+                            <button
+                                type="button"
+                                className="button-base button-gray"
+                            >
+                                View
+                            </button>
+                            <button
+                                type="button"
+                                className="button-base button-red"
+                                onClick={e => void handleDeleteReport(e, report.name)}
+                            >
+                                Delete
+                            </button>
                         </div>
-                    ) : (
-                        <ul className="verified-reports-list-items">
-                            {reports.map(report => (
-                                <li
-                                    key={report.name}
-                                    className={selectedReport?.name === report.name ? 'active' : ''}
-                                    onClick={() => void loadReport(report.name)}
-                                >
-                                    <div className="verified-reports-list-item-name">{report.name}</div>
-                                    {report.description && (
-                                        <div className="verified-reports-list-item-description">{report.description}</div>
-                                    )}
-                                    <div className="verified-reports-list-item-meta">
-                                        <span className="verified-reports-snippet-badge">
-                                            {report.snippetCount} snippet{report.snippetCount !== 1 ? 's' : ''}
-                                        </span>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
+                    </div>
+                )) : (
+                    <div className="empty-state">
+                        <p>
+                            No verified reports yet. Select code in a notebook and click
+                            &quot;Add Verified Snippet&quot;, or create a report here.
+                        </p>
+                    </div>
+                )}
+            </div>
 
-                <div className="verified-reports-detail">
-                    {selectedReport ? (
-                        <div className="verified-reports-detail-panel">
-                            <div className="verified-reports-detail-header">
-                                <div>
-                                    <h3>{selectedReport.name}</h3>
-                                    <div className="verified-reports-detail-header-meta">
-                                        {selectedReport.snippets.length} verified snippet
-                                        {selectedReport.snippets.length !== 1 ? 's' : ''}
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    className="verified-reports-text-btn verified-reports-text-btn--danger"
-                                    onClick={() => void handleDeleteReport(selectedReport.name)}
-                                >
-                                    Delete report
-                                </button>
-                            </div>
-
-                            <div className="verified-reports-section">
-                                <label className="verified-reports-field-label" htmlFor="verified-report-description">
-                                    Description
-                                </label>
-                                <textarea
-                                    id="verified-report-description"
-                                    className="verified-reports-description-input"
-                                    value={selectedReport.description}
-                                    onChange={(e) => setSelectedReport({ ...selectedReport, description: e.target.value })}
-                                    onBlur={() => void handleUpdateDescription()}
-                                    rows={2}
-                                    placeholder="What can the agent learn from this report?"
+            {modalStatus === 'new report' && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>New Verified Report</h3>
+                            <button className="modal-close-button" onClick={closeModal}>✕</button>
+                        </div>
+                        <form onSubmit={e => void handleCreateReport(e)}>
+                            <div className="form-group">
+                                <label htmlFor="verified-report-name">Name</label>
+                                <input
+                                    id="verified-report-name"
+                                    type="text"
+                                    placeholder="Report name"
+                                    value={newReportName}
+                                    onChange={(e) => setNewReportName(e.target.value)}
+                                    autoFocus
                                 />
                             </div>
+                            <div className="form-group">
+                                <label htmlFor="verified-report-new-description">Description</label>
+                                <textarea
+                                    id="verified-report-new-description"
+                                    className="verified-reports-textarea"
+                                    placeholder="What can the agent learn from this report?"
+                                    value={newReportDescription}
+                                    onChange={(e) => setNewReportDescription(e.target.value)}
+                                    rows={3}
+                                />
+                            </div>
+                            <div className="form-actions">
+                                <button type="button" className="button-base button-gray" onClick={closeModal}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="button-base button-purple">
+                                    Create
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
-                            <div className="verified-reports-section">
-                                <div className="verified-reports-section-header">
-                                    <h4>Snippets</h4>
-                                </div>
-                                {selectedReport.snippets.length === 0 ? (
-                                    <p className="verified-reports-empty">
-                                        No snippets yet. Select code in a notebook and click &quot;Add Verified Snippet&quot;.
-                                    </p>
-                                ) : (
-                                    selectedReport.snippets.map(snippet => (
-                                        <div
-                                            key={snippet.id}
-                                            ref={(el) => { snippetRefs.current[snippet.id] = el; }}
-                                            className={`verified-snippet-card ${highlightedSnippetId === snippet.id ? 'highlighted' : ''}`}
-                                        >
-                                            <div className="verified-snippet-card-header">
-                                                <span className="verified-snippet-date" title={`Snippet ID: ${snippet.id}`}>
-                                                    Added {formatSnippetDate(snippet.created_at)}
-                                                </span>
-                                                <button
-                                                    type="button"
-                                                    className="verified-reports-text-btn verified-reports-text-btn--danger"
-                                                    onClick={() => void handleDeleteSnippet(snippet.id)}
-                                                >
-                                                    Delete
-                                                </button>
+            {modalStatus === 'view report' && selectedReport && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content modal-content-large" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div className="verified-reports-modal-title">
+                                <h3>{selectedReport.name}</h3>
+                                <span className="verified-report-badge">
+                                    {selectedReport.snippets.length} snippet
+                                    {selectedReport.snippets.length !== 1 ? 's' : ''}
+                                </span>
+                            </div>
+                            <button className="modal-close-button" onClick={closeModal}>✕</button>
+                        </div>
+
+                        <div className="verified-reports-section">
+                            <label className="verified-reports-field-label" htmlFor="verified-report-description">
+                                Description
+                            </label>
+                            <textarea
+                                id="verified-report-description"
+                                className="verified-reports-textarea"
+                                value={selectedReport.description}
+                                onChange={(e) => setSelectedReport({ ...selectedReport, description: e.target.value })}
+                                onBlur={() => void handleUpdateDescription()}
+                                rows={2}
+                                placeholder="What can the agent learn from this report?"
+                            />
+                        </div>
+
+                        <div className="verified-reports-section">
+                            <div className="verified-reports-section-header">
+                                <h4>Snippets</h4>
+                            </div>
+                            {selectedReport.snippets.length === 0 ? (
+                                <p className="verified-reports-empty">
+                                    No snippets yet. Select code in a notebook and click &quot;Add Verified Snippet&quot;.
+                                </p>
+                            ) : (
+                                selectedReport.snippets.map(snippet => (
+                                    <div
+                                        key={snippet.id}
+                                        ref={(el) => { snippetRefs.current[snippet.id] = el; }}
+                                        className={`verified-snippet-card ${highlightedSnippetId === snippet.id ? 'highlighted' : ''}`}
+                                    >
+                                        <div className="verified-snippet-card-header">
+                                            <span className="verified-snippet-date" title={`Snippet ID: ${snippet.id}`}>
+                                                Added {formatSnippetDate(snippet.created_at)}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                className="verified-reports-text-btn verified-reports-text-btn--danger"
+                                                onClick={() => void handleDeleteSnippet(snippet.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                        <div className="verified-snippet-code-block">
+                                            <div className="verified-snippet-code-label">Code</div>
+                                            <pre className="verified-snippet-code">{snippet.code}</pre>
+                                        </div>
+                                        <div className="verified-snippet-card-fields">
+                                            <div>
+                                                <label className="verified-reports-field-label" htmlFor={`snippet-comment-${snippet.id}`}>
+                                                    Your comment
+                                                </label>
+                                                <textarea
+                                                    id={`snippet-comment-${snippet.id}`}
+                                                    className="verified-reports-textarea"
+                                                    value={snippet.comment}
+                                                    onChange={(e) => {
+                                                        setSelectedReport({
+                                                            ...selectedReport,
+                                                            snippets: selectedReport.snippets.map(s =>
+                                                                s.id === snippet.id ? { ...s, comment: e.target.value } : s
+                                                            ),
+                                                        });
+                                                    }}
+                                                    onBlur={() => {
+                                                        const current = selectedReport.snippets.find(s => s.id === snippet.id);
+                                                        if (current) {
+                                                            void handleUpdateSnippet(current);
+                                                        }
+                                                    }}
+                                                    rows={2}
+                                                    placeholder="Explain why this approach is verified"
+                                                />
                                             </div>
-                                            <div className="verified-snippet-code-block">
-                                                <div className="verified-snippet-code-label">Code</div>
-                                                <pre className="verified-snippet-code">{snippet.code}</pre>
-                                            </div>
-                                            <div className="verified-snippet-card-fields">
-                                                <div>
-                                                    <label className="verified-reports-field-label" htmlFor={`snippet-comment-${snippet.id}`}>
-                                                        Your comment
-                                                    </label>
-                                                    <textarea
-                                                        id={`snippet-comment-${snippet.id}`}
-                                                        className="verified-reports-textarea"
-                                                        value={snippet.comment}
-                                                        onChange={(e) => {
-                                                            setSelectedReport({
-                                                                ...selectedReport,
-                                                                snippets: selectedReport.snippets.map(s =>
-                                                                    s.id === snippet.id ? { ...s, comment: e.target.value } : s
-                                                                ),
-                                                            });
-                                                        }}
-                                                        onBlur={() => {
-                                                            const current = selectedReport.snippets.find(s => s.id === snippet.id);
-                                                            if (current) {
-                                                                void handleUpdateSnippet(current);
-                                                            }
-                                                        }}
-                                                        rows={2}
-                                                        placeholder="Explain why this approach is verified"
-                                                    />
-                                                </div>
-                                                <div className="verified-reports-field--ai">
-                                                    <label className="verified-reports-field-label" htmlFor={`snippet-ai-${snippet.id}`}>
-                                                        AI-generated context
-                                                    </label>
-                                                    <textarea
-                                                        id={`snippet-ai-${snippet.id}`}
-                                                        className="verified-reports-textarea verified-reports-textarea--ai"
-                                                        value={snippet.ai_context}
-                                                        onChange={(e) => {
-                                                            setSelectedReport({
-                                                                ...selectedReport,
-                                                                snippets: selectedReport.snippets.map(s =>
-                                                                    s.id === snippet.id ? { ...s, ai_context: e.target.value } : s
-                                                                ),
-                                                            });
-                                                        }}
-                                                        onBlur={() => {
-                                                            const current = selectedReport.snippets.find(s => s.id === snippet.id);
-                                                            if (current) {
-                                                                void handleUpdateSnippet(current);
-                                                            }
-                                                        }}
-                                                        rows={3}
-                                                    />
-                                                </div>
+                                            <div className="verified-reports-field--ai">
+                                                <label className="verified-reports-field-label" htmlFor={`snippet-ai-${snippet.id}`}>
+                                                    AI-generated context
+                                                </label>
+                                                <textarea
+                                                    id={`snippet-ai-${snippet.id}`}
+                                                    className="verified-reports-textarea verified-reports-textarea--ai"
+                                                    value={snippet.ai_context}
+                                                    onChange={(e) => {
+                                                        setSelectedReport({
+                                                            ...selectedReport,
+                                                            snippets: selectedReport.snippets.map(s =>
+                                                                s.id === snippet.id ? { ...s, ai_context: e.target.value } : s
+                                                            ),
+                                                        });
+                                                    }}
+                                                    onBlur={() => {
+                                                        const current = selectedReport.snippets.find(s => s.id === snippet.id);
+                                                        if (current) {
+                                                            void handleUpdateSnippet(current);
+                                                        }
+                                                    }}
+                                                    rows={3}
+                                                />
                                             </div>
                                         </div>
-                                    ))
-                                )}
-                            </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
-                    ) : (
-                        <div className="verified-reports-empty-panel">
-                            <span className="verified-reports-empty-panel-icon" aria-hidden="true">
-                                <VerifiedShieldIcon />
-                            </span>
-                            <p>Select a report to view its verified snippets.</p>
-                        </div>
-                    )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

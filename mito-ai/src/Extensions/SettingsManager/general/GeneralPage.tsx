@@ -5,6 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { getSetting, updateSettings } from '../../../restAPI/RestAPI';
+import { SettingsPageHeader } from '../SettingsPageHeader';
+import GearIcon from '../../../icons/GearIcon';
 
 export const GeneralPage = (): JSX.Element => {
 
@@ -27,9 +29,7 @@ export const GeneralPage = (): JSX.Element => {
     
     return (
         <div>
-            <div className="settings-header">
-                <h2>General</h2>
-            </div>
+            <SettingsPageHeader icon={<GearIcon />} title="General" />
             <div className="settings-option">
                 <label className="settings-checkbox-label">
                     <input type="checkbox" checked={betaMode} onChange={handleBetaModeChange} />

@@ -6,7 +6,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { AgentResponse } from '../../websockets/completions/CompletionModels';
+import { AgentResponse, AnalysisAssumptionOptions } from '../../websockets/completions/CompletionModels';
 
 /**
  * Validates and corrects an AgentResponse to ensure it adheres to the expected format.
@@ -55,13 +55,9 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
         correctedResponse.question = ""
     }
     
-    // Correct analysis_assumptions - handle string to array conversion
+    // Correct analysis_assumptions - coerce legacy strings and validate structured objects
     if (correctedResponse.analysis_assumptions !== undefined && correctedResponse.analysis_assumptions !== null) {
-        
-        correctedResponse.analysis_assumptions = correctStringArray(correctedResponse.analysis_assumptions);
-
-        // No empty strings in the assumptions
-        correctedResponse.analysis_assumptions = correctedResponse.analysis_assumptions?.filter(assumption => assumption.trim() !== '')
+        correctedResponse.analysis_assumptions = correctAnalysisAssumptions(correctedResponse.analysis_assumptions);
     }
 
     // Correct streamlit_app_prompt - ensure it's a string when present
@@ -105,6 +101,42 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
  * Corrects a value to be a string array, handling various input formats.
  * Handles cases where the AI returns a string instead of an array of strings.
  */
+/**
+ * Coerces analysis_assumptions into a valid AnalysisAssumptionOptions array.
+ * Handles legacy formats (string or string[] from old chat histories on disk) by
+ * converting each string into a single-option assumption, and enforces the
+ * selected-in-options invariant on structured objects.
+ */
+function correctAnalysisAssumptions(value: any): AnalysisAssumptionOptions[] | undefined {
+    const items = Array.isArray(value) ? value : [value];
+    const corrected: AnalysisAssumptionOptions[] = [];
+
+    for (const item of items) {
+        if (typeof item === 'string') {
+            // Legacy format: a plain string assumption with no alternatives
+            if (item.trim() !== '') {
+                corrected.push({ selected: item, options: [item] });
+            }
+        } else if (item !== null && typeof item === 'object' && typeof item.selected === 'string' && item.selected.trim() !== '') {
+            const options = correctStringArray(item.options)?.filter(option => typeof option === 'string' && option.trim() !== '') ?? [];
+
+            // Enforce the invariant that selected appears in options
+            if (!options.includes(item.selected)) {
+                options.unshift(item.selected);
+            }
+
+            corrected.push({
+                selected: item.selected,
+                options: options,
+                evidence: typeof item.evidence === 'string' && item.evidence.trim() !== '' ? item.evidence : undefined
+            });
+        }
+    }
+
+    return corrected.length > 0 ? corrected : undefined;
+}
+
+
 function correctStringArray(value: any): string[] | undefined {
     // If it's already a valid array of strings, return it
     if (Array.isArray(value)) {

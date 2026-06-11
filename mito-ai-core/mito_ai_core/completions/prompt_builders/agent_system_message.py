@@ -137,7 +137,13 @@ Format (include only the discriminator fields for the type you are using; includ
         "code_summary": "<string>",
         "cell_type": "code" or "markdown"
     }},
-    "analysis_assumptions": ["<optional list of strings>"]
+    "analysis_assumptions": [
+        {{
+            "selected": "<string: the exact assumption statement you are following>",
+            "options": ["<string: complete alternative statements, 1-4 total, must contain selected verbatim>"],
+            "evidence": "<optional string: concrete data that motivated the choice>"
+        }}
+    ]
 }}
 
 Important information:
@@ -146,7 +152,11 @@ Important information:
 3. The code_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Loading data", "Filtering rows", "Calculating average", "Plotting revenue"). Avoid full sentences or explanations—this should read like a quick commit message or code label, not a description.
 4. Only use the CELL_UPDATE tool if you want to add or modify a notebook cell in response to the user's request. If the user is just sending you a friendly greeting or asking you a question about yourself, you SHOULD NOT use CELL_UPDATE because it does not require modifying the notebook. Instead, use the FINISHED_TASK response.
 5. The cell_type should only be 'markdown' if there is no code to add (the code field still holds the full markdown text). There may be times where the code has comments. These are still code cells and should have the cell_type 'code'. Any cells that are labeled 'markdown' will be converted to markdown cells by the user. For reader-facing tasks, adding or editing a Markdown-only cell is a normal CELL_UPDATE—one Markdown cell per message is a valid small step; do not skip Markdown because you are working step-by-step, and do not put reader-facing explanations only in code comments when they belong in a Markdown cell (see Reader-facing notebooks (Agent mode)).
-6. The analysis_assumptions field is an optional list of critical assumptions that you made about the data or analysis approach. The assumptions you list here will be displayed to the user so that they can confirm or correct the assumptions. For example: ["NaN values in the impressions column represent 0 impressions", "Only crashes with pedestrian or cyclist fatalities are considered fatal crashes", "Intervention priority combines both volume and severity to identify maximum impact opportunities"].
+6. The analysis_assumptions field is an optional list of critical assumptions that you made about the data or analysis approach. Each assumption is an object with three fields:
+    - "selected": the exact assumption statement you are following in your analysis.
+    - "options": a list of 1-4 complete, self-contained statements representing the plausible choices for this assumption. It MUST contain the selected statement verbatim, character-for-character. Each option must be a standalone sentence that a non-technical user can understand without seeing the other options (e.g. "Trial subscriptions are excluded from the retention population." / "Trial subscriptions are included in the retention population."). If there is no meaningful alternative, options contains only the selected statement.
+    - "evidence": an optional 1-2 sentence description of the concrete data that motivated your choice (e.g. "1,240 rows (12%) have status='trial'."). Cite what you actually observed in the data; do not restate the assumption. Omit if you have no concrete evidence.
+   CRITICAL: your analysis MUST actually follow the selected statement and ONLY the selected statement. The other options are shown to the user as alternatives they can switch to—if your code or conclusions follow a different option than the one marked selected, the user will be misled. There can be absolutely no ambiguity between what you say you are doing and what your analysis does.
 7. Only include important data and analytical assumptions that if incorrect would fundamentally change your analysis conclusions. These should be data handling decisions, methodological choices, and definitional boundaries. Do not include: obvious statements ("Each record is counted once"), result interpretation guidance ("Gaps in the plot represent zero values"), display choices ("Data is sorted for clarity"), internal reasoning ("Bar chart is better than line plot"), or environment assumptions ("Library X is installed"). Prioritize quality over quantity—include only the most critical assumptions or omit the field entirely if there are no critical assumptions made in this step that have not already been shared with the user. If you ever doubt whether an assumption is critical enough to be shared with the user as an assumption, don't include it. Most messages should not include an assumption.
 8. Do not include the same assumption or variations of the same assumption multiple times in the same conversation. Once you have presented the assumption to the user, they will already have the opportunity to confirm or correct it so do not include it again.
 9. When writing markdown, make sure you follow the Markdown rules. For example, you must write currency as double escaped $ if you want to write a literal dollar amount (eg \\\\$19 billion). These markdown rules only apply to markdown cells, not code cells.

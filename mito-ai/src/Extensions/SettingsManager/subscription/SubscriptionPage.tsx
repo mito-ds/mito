@@ -8,6 +8,8 @@ import { getUserKey } from '../../../restAPI/RestAPI';
 import { FreeTierCard } from './FreeTierCard';
 import { ProCard } from './ProCard';
 import { GithubCopilotSettingsPanel } from './GithubCopilotSettingsPanel';
+import { SettingsPageHeader } from '../SettingsPageHeader';
+import LightningIcon from '../../../icons/LightningIcon';
 import '../../../../style/SubscriptionPage.css';
 
 export const SubscriptionPage = (): JSX.Element => {
@@ -24,9 +26,7 @@ export const SubscriptionPage = (): JSX.Element => {
 
     return (
         <div>
-            <div className="settings-header">
-                <h2>Manage Subscription</h2>
-            </div>
+            <SettingsPageHeader icon={<LightningIcon />} title="Manage Subscription" />
 
             <GithubCopilotSettingsPanel />
             {isPro ? <ProCard /> : <FreeTierCard />}

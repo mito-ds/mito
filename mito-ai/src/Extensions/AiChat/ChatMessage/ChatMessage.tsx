@@ -28,6 +28,7 @@ import TextButton from '../../../components/TextButton';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
+import { IStagedAssumptionChange } from '../hooks/useStagedAssumptionChanges';
 import { getCellIdFromCellUpdate } from '../cellUpdateUtils';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
@@ -63,6 +64,8 @@ interface IChatMessageProps {
     scratchpadResult?: string
     verifiedReportResult?: string
     canSendMessages?: boolean
+    stagedAssumptionChanges?: IStagedAssumptionChange[]
+    onAssumptionChange?: (originalSelected: string, newSelected: string) => void
 }
 
 
@@ -90,6 +93,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     scratchpadResult,
     verifiedReportResult,
     canSendMessages = true,
+    stagedAssumptionChanges,
+    onAssumptionChange,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -280,7 +285,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 )}
                             </p>
                             {agentResponse?.analysis_assumptions &&
-                                <AssumptionToolUI assumptions={agentResponse.analysis_assumptions} />
+                                <AssumptionToolUI
+                                    assumptions={agentResponse.analysis_assumptions}
+                                    stagedAssumptionChanges={stagedAssumptionChanges}
+                                    onAssumptionChange={onAssumptionChange}
+                                />
                             }
                         </div>
                     )

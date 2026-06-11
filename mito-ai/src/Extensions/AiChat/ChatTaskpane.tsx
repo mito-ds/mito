@@ -88,6 +88,7 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 // Internal imports - Hooks
 import { useAgentReview } from './hooks/useAgentReview';
 import { useAgentExecution } from './hooks/useAgentExecution';
+import { useStagedAssumptionChanges } from './hooks/useStagedAssumptionChanges';
 import { useUserSignup } from './hooks/useUserSignup';
 import { useGithubCopilotLogin } from './hooks/useGithubCopilotLogin';
 import { useChatScroll } from './hooks/useChatScroll';
@@ -736,6 +737,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         audioContextRef
     });
 
+    // Buffer assumption selection changes and send them to the agent once it is idle
+    const { stagedAssumptionChanges, stageAssumptionChange } = useStagedAssumptionChanges({
+        agentExecutionStatus: agentExecution.agentExecutionStatus,
+        sendMessage: (content: string) => {
+            void handleSubmitUserMessage(content);
+        },
+    });
+
     // Main initialization effect - runs once on mount
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
@@ -1121,6 +1130,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 agentModeEnabled={agentModeEnabled}
                                 scratchpadResult={displayOptimizedChat.scratchpadResult}
                                 verifiedReportResult={displayOptimizedChat.verifiedReportResult}
+                                stagedAssumptionChanges={stagedAssumptionChanges}
+                                onAssumptionChange={stageAssumptionChange}
                             />
                         )
                     }

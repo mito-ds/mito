@@ -3,167 +3,95 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.verified-reports-page {
-    max-width: 960px;
+/* Verified reports list, modeled on the rules list */
+.verified-reports-list {
+    display: flex;
+    flex-direction: column;
 }
 
-.verified-reports-header {
-    margin-bottom: 8px;
+.verified-report-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--jp-border-color1);
+    transition: color 0.15s ease;
+    cursor: pointer;
 }
 
-.verified-reports-header-title {
+.verified-report-item:last-child {
+    border-bottom: none;
+}
+
+.verified-report-item:hover .verified-report-name {
+    color: var(--purple-600);
+}
+
+.verified-report-content {
+    flex: 1;
+    margin-right: 16px;
+    min-width: 0;
+}
+
+.verified-report-name {
+    margin: 0;
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.verified-report-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 3px;
+    background-color: var(--purple-300);
+    color: var(--purple-700);
+}
+
+.verified-report-description {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--jp-ui-font-color2);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.verified-report-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.verified-reports-list .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
+}
+
+.verified-reports-list .empty-state p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Report detail modal */
+.verified-reports-modal-title {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.verified-reports-header-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--purple-500, #7a7d98) 14%, transparent);
-    color: var(--purple-700, #484b6a);
-    flex-shrink: 0;
-}
-
-.verified-reports-header-icon svg {
-    width: 18px;
-    height: 18px;
-}
-
-.verified-reports-layout {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-    align-items: flex-start;
-}
-
-.verified-reports-list {
-    flex: 0 0 260px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.verified-reports-list-header {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--jp-ui-font-color2);
-    padding: 0 4px;
-}
-
-.verified-reports-list-items {
-    list-style: none;
-    padding: 0;
+.verified-reports-modal-title h3 {
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.verified-reports-list-items li {
-    padding: 12px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: 1px solid var(--jp-border-color2);
-    background: var(--jp-layout-color1);
-    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.verified-reports-list-items li:hover {
-    border-color: var(--jp-border-color1);
-    background: var(--jp-layout-color2);
-}
-
-.verified-reports-list-items li.active {
-    border-color: var(--purple-500, #7a7d98);
-    background: color-mix(in srgb, var(--purple-500, #7a7d98) 8%, var(--jp-layout-color1));
-    box-shadow: inset 3px 0 0 var(--purple-500, #7a7d98);
-}
-
-.verified-reports-list-item-name {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.3;
-    color: var(--jp-ui-font-color1);
-}
-
-.verified-reports-list-items li.active .verified-reports-list-item-name {
-    color: var(--purple-700, #484b6a);
-}
-
-.verified-reports-list-item-description {
-    font-size: 12px;
-    color: var(--jp-ui-font-color2);
-    margin-top: 4px;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.verified-reports-list-item-meta {
-    margin-top: 8px;
-}
-
-.verified-reports-snippet-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.4;
-    color: var(--jp-ui-font-color2);
-    background: var(--jp-layout-color2);
-    border: 1px solid var(--jp-border-color2);
-}
-
-.verified-reports-list-items li.active .verified-reports-snippet-badge {
-    color: var(--purple-700, #484b6a);
-    background: color-mix(in srgb, var(--purple-500, #7a7d98) 12%, transparent);
-    border-color: color-mix(in srgb, var(--purple-500, #7a7d98) 25%, transparent);
-}
-
-.verified-reports-detail {
-    flex: 1;
-    min-width: 0;
-}
-
-.verified-reports-detail-panel {
-    border: 1px solid var(--jp-border-color2);
-    border-radius: 10px;
-    background: var(--jp-layout-color1);
-    padding: 20px;
-}
-
-.verified-reports-detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--jp-border-color2);
-}
-
-.verified-reports-detail-header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--jp-ui-font-color1);
-}
-
-.verified-reports-detail-header-meta {
-    font-size: 12px;
-    color: var(--jp-ui-font-color2);
-    margin-top: 4px;
 }
 
 .verified-reports-section {
@@ -198,7 +126,6 @@
     color: var(--jp-ui-font-color2);
 }
 
-.verified-reports-description-input,
 .verified-reports-textarea {
     width: 100%;
     box-sizing: border-box;
@@ -214,7 +141,6 @@
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.verified-reports-description-input:focus,
 .verified-reports-textarea:focus {
     outline: none;
     border-color: var(--purple-500, #7a7d98);
@@ -302,78 +228,6 @@
     line-height: 1.5;
 }
 
-.verified-reports-empty-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 48px 24px;
-    border: 1px dashed var(--jp-border-color2);
-    border-radius: 10px;
-    background: var(--jp-layout-color1);
-    color: var(--jp-ui-font-color2);
-}
-
-.verified-reports-empty-panel-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    background: color-mix(in srgb, var(--purple-500, #7a7d98) 12%, transparent);
-    color: var(--purple-700, #484b6a);
-    opacity: 0.7;
-}
-
-.verified-reports-empty-panel-icon svg {
-    width: 20px;
-    height: 20px;
-}
-
-.verified-reports-empty-panel p {
-    margin: 0;
-    max-width: 320px;
-    line-height: 1.5;
-}
-
-.verified-reports-create-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 14px;
-    border: 1px solid var(--jp-border-color2);
-    border-radius: 8px;
-    background: var(--jp-layout-color1);
-}
-
-.verified-reports-create-form input,
-.verified-reports-create-form textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--jp-border-color2);
-    background: var(--jp-layout-color0);
-    color: var(--jp-ui-font-color1);
-    font-family: inherit;
-    font-size: 13px;
-}
-
-.verified-reports-create-form input:focus,
-.verified-reports-create-form textarea:focus {
-    outline: none;
-    border-color: var(--purple-500, #7a7d98);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--purple-500, #7a7d98) 18%, transparent);
-}
-
-.verified-reports-create-actions {
-    display: flex;
-    gap: 8px;
-}
-
 .verified-reports-text-btn {
     border: none;
     background: transparent;
@@ -400,21 +254,7 @@
     color: var(--red-800, #73484f);
 }
 
-.verified-reports-list .empty-state {
-    text-align: center;
-    padding: 24px 16px;
-    color: var(--jp-ui-font-color2);
-    border: 1px dashed var(--jp-border-color2);
-    border-radius: 8px;
-    background: var(--jp-layout-color1);
-}
-
-.verified-reports-list .empty-state p {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.5;
-}
-
+/* "Add Verified Snippet" popover (used from the notebook) */
 .verified-snippet-popover {
     width: 360px;
     gap: 8px;

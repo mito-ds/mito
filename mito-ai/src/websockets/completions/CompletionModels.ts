@@ -47,13 +47,23 @@ export type VerifiedSnippetRef = {
   end_line: number,
 }
 
+export type AnalysisAssumptionOptions = {
+  // The exact assumption statement the agent is following in its analysis.
+  // Always present verbatim in options so there is no ambiguity.
+  selected: string,
+  // Complete alternative statements (1-4) the user can switch between.
+  options: string[],
+  // Concrete data the agent observed that motivated the choice.
+  evidence?: string | null | undefined,
+}
+
 export type AgentResponse = {
   type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad' | 'read_skill' | 'read_verified_report'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
   next_steps?: string[] | null | undefined
-  analysis_assumptions?: string[] | null | undefined
+  analysis_assumptions?: AnalysisAssumptionOptions[] | null | undefined
   streamlit_app_prompt?: string | null | undefined
   question?: string | null | undefined
   answers?: string[] | null | undefined

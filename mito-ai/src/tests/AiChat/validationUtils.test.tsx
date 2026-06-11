@@ -165,18 +165,38 @@ describe('validateAndCorrectAgentResponse', () => {
     });
 
     describe('analysis_assumptions validation', () => {
-        it('should preserve valid string arrays', () => {
+        it('should preserve valid structured assumptions', () => {
             const response: AgentResponse = {
                 type: 'finished_task',
                 message: 'test',
-                analysis_assumptions: ['assumption1', 'assumption2']
+                analysis_assumptions: [
+                    { selected: 'assumption1', options: ['assumption1', 'alternative1'], evidence: 'evidence1' },
+                    { selected: 'assumption2', options: ['assumption2'] }
+                ]
             };
             
             const result = validateAndCorrectAgentResponse(response);
-            expect(result.analysis_assumptions).toEqual(['assumption1', 'assumption2']);
+            expect(result.analysis_assumptions).toEqual([
+                { selected: 'assumption1', options: ['assumption1', 'alternative1'], evidence: 'evidence1' },
+                { selected: 'assumption2', options: ['assumption2'], evidence: undefined }
+            ]);
         });
 
-        it('should convert string to array', () => {
+        it('should coerce legacy string arrays into single-option assumptions', () => {
+            const response: AgentResponse = {
+                type: 'finished_task',
+                message: 'test',
+                analysis_assumptions: ['assumption1', 'assumption2'] as any
+            };
+            
+            const result = validateAndCorrectAgentResponse(response);
+            expect(result.analysis_assumptions).toEqual([
+                { selected: 'assumption1', options: ['assumption1'] },
+                { selected: 'assumption2', options: ['assumption2'] }
+            ]);
+        });
+
+        it('should coerce a legacy single string into a single-option assumption', () => {
             const response: AgentResponse = {
                 type: 'finished_task',
                 message: 'test',
@@ -184,7 +204,40 @@ describe('validateAndCorrectAgentResponse', () => {
             };
             
             const result = validateAndCorrectAgentResponse(response);
-            expect(result.analysis_assumptions).toEqual(['single assumption']);
+            expect(result.analysis_assumptions).toEqual([
+                { selected: 'single assumption', options: ['single assumption'] }
+            ]);
+        });
+
+        it('should prepend selected to options when missing', () => {
+            const response: AgentResponse = {
+                type: 'finished_task',
+                message: 'test',
+                analysis_assumptions: [
+                    { selected: 'assumption1', options: ['alternative1', 'alternative2'] }
+                ]
+            };
+            
+            const result = validateAndCorrectAgentResponse(response);
+            expect(result.analysis_assumptions).toEqual([
+                { selected: 'assumption1', options: ['assumption1', 'alternative1', 'alternative2'], evidence: undefined }
+            ]);
+        });
+
+        it('should drop assumptions with empty selected statements', () => {
+            const response: AgentResponse = {
+                type: 'finished_task',
+                message: 'test',
+                analysis_assumptions: [
+                    { selected: '', options: ['option1'] },
+                    { selected: 'valid assumption', options: ['valid assumption'] }
+                ] as any
+            };
+            
+            const result = validateAndCorrectAgentResponse(response);
+            expect(result.analysis_assumptions).toEqual([
+                { selected: 'valid assumption', options: ['valid assumption'], evidence: undefined }
+            ]);
         });
 
         it('should preserve null and undefined analysis_assumptions', () => {
@@ -204,7 +257,7 @@ describe('validateAndCorrectAgentResponse', () => {
             expect(validateAndCorrectAgentResponse(responseWithUndefined).analysis_assumptions).toBe(undefined);
         });
 
-        it('should return null for invalid analysis_assumptions types', () => {
+        it('should return undefined for invalid analysis_assumptions types', () => {
             const invalidAssumptions = [123, {}, true];
             
             invalidAssumptions.forEach(invalidAssumption => {
@@ -293,7 +346,9 @@ describe('validateAndCorrectAgentResponse', () => {
             expect(result.message).toBe('');
             expect(result.get_cell_output_cell_id).toBe(undefined);
             expect(result.next_steps).toEqual(['step1,step2']);
-            expect(result.analysis_assumptions).toEqual(['assumption1']);
+            expect(result.analysis_assumptions).toEqual([
+                { selected: 'assumption1', options: ['assumption1'] }
+            ]);
             expect(result.cell_update).toBe(null);
         });
 
@@ -307,7 +362,7 @@ describe('validateAndCorrectAgentResponse', () => {
             
             const result = validateAndCorrectAgentResponse(response);
             expect(result.next_steps).toEqual([]);
-            expect(result.analysis_assumptions).toEqual([]);
+            expect(result.analysis_assumptions).toEqual(undefined);
         });
     });
 });
