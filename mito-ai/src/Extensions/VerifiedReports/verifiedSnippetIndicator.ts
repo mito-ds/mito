@@ -11,7 +11,8 @@ export const VERIFIED_SNIPPET_INDICATOR_CLICK_EVENT = 'mito-ai-verified-snippet-
 export interface VerifiedSnippetIndicatorClickDetail {
     reportName: string;
     snippetId: string;
-    lineNumber: number;
+    // Screen position of the hovered line, used to anchor the hover card.
+    rect: DOMRect;
 }
 
 class VerifiedBarMarker extends GutterMarker {
@@ -81,12 +82,18 @@ export function verifiedSnippetIndicatorExtension(
             },
             domEventHandlers: {
                 mouseenter(view, line) {
-                    const lineNumber = view.state.doc.lineAt(line.from).number - 1;
+                    const coords = view.coordsAtPos(line.from);
+                    const rect = new DOMRect(
+                        coords?.left ?? 0,
+                        coords?.top ?? 0,
+                        0,
+                        coords ? coords.bottom - coords.top : 20,
+                    );
                     view.dom.dispatchEvent(
                         new CustomEvent<VerifiedSnippetIndicatorClickDetail>(
                             VERIFIED_SNIPPET_INDICATOR_CLICK_EVENT,
                             {
-                                detail: { reportName, snippetId, lineNumber },
+                                detail: { reportName, snippetId, rect },
                                 bubbles: true,
                             }
                         )

@@ -3,8 +3,9 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { getVerifiedReport } from '../../../restAPI/RestAPI';
 import { COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS } from '../../../commands';
 import '../../../../style/VerifiedSnippetCitation.css';
 
@@ -12,15 +13,30 @@ export interface VerifiedSnippetCitationProps {
     reportName: string;
     snippetId: string;
     app: JupyterFrontEnd;
-    exists?: boolean;
 }
 
 export const VerifiedSnippetCitation: React.FC<VerifiedSnippetCitationProps> = ({
     reportName,
     snippetId,
     app,
-    exists = true,
 }): JSX.Element => {
+    // Assume the report exists until proven otherwise so the citation doesn't flicker.
+    const [exists, setExists] = useState(true);
+
+    useEffect(() => {
+        let cancelled = false;
+        getVerifiedReport(reportName)
+            .then(() => undefined)
+            .catch(() => {
+                if (!cancelled) {
+                    setExists(false);
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [reportName]);
+
     const handleClick = (): void => {
         if (!exists) {
             return;

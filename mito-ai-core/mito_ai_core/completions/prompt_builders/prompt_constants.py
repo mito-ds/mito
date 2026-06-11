@@ -87,6 +87,19 @@ Citation Rules:
 8. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 """
 
+VERIFIED_SNIPPET_CITATION_RULES = """
+When you use code inspired by a Verified Report snippet in a CELL_UPDATE, you must call it out in your message using this inline format:
+[MITO_VERIFIED_SNIPPET:report_name:snippet_id]
+
+Verified Snippet Citation Rules:
+
+1. Only use this citation when you have read a verified report via read_verified_report and applied code from one of its snippets in a CELL_UPDATE.
+2. The report_name and snippet_id must exactly match a report and snippet from the verified report you read.
+3. Place the citation inline in your message where you describe what you did, e.g. "I calculated retention using your verified approach [MITO_VERIFIED_SNIPPET:retention-report:abc123-def456]".
+4. When you use a verified snippet in a CELL_UPDATE, you must also set verified_snippet_ref on the same response with the 0-indexed start_line and end_line (within the new cell code) of the portion derived from that snippet.
+5. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
+"""
+
 CELL_REFERENCE_RULES = """
 When referring to specific cells in the notebook in your messages, use cell references so the user can easily navigate to the cell you're talking about. Cell references are displayed to the user  "Cell 1", "Cell 2", etc., but internally cells are identified by their unique IDs.
 

@@ -24,6 +24,9 @@ export interface CommentTooltipClickDetail {
 // Speech bubble SVG used in the button
 const COMMENT_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="currentColor"/></svg>`;
 
+// Shield with checkmark SVG used for the verified snippet button
+const VERIFIED_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 5.5V11c0 4.97 3.41 9.59 8 10.74 4.59-1.15 8-5.77 8-10.74V5.5L12 2z" fill="currentColor"/><path d="M10.5 14.5l-2.5-2.5-1.2 1.2 3.7 3.7 6.2-6.2-1.2-1.2-5 5z" fill="var(--teal-100, #d4f0f0)"/></svg>`;
+
 /**
  * An effect used to dismiss the tooltip (e.g., after the user clicks the button).
  */
@@ -91,7 +94,7 @@ function makeTooltip(pos: number): Tooltip {
 
             const verifiedBtn = document.createElement('button');
             verifiedBtn.className = 'cm-comment-tooltip-button cm-verified-snippet-tooltip-button';
-            verifiedBtn.innerHTML = `${COMMENT_SVG} <span>Add Verified Snippet</span>`;
+            verifiedBtn.innerHTML = `${VERIFIED_SVG} <span>Add Verified Snippet</span>`;
             verifiedBtn.title = 'Save this code as a verified snippet';
 
             verifiedBtn.addEventListener('mousedown', (e) => {
@@ -129,7 +132,9 @@ export function commentSelectionExtension(): Extension {
                 padding: '0',
             },
             '.cm-comment-tooltip': {
-                padding: '0',
+                // Bottom padding creates a gap between the buttons and the
+                // selected code below (the container is transparent).
+                padding: '0 0 8px 0',
                 border: 'none',
                 background: 'none',
             },

@@ -26,6 +26,13 @@ class CellUpdate(BaseModel):
     cell_type: Optional[Literal['code', 'markdown']] = None
 
 
+class VerifiedSnippetRef(BaseModel):
+    report_name: str
+    snippet_id: str
+    start_line: int
+    end_line: int
+
+
 class MCPToolCall(BaseModel):
     mcp_server_id: str
     tool_name: str
@@ -64,6 +71,7 @@ class AgentResponse(BaseModel):
         'scratchpad',
         'mcp_tool_call',
         'read_skill',
+        'read_verified_report',
     ]
     message: str
     cell_update: Optional[CellUpdate]
@@ -77,6 +85,8 @@ class AgentResponse(BaseModel):
     scratchpad_summary: Optional[str]
     mcp_tool_call: Optional[MCPToolCall]
     skill_name: Optional[str]
+    verified_report_name: Optional[str]
+    verified_snippet_ref: Optional[VerifiedSnippetRef]
     
     
 @dataclass(frozen=True)

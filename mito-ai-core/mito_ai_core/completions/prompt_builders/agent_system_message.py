@@ -5,10 +5,12 @@ from typing import Any, Dict, List, Optional
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai_core.completions.prompt_builders.mcp_tools import format_available_mcp_tools
 from mito_ai_core.completions.prompt_builders.skills import format_available_skills
+from mito_ai_core.completions.prompt_builders.verified_reports import format_available_verified_reports
 from mito_ai_core.completions.prompt_builders.prompt_constants import (
     ABOUT_MITO,
     CHART_CONFIG_RULES,
     CITATION_RULES,
+    VERIFIED_SNIPPET_CITATION_RULES,
     CELL_REFERENCE_RULES,
     MARKDOWN_RULES,
 )
@@ -402,6 +404,38 @@ Important information:
 """))
 
     sections.append(SG.Generic("Available Skills", format_available_skills()))
+
+    available_verified_reports = format_available_verified_reports()
+    if available_verified_reports != "No verified reports are currently available.":
+        sections.append(SG.Generic("TOOL: READ_VERIFIED_REPORT", """
+Load a user's verified report with annotated code snippets and best practices on demand. Use this when the user's task may benefit from their team's verified approaches (e.g. retention calculations, standard report patterns).
+
+Format:
+{{
+    "type": "read_verified_report",
+    "message": "<string>",
+    "verified_report_name": "<string>"
+}}
+
+Important information:
+1. Only request reports listed in the "Available Verified Reports" section.
+2. The verified_report_name must exactly match one of the listed report names.
+3. After reading a report, follow its snippets and comments when writing code.
+4. Do not call read_verified_report for the same report more than once in a conversation unless the user asks you to reload it.
+
+When you later use code from a snippet in a CELL_UPDATE, include this additional top-level field on that cell_update response so the user can see which lines came from their verified report:
+
+"verified_snippet_ref": {{
+    "report_name": "<string>",
+    "snippet_id": "<string>",
+    "start_line": <integer; 0-indexed line within the new cell code>,
+    "end_line": <integer; 0-indexed line within the new cell code>
+}}
+"""))
+
+        sections.append(SG.Generic("Available Verified Reports", available_verified_reports))
+
+        sections.append(SG.Generic("Verified Snippet Citation Rules", VERIFIED_SNIPPET_CITATION_RULES))
 
     # MCP_TOOL_CALL tool
     sections.append(

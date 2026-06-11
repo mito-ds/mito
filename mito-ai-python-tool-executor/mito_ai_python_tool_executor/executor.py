@@ -456,3 +456,14 @@ class PythonToolExecutor:
         from mito_ai_core.skills.utils import read_skill as read_skill_content
 
         return read_skill_content(skill_name)
+
+    async def read_verified_report(
+        self,
+        ctx: AgentContext,
+        verified_report_name: str,
+        message: str,
+    ) -> ToolResult:
+        del ctx, message
+        from mito_ai_core.verified_reports.utils import read_verified_report as read_report_content
+
+        return read_report_content(verified_report_name)

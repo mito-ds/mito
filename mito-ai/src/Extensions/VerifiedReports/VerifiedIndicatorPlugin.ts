@@ -18,15 +18,36 @@ import {
 
 import '../../../style/VerifiedSnippetIndicator.css';
 
-const verifiedSnippetCompartments = new Map<string, { compartment: Compartment; view: unknown }>();
+interface IEditorViewLike {
+    dispatch: (spec: unknown) => void;
+}
+
+const verifiedSnippetCompartments = new Map<string, { compartment: Compartment; view: IEditorViewLike; metadataKey: string }>();
+
+// Tracks cell models that already have a metadataChanged listener attached.
+const modelsWithMetadataListener = new WeakSet<object>();
 
 let activeHoverCard: HTMLElement | null = null;
+let hoverCardRemovalTimeout: number | undefined;
 
 function removeHoverCard(): void {
+    if (hoverCardRemovalTimeout !== undefined) {
+        window.clearTimeout(hoverCardRemovalTimeout);
+        hoverCardRemovalTimeout = undefined;
+    }
     if (activeHoverCard) {
         activeHoverCard.remove();
         activeHoverCard = null;
     }
+}
+
+function scheduleHoverCardRemoval(delayMs: number): void {
+    if (hoverCardRemovalTimeout !== undefined) {
+        window.clearTimeout(hoverCardRemovalTimeout);
+    }
+    hoverCardRemovalTimeout = window.setTimeout(() => {
+        removeHoverCard();
+    }, delayMs);
 }
 
 function showVerifiedSnippetHoverCard(
@@ -75,51 +96,87 @@ function showVerifiedSnippetHoverCard(
     card.style.top = `${rect.bottom + 4}px`;
     card.style.left = `${Math.min(rect.left, window.innerWidth - 320)}px`;
 
+    // Keep the card open while the pointer is over it; dismiss shortly after leaving.
+    card.addEventListener('mouseenter', () => {
+        if (hoverCardRemovalTimeout !== undefined) {
+            window.clearTimeout(hoverCardRemovalTimeout);
+            hoverCardRemovalTimeout = undefined;
+        }
+    });
+    card.addEventListener('mouseleave', () => {
+        scheduleHoverCardRemoval(300);
+    });
+
     document.body.appendChild(card);
     activeHoverCard = card;
+    // Auto-dismiss if the user never moves the pointer into the card.
+    scheduleHoverCardRemoval(4000);
 }
 
 function applyIndicatorToCell(cell: CodeCell): void {
+    const cellId = cell.model.id;
     const metadata = getVerifiedSnippetMetadata(cell.model);
+    const cmEditor = cell.editor as { editor?: IEditorViewLike };
+    const editorView = cmEditor?.editor;
+
     if (!metadata) {
-        removeIndicatorFromCell(cell.model.id);
+        // Metadata was removed: clear the indicator extension if it was applied.
+        const existing = verifiedSnippetCompartments.get(cellId);
+        if (existing) {
+            existing.view.dispatch({
+                effects: existing.compartment.reconfigure([]),
+            });
+            verifiedSnippetCompartments.delete(cellId);
+        }
         return;
     }
 
-    const cmEditor = cell.editor as { editor?: { dispatch: (spec: unknown) => void } };
-    const editorView = cmEditor?.editor;
     if (!editorView) {
         return;
     }
 
-    const cellId = cell.model.id;
+    const metadataKey = `${metadata.reportName}:${metadata.snippetId}:${metadata.startLine}:${metadata.endLine}`;
+    const extension = verifiedSnippetIndicatorExtension(
+        metadata.startLine,
+        metadata.endLine,
+        metadata.reportName,
+        metadata.snippetId,
+    );
+
     const existing = verifiedSnippetCompartments.get(cellId);
     if (existing && existing.view === editorView) {
+        if (existing.metadataKey === metadataKey) {
+            return;
+        }
+        // The snippet ref changed (e.g. the agent updated this cell again):
+        // swap in the new line range/report.
+        existing.view.dispatch({
+            effects: existing.compartment.reconfigure(extension),
+        });
+        existing.metadataKey = metadataKey;
         return;
     }
 
     const compartment = new Compartment();
-    verifiedSnippetCompartments.set(cellId, { compartment, view: editorView });
+    verifiedSnippetCompartments.set(cellId, { compartment, view: editorView, metadataKey });
     editorView.dispatch({
-        effects: StateEffect.appendConfig.of(
-            compartment.of(verifiedSnippetIndicatorExtension(
-                metadata.startLine,
-                metadata.endLine,
-                metadata.reportName,
-                metadata.snippetId,
-            ))
-        ),
+        effects: StateEffect.appendConfig.of(compartment.of(extension)),
     });
-}
-
-function removeIndicatorFromCell(cellId: string): void {
-    verifiedSnippetCompartments.delete(cellId);
 }
 
 function applyIndicatorsToNotebook(notebookPanel: NotebookPanel): void {
     for (const cell of notebookPanel.content.widgets) {
         if (cell instanceof CodeCell) {
             applyIndicatorToCell(cell);
+
+            // Attach a metadata listener once per cell model so cells added
+            // after notebook setup (e.g. created by the agent) also update.
+            if (!modelsWithMetadataListener.has(cell.model)) {
+                modelsWithMetadataListener.add(cell.model);
+                cell.model.metadataChanged.connect(() => {
+                    applyIndicatorToCell(cell);
+                });
+            }
         }
     }
 }
@@ -144,14 +201,6 @@ const VerifiedIndicatorPlugin: JupyterFrontEndPlugin<void> = {
                         applyIndicatorToCell(activeCell);
                     }
                 });
-
-                for (const cell of notebookPanel.content.widgets) {
-                    if (cell instanceof CodeCell) {
-                        cell.model.metadataChanged.connect(() => {
-                            applyIndicatorToCell(cell);
-                        });
-                    }
-                }
             }).catch(() => undefined);
         };
 
@@ -161,27 +210,7 @@ const VerifiedIndicatorPlugin: JupyterFrontEndPlugin<void> = {
         });
 
         document.addEventListener(VERIFIED_SNIPPET_INDICATOR_CLICK_EVENT, ((e: CustomEvent<VerifiedSnippetIndicatorClickDetail>) => {
-            const { reportName, snippetId, lineNumber } = e.detail;
-
-            const notebookPanel = notebookTracker.currentWidget;
-            if (!notebookPanel) {
-                return;
-            }
-
-            const activeCell = notebookPanel.content.activeCell;
-            if (!activeCell || !(activeCell instanceof CodeCell)) {
-                return;
-            }
-
-            const cmEditor = activeCell.editor as { editor?: { state: { doc: { line: (n: number) => { from: number } } }; coordsAtPos: (pos: number) => { left: number; top: number; bottom: number } | null } };
-            const editorView = cmEditor?.editor;
-            if (!editorView) {
-                return;
-            }
-
-            const lineInfo = editorView.state.doc.line(lineNumber + 1);
-            const coords = editorView.coordsAtPos(lineInfo.from);
-            const rect = new DOMRect(coords?.left || 0, coords?.top || 0, 0, coords ? coords.bottom - coords.top : 20);
+            const { reportName, snippetId, rect } = e.detail;
 
             void getVerifiedReport(reportName).then(report => {
                 const snippet = report.snippets.find(s => s.id === snippetId);

@@ -61,6 +61,7 @@ class AgentRunner:
             "edit_streamlit_app",
             "mcp_tool_call",
             "read_skill",
+            "read_verified_report",
         }
     )
 
@@ -377,6 +378,19 @@ class AgentRunner:
             return await self._tool_executor.read_skill(
                 ctx,
                 response.skill_name.strip(),
+                response.message,
+            )
+
+        if rtype == "read_verified_report":
+            if response.verified_report_name is None or not response.verified_report_name.strip():
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message="Agent returned read_verified_report but verified_report_name is null or empty.",
+                )
+            return await self._tool_executor.read_verified_report(
+                ctx,
+                response.verified_report_name.strip(),
                 response.message,
             )
 

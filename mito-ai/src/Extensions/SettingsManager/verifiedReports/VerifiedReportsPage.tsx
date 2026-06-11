@@ -157,27 +157,29 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
     };
 
     return (
-        <div className="settings-page verified-reports-page">
-            <h2>Verified Reports</h2>
-            <p className="settings-page-description">
-                Save annotated code snippets your team has verified. The agent can read these reports on demand.
+        <div className="verified-reports-page">
+            <div className="settings-header">
+                <h2>Verified Reports</h2>
+                <button
+                    type="button"
+                    className="button-base button-purple"
+                    onClick={() => {
+                        setIsCreating(true);
+                        setSelectedReport(null);
+                    }}
+                >
+                    <b>＋ New Report</b>
+                </button>
+            </div>
+            <p className="settings-page-muted-description">
+                Save annotated code snippets your team has verified. The agent reads these reports on demand and
+                cites them when it reuses your verified approaches.
             </p>
 
-            {error && <div className="settings-error">{error}</div>}
+            {error && <p className="error">{error}</p>}
 
             <div className="verified-reports-layout">
                 <div className="verified-reports-list">
-                    <button
-                        type="button"
-                        className="settings-primary-button"
-                        onClick={() => {
-                            setIsCreating(true);
-                            setSelectedReport(null);
-                        }}
-                    >
-                        + New Report
-                    </button>
-
                     {isCreating && (
                         <div className="verified-reports-create-form">
                             <input
@@ -193,30 +195,42 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
                                 rows={3}
                             />
                             <div className="verified-reports-create-actions">
-                                <button type="button" className="settings-primary-button" onClick={() => void handleCreateReport()}>
+                                <button type="button" className="button-base button-purple" onClick={() => void handleCreateReport()}>
                                     Create
                                 </button>
-                                <button type="button" className="settings-secondary-button" onClick={() => setIsCreating(false)}>
+                                <button type="button" className="button-base button-gray" onClick={() => setIsCreating(false)}>
                                     Cancel
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    <ul className="verified-reports-list-items">
-                        {reports.map(report => (
-                            <li
-                                key={report.name}
-                                className={selectedReport?.name === report.name ? 'active' : ''}
-                                onClick={() => void loadReport(report.name)}
-                            >
-                                <div className="verified-reports-list-item-name">{report.name}</div>
-                                <div className="verified-reports-list-item-meta">
-                                    {report.snippetCount} snippet{report.snippetCount !== 1 ? 's' : ''}
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                    {reports.length === 0 && !isCreating ? (
+                        <div className="empty-state">
+                            <p>
+                                No verified reports yet. Select code in a notebook and click
+                                &quot;Add Verified Snippet&quot;, or create a report here.
+                            </p>
+                        </div>
+                    ) : (
+                        <ul className="verified-reports-list-items">
+                            {reports.map(report => (
+                                <li
+                                    key={report.name}
+                                    className={selectedReport?.name === report.name ? 'active' : ''}
+                                    onClick={() => void loadReport(report.name)}
+                                >
+                                    <div className="verified-reports-list-item-name">{report.name}</div>
+                                    {report.description && (
+                                        <div className="verified-reports-list-item-description">{report.description}</div>
+                                    )}
+                                    <div className="verified-reports-list-item-meta">
+                                        {report.snippetCount} snippet{report.snippetCount !== 1 ? 's' : ''}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
 
                 <div className="verified-reports-detail">
@@ -226,7 +240,7 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
                                 <h3>{selectedReport.name}</h3>
                                 <button
                                     type="button"
-                                    className="settings-danger-button"
+                                    className="button-base button-red"
                                     onClick={() => void handleDeleteReport(selectedReport.name)}
                                 >
                                     Delete Report
@@ -255,10 +269,12 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
                                         className={`verified-snippet-card ${highlightedSnippetId === snippet.id ? 'highlighted' : ''}`}
                                     >
                                         <div className="verified-snippet-card-header">
-                                            <span className="verified-snippet-id">ID: {snippet.id}</span>
+                                            <span className="verified-snippet-id" title={`Snippet ID: ${snippet.id}`}>
+                                                Added {new Date(snippet.created_at).toLocaleDateString()}
+                                            </span>
                                             <button
                                                 type="button"
-                                                className="settings-danger-button"
+                                                className="button-base button-red"
                                                 onClick={() => void handleDeleteSnippet(snippet.id)}
                                             >
                                                 Delete

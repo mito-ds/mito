@@ -207,6 +207,25 @@ class ToolExecutor(Protocol):
         """
         ...
 
+    async def read_verified_report(
+        self,
+        ctx: AgentContext,
+        verified_report_name: str,
+        message: str,
+    ) -> ToolResult:
+        """Load a verified report by name.
+
+        Parameters
+        ----------
+        ctx:
+            Current agent context.
+        verified_report_name:
+            Verified report identifier (see Available Verified Reports in the system prompt).
+        message:
+            Agent's reasoning for loading this report.
+        """
+        ...
+
     async def execute_mcp_tool(
         self,
         ctx: AgentContext,

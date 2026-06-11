@@ -162,6 +162,23 @@ class FakeToolExecutor:
             output=f"Skill: {skill_name}\n\nmock skill content",
         )
 
+    async def read_verified_report(
+        self,
+        ctx: AgentContext,
+        verified_report_name: str,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("read_verified_report", {
+            "ctx": ctx,
+            "verified_report_name": verified_report_name,
+            "message": message,
+        }))
+        return ToolResult(
+            success=True,
+            tool_name="read_verified_report",
+            output=f"Verified Report: {verified_report_name}\n\nmock report content",
+        )
+
 
 # ---------------------------------------------------------------------------
 # Helpers

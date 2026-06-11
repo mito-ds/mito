@@ -197,11 +197,8 @@ function showVerifiedSnippetPopover(
     const reportSelect = document.createElement('select');
     reportSelect.className = 'verified-snippet-popover-select';
 
-    const newOption = document.createElement('option');
-    newOption.value = '__new__';
-    newOption.textContent = 'Create new report...';
-    reportSelect.appendChild(newOption);
-
+    // List existing reports first so the most common case (adding to an
+    // existing report) is the default selection.
     reports.forEach(report => {
         const option = document.createElement('option');
         option.value = report.name;
@@ -209,9 +206,13 @@ function showVerifiedSnippetPopover(
         reportSelect.appendChild(option);
     });
 
+    const newOption = document.createElement('option');
+    newOption.value = '__new__';
+    newOption.textContent = '+ Create new report...';
+    reportSelect.appendChild(newOption);
+
     const newReportFields = document.createElement('div');
     newReportFields.className = 'verified-snippet-new-report-fields';
-    newReportFields.style.display = 'none';
 
     const nameInput = document.createElement('input');
     nameInput.placeholder = 'Report name';
@@ -254,9 +255,11 @@ function showVerifiedSnippetPopover(
         popover.remove();
     };
 
-    reportSelect.addEventListener('change', () => {
-        newReportFields.style.display = reportSelect.value === '__new__' ? 'block' : 'none';
-    });
+    const syncNewReportFieldsVisibility = (): void => {
+        newReportFields.style.display = reportSelect.value === '__new__' ? 'flex' : 'none';
+    };
+    syncNewReportFieldsVisibility();
+    reportSelect.addEventListener('change', syncNewReportFieldsVisibility);
 
     const submit = (): void => {
         const comment = commentTextarea.value.trim();
@@ -778,23 +781,42 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
 
             void getVerifiedReports().then(reports => {
                 showVerifiedSnippetPopover(rect, reports, (reportName, comment, isNewReport, newDescription) => {
-                    void addVerifiedSnippet(
+                    // The save makes an LLM call to generate snippet context, which
+                    // can take a few seconds, so show progress and let the user keep working.
+                    const savePromise = addVerifiedSnippet(
                         reportName,
                         selectedCode,
                         comment,
                         cellCode,
                         isNewReport ? newDescription : undefined,
-                    ).then(snippet => {
-                        Notification.success('Verified snippet saved.', { autoClose: 4000 });
-                        void commands.execute(COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS, {
-                            reportName,
-                            snippetId: snippet.id,
-                        });
-                    }).catch(err => {
-                        Notification.error(
-                            err instanceof Error ? err.message : 'Failed to save verified snippet.',
-                            { autoClose: 5000 },
-                        );
+                    );
+
+                    void Notification.promise(savePromise.then(snippet => snippet.id), {
+                        pending: { message: 'Saving verified snippet...' },
+                        success: {
+                            message: () => `Verified snippet saved to "${reportName}".`,
+                            options: {
+                                autoClose: 6000,
+                                actions: [
+                                    {
+                                        label: 'View Report',
+                                        callback: () => {
+                                            void savePromise.then(snippet => {
+                                                void commands.execute(COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS, {
+                                                    reportName,
+                                                    snippetId: snippet.id,
+                                                });
+                                            });
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                        error: {
+                            message: (reason: unknown) =>
+                                reason instanceof Error ? reason.message : 'Failed to save verified snippet.',
+                            options: { autoClose: 5000 },
+                        },
                     });
                 });
             }).catch(err => {
