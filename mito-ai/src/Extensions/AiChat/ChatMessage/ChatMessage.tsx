@@ -34,6 +34,7 @@ import AssumptionToolUI from '../../../components/AgentComponents/AssumptionTool
 import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
 import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQuestionToolUI';
 import ScratchpadToolUI from '../../../components/AgentComponents/ScratchpadToolUI';
+import VerifiedReportToolUI from '../../../components/AgentComponents/VerifiedReportToolUI';
 import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
 import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
 
@@ -60,6 +61,7 @@ interface IChatMessageProps {
     agentModeEnabled: boolean
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
     scratchpadResult?: string
+    verifiedReportResult?: string
     canSendMessages?: boolean
 }
 
@@ -86,6 +88,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     agentModeEnabled,
     handleSubmitUserMessage,
     scratchpadResult,
+    verifiedReportResult,
     canSendMessages = true,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
@@ -302,6 +305,13 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     scratchpadCode={agentResponse.scratchpad_code}
                     scratchpadSummary={agentResponse.scratchpad_summary}
                     scratchpadResult={scratchpadResult}
+                    renderMimeRegistry={renderMimeRegistry}
+                />
+            }
+            {agentResponse?.type === 'read_verified_report' &&
+                <VerifiedReportToolUI
+                    verifiedReportName={agentResponse.verified_report_name}
+                    verifiedReportResult={verifiedReportResult}
                     renderMimeRegistry={renderMimeRegistry}
                 />
             }

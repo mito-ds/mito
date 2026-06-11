@@ -66,6 +66,28 @@ export const processChatHistoryForErrorGrouping = (
             }
         }
 
+        // Associate verified report results with their corresponding read_verified_report tool calls.
+        if (
+            displayOptimizedChatItem.agentResponse?.type === 'read_verified_report' &&
+            !displayOptimizedChatItem.verifiedReportResult
+        ) {
+            const nextIndex = getNextDefinedIndex(i);
+            const nextItem = displayOptimizedChatHistory[nextIndex];
+            const nextItemMessageContent = nextItem ? getContentStringFromMessage(nextItem.message)?.trim() : '';
+
+            if (
+                nextItem &&
+                nextItem.message.role === 'user' &&
+                nextItemMessageContent
+            ) {
+                displayOptimizedChatItem = {
+                    ...displayOptimizedChatItem,
+                    verifiedReportResult: nextItemMessageContent
+                };
+                i = nextIndex;
+            }
+        }
+
         const messageContent = getContentStringFromMessage(displayOptimizedChatItem.message);
         const previousIndex = getPreviousDefinedIndex(i);
         const previousItem = previousIndex >= 0 ? displayOptimizedChatHistory[previousIndex] : undefined;

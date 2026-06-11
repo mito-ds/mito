@@ -1120,6 +1120,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 setNextSteps={setNextSteps}
                                 agentModeEnabled={agentModeEnabled}
                                 scratchpadResult={displayOptimizedChat.scratchpadResult}
+                                verifiedReportResult={displayOptimizedChat.verifiedReportResult}
                             />
                         )
                     }

@@ -1,0 +1,152 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/*-----------------------------------------------------------------------------
+| Lavender theme — slate-lavender with layered surfaces
+| Active when body has data-mito-theme="lavender"
+|----------------------------------------------------------------------------*/
+
+body[data-mito-theme='lavender'] {
+  /* Mitosheet base tokens (see mitosheet/css/sitewide/lavender-theme.css) */
+  --mito-purple: var(--mito-lavender-primary, #484b6a);
+  --mito-medium-purple: var(--mito-lavender-secondary, #6d7085);
+  --mito-light-purple: var(--mito-lavender-tertiary, #d2d3db);
+  --mito-very-light-purple: #e4e5f1;
+
+  /* Purple scale for chat, pills, and legacy components */
+  --purple-900: #32344a;
+  --purple-700: #484b6a;
+  --purple-600: #5f6280;
+  --purple-500: #7a7d98;
+  --purple-400: #b8bac9;
+  --purple-300: #e4e5f1;
+
+  /* Blue tokens mapped to lavender accent */
+  --blue-300: #d2d3db;
+  --blue-400: #c8cad6;
+  --blue-700: #484b6a;
+  --blue-900: #484b6a;
+
+  /* Semantic colors tuned to the palette */
+  --green-900: #2d4a42;
+  --green-800: #3d6a5a;
+  --green-700: #3d6a5c;
+  --green-600: #4f8574;
+  --green-500: #7aa898;
+  --green-400: #a8c4b8;
+  --green-300: #ddeae4;
+
+  --red-900: #5c3d42;
+  --red-800: #73484f;
+  --red-700: #8a5a62;
+  --red-600: #a06d76;
+  --red-500: #b8848c;
+  --red-400: #c9a0a8;
+  --red-300: #ece0e2;
+
+  --yellow-900: #5c5430;
+  --yellow-600: #b8a45a;
+  --yellow-500: #d4c48a;
+  --yellow-300: #ede8d4;
+  --yellow-100: #f5f2e8;
+
+  --grey-900: #32344a;
+  --grey-800: #484b6a;
+  --grey-700: #6d7085;
+  --grey-500: #9394a5;
+  --grey-400: #c8cad6;
+  --grey-300: #d2d3db;
+  --grey-200: #e4e5f1;
+
+  /* Chat panel */
+  --chat-background-color: var(--mito-lavender-canvas, #e4e5f1);
+  --chat-user-message-background-color: var(--mito-lavender-surface, #ffffff);
+  --chat-user-message-font-color: var(--mito-lavender-text-primary, #32344a);
+  --chat-assistant-message-font-color: var(--mito-lavender-text-primary, #32344a);
+  --muted-text-color: var(--mito-lavender-text-secondary, #6d7085);
+
+  /* DataFrame output viewer (mitosheet) */
+  --mito-viewer-purple: var(--mito-lavender-primary, #484b6a);
+  --mito-viewer-purple-medium: var(--mito-lavender-secondary, #6d7085);
+  --mito-viewer-purple-light: var(--mito-lavender-tertiary, #d2d3db);
+  --mito-viewer-selection-fill: color-mix(
+    in srgb,
+    var(--mito-lavender-primary, #484b6a) 14%,
+    transparent
+  );
+
+  --jp-border-radius: 8px;
+
+  /* State colors */
+  --jp-warn-color0: #8a5a62;
+  --jp-warn-color1: #8a5a62;
+  --jp-warn-color2: #c9a0a8;
+  --jp-warn-color3: #ece0e2;
+  --jp-error-color0: #8a5a62;
+  --jp-error-color1: #8a5a62;
+  --jp-error-color2: #c9a0a8;
+  --jp-error-color3: #ece0e2;
+  --jp-success-color0: #3d6a5c;
+  --jp-success-color1: #3d6a5c;
+  --jp-success-color2: #7aa898;
+  --jp-success-color3: #ddeae4;
+  --jp-accent-color0: #484b6a;
+  --jp-accent-color1: #484b6a;
+  --jp-accent-color2: #6d7085;
+  --jp-accent-color3: #d2d3db;
+
+  --jp-warn-color-normal: #8a5a62;
+  --jp-warn-color-hover: #73484f;
+  --jp-warn-color-active: #5c3d42;
+}
+
+/* White cells on tinted canvas */
+body[data-mito-theme='lavender'] .jp-Cell {
+  background-color: var(--mito-lavender-surface, #ffffff);
+  border-radius: 8px;
+}
+
+body[data-mito-theme='lavender'] .jp-Notebook:not(.jp-mod-editMode) .jp-Cell.jp-mod-active {
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgb(72 75 106 / 8%) !important;
+}
+
+body[data-mito-theme='lavender'] .jp-InputArea-editor {
+  border-radius: 8px !important;
+  background-color: var(--mito-lavender-surface, #ffffff) !important;
+}
+
+body[data-mito-theme='lavender'] .jp-Toolbar h1,
+body[data-mito-theme='lavender'] .jp-MarkdownHeading,
+body[data-mito-theme='lavender'] .jp-Dialog-title {
+  color: var(--mito-lavender-text-primary, #32344a);
+}
+
+body[data-mito-theme='lavender'] h2,
+body[data-mito-theme='lavender'] h3,
+body[data-mito-theme='lavender'] .jp-Dialog h2 {
+  font-weight: 500;
+  color: var(--mito-lavender-text-primary, #32344a);
+}
+
+body[data-mito-theme='lavender'] .text-sm,
+body[data-mito-theme='lavender'] .jp-InputArea-prompt {
+  color: var(--mito-lavender-text-secondary, #6d7085);
+}
+
+body[data-mito-theme='lavender']
+  .lm-Widget.jp-OutputArea-output:has(
+    [data-mime-type='application/vnd.jupyter.stderr']
+  ):not(:has(.mito-warning-block)) {
+  border-color: var(--mito-lavender-border, #c8cad6) !important;
+  background-color: var(--mito-lavender-surface, #ffffff) !important;
+}
+
+body[data-mito-theme='lavender']
+  .lm-Widget.jp-OutputArea-output:has(
+    [data-mime-type='application/vnd.jupyter.stderr']
+  ):not(:has(.mito-warning-block))::before {
+  color: var(--mito-lavender-text-secondary, #6d7085);
+}

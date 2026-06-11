@@ -3,6 +3,26 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.cm-verified-snippet-badge {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 0 6px;
+    border-radius: 4px;
+    background-color: var(--teal-100, #d4f0f0);
+    color: var(--teal-700, #0d6e6e);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.cm-verified-snippet-badge:hover {
+    background-color: var(--teal-200, #b8e6e6);
+}
+
 .verified-snippet-hover-card {
     z-index: 10000;
     width: 300px;

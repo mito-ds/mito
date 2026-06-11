@@ -12,8 +12,9 @@ import { getVerifiedReport } from '../../restAPI/RestAPI';
 import { getVerifiedSnippetMetadata } from '../../utils/verifiedSnippetMetadata';
 import {
     verifiedSnippetIndicatorExtension,
-    VERIFIED_SNIPPET_INDICATOR_CLICK_EVENT,
-    VerifiedSnippetIndicatorClickDetail,
+    VERIFIED_SNIPPET_INDICATOR_HOVER_EVENT,
+    VERIFIED_SNIPPET_INDICATOR_LEAVE_EVENT,
+    VerifiedSnippetIndicatorHoverDetail,
 } from './verifiedSnippetIndicator';
 
 import '../../../style/VerifiedSnippetIndicator.css';
@@ -164,6 +165,17 @@ function applyIndicatorToCell(cell: CodeCell): void {
     });
 }
 
+/**
+ * Apply the indicator to a cell, retrying a few times in case the CodeMirror
+ * editor view isn't attached yet (e.g. right after the agent creates a cell).
+ */
+export function scheduleApplyIndicatorToCell(cell: CodeCell): void {
+    const delays = [0, 100, 300];
+    for (const delay of delays) {
+        window.setTimeout(() => applyIndicatorToCell(cell), delay);
+    }
+}
+
 function applyIndicatorsToNotebook(notebookPanel: NotebookPanel): void {
     for (const cell of notebookPanel.content.widgets) {
         if (cell instanceof CodeCell) {
@@ -209,7 +221,7 @@ const VerifiedIndicatorPlugin: JupyterFrontEndPlugin<void> = {
             setupNotebook(widget);
         });
 
-        document.addEventListener(VERIFIED_SNIPPET_INDICATOR_CLICK_EVENT, ((e: CustomEvent<VerifiedSnippetIndicatorClickDetail>) => {
+        document.addEventListener(VERIFIED_SNIPPET_INDICATOR_HOVER_EVENT, ((e: CustomEvent<VerifiedSnippetIndicatorHoverDetail>) => {
             const { reportName, snippetId, rect } = e.detail;
 
             void getVerifiedReport(reportName).then(report => {
@@ -226,6 +238,12 @@ const VerifiedIndicatorPlugin: JupyterFrontEndPlugin<void> = {
                 showVerifiedSnippetHoverCard(rect, reportName, '', app, snippetId, true);
             });
         }) as EventListener);
+
+        document.addEventListener(VERIFIED_SNIPPET_INDICATOR_LEAVE_EVENT, () => {
+            // Give the user time to move the pointer into the hover card,
+            // whose own mouseenter cancels this removal.
+            scheduleHoverCardRemoval(300);
+        });
 
         document.addEventListener('mousedown', (e) => {
             if (activeHoverCard && !activeHoverCard.contains(e.target as Node)) {

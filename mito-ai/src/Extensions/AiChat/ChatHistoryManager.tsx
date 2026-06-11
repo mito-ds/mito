@@ -44,6 +44,7 @@ export interface IDisplayOptimizedChatItem {
     agentResponse?: AgentResponse,
     additionalContext?: Array<{type: string, value: string}>,
     scratchpadResult?: string  // Store the scratchpad execution result
+    verifiedReportResult?: string  // Store the verified report read result
 }
 
 /* 
@@ -400,6 +401,21 @@ export class ChatHistoryManager {
                 this.displayOptimizedChatHistory[i] = {
                     ...item,
                     scratchpadResult
+                };
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    attachVerifiedReportResultToLatestMessage(verifiedReportResult: string): boolean {
+        for (let i = this.displayOptimizedChatHistory.length - 1; i >= 0; i--) {
+            const item = this.displayOptimizedChatHistory[i];
+            if (item?.agentResponse?.type === 'read_verified_report') {
+                this.displayOptimizedChatHistory[i] = {
+                    ...item,
+                    verifiedReportResult
                 };
                 return true;
             }

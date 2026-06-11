@@ -14,6 +14,7 @@
 @import './CellNumbering.css';
 @import url('./IpywidgetsOutput.css');
 @import './opto.css';
+@import './lavender.css';
 
 /* Set the default typography for monospace elements */
 .jp-ThemedContainer tt,

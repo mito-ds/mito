@@ -149,6 +149,12 @@ def create_display_optimized_tool_result_message(
     if tool_result.tool_name == "scratchpad" and tool_result.success and tool_result.output:
         content = tool_result.output
     elif (
+        tool_result.tool_name == "read_verified_report"
+        and tool_result.success
+        and tool_result.output
+    ):
+        content = tool_result.output
+    elif (
         tool_result.tool_name == "run_all_cells"
         and not tool_result.success
         and tool_result.error_message

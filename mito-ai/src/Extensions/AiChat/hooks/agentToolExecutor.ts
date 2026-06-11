@@ -17,7 +17,13 @@ import { getCellOutputByIDInNotebook } from '../../../utils/cellOutput';
 import { didCellExecutionError, getAIOptimizedCellsInNotebookPanel, getActiveCellIDInNotebookPanel } from '../../../utils/notebook';
 import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
 import { AgentResponse, AIOptimizedCell } from '../../../websockets/completions/CompletionModels';
-import { setVerifiedSnippetMetadata } from '../../../utils/verifiedSnippetMetadata';
+import {
+    findSnippetLineRange,
+    parseVerifiedSnippetCitation,
+    setVerifiedSnippetMetadata,
+} from '../../../utils/verifiedSnippetMetadata';
+import { getVerifiedReport } from '../../../restAPI/RestAPI';
+import { scheduleApplyIndicatorToCell } from '../../VerifiedReports/VerifiedIndicatorPlugin';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 
 export interface IAgentToolExecutionResult {
@@ -112,8 +118,39 @@ export const executeAgentTool = async ({
             const variables = contextManager.getNotebookContext(notebookPanel.id)?.variables;
             const activeCell = notebookPanel.content.activeCell;
 
-            if (agentResponse.verified_snippet_ref && activeCell) {
-                setVerifiedSnippetMetadata(activeCell.model, agentResponse.verified_snippet_ref);
+            if (activeCell) {
+                if (agentResponse.verified_snippet_ref) {
+                    setVerifiedSnippetMetadata(activeCell.model, agentResponse.verified_snippet_ref);
+                    if (activeCell instanceof CodeCell) {
+                        scheduleApplyIndicatorToCell(activeCell);
+                    }
+                } else {
+                    // Fallback: the agent sometimes cites the snippet in its message
+                    // without setting verified_snippet_ref. Recover the report/snippet
+                    // from the citation and locate the snippet lines in the cell code.
+                    const citation = parseVerifiedSnippetCitation(agentResponse.message);
+                    if (citation) {
+                        try {
+                            const report = await getVerifiedReport(citation.reportName);
+                            const snippet = report.snippets.find(s => s.id === citation.snippetId);
+                            if (snippet) {
+                                const cellCode = activeCell.model.sharedModel.getSource();
+                                const { startLine, endLine } = findSnippetLineRange(cellCode, snippet.code);
+                                setVerifiedSnippetMetadata(activeCell.model, {
+                                    report_name: citation.reportName,
+                                    snippet_id: citation.snippetId,
+                                    start_line: startLine,
+                                    end_line: endLine,
+                                });
+                                if (activeCell instanceof CodeCell) {
+                                    scheduleApplyIndicatorToCell(activeCell);
+                                }
+                            }
+                        } catch {
+                            // Report no longer exists; skip the indicator.
+                        }
+                    }
+                }
             }
             if (activeCell && activeCell.model.type === 'code') {
                 const codeCell = activeCell as CodeCell;

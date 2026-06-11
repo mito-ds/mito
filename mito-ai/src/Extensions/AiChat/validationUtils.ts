@@ -25,7 +25,9 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
         'finished_task', 
         'create_streamlit_app', 
         'edit_streamlit_app',
-        'scratchpad'
+        'scratchpad',
+        'read_skill',
+        'read_verified_report',
     ];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 
@@ -73,6 +75,24 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
         
         const scratchpadSummaryType = typeof correctedResponse.scratchpad_summary;
         correctedResponse.scratchpad_summary = scratchpadSummaryType === 'string' ? correctedResponse.scratchpad_summary : undefined;
+    }
+
+    if (correctedResponse.type === 'read_verified_report') {
+        const verifiedReportNameType = typeof correctedResponse.verified_report_name;
+        correctedResponse.verified_report_name = verifiedReportNameType === 'string'
+            ? correctedResponse.verified_report_name
+            : undefined;
+    }
+
+    // Correct verified_snippet_ref - drop it unless it has the expected shape
+    if (correctedResponse.verified_snippet_ref !== undefined && correctedResponse.verified_snippet_ref !== null) {
+        const ref = correctedResponse.verified_snippet_ref;
+        const isValid = typeof ref === 'object'
+            && typeof ref.report_name === 'string'
+            && typeof ref.snippet_id === 'string'
+            && typeof ref.start_line === 'number'
+            && typeof ref.end_line === 'number';
+        correctedResponse.verified_snippet_ref = isValid ? ref : undefined;
     }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 

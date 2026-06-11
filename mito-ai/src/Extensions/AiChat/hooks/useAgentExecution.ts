@@ -294,19 +294,31 @@ export const useAgentExecution = ({
         // Tool finished; backend is now moving to the next LLM step.
         setLoadingStatus('thinking');
 
+        const updatedChatHistoryManager = getDuplicateChatHistoryManager();
+        let didAttachResult = false;
+
         if (
             msg.tool_result.success &&
             msg.tool_result.tool_name === 'scratchpad' &&
             msg.tool_result.output
         ) {
-            const updatedChatHistoryManager = getDuplicateChatHistoryManager();
-            const didAttachResult = updatedChatHistoryManager.attachScratchpadResultToLatestScratchpadMessage(
+            didAttachResult = updatedChatHistoryManager.attachScratchpadResultToLatestScratchpadMessage(
                 msg.tool_result.output
             );
+        }
 
-            if (didAttachResult) {
-                setChatHistoryManager(updatedChatHistoryManager);
-            }
+        if (
+            msg.tool_result.success &&
+            msg.tool_result.tool_name === 'read_verified_report' &&
+            msg.tool_result.output
+        ) {
+            didAttachResult = updatedChatHistoryManager.attachVerifiedReportResultToLatestMessage(
+                msg.tool_result.output
+            ) || didAttachResult;
+        }
+
+        if (didAttachResult) {
+            setChatHistoryManager(updatedChatHistoryManager);
         }
 
         if (!msg.tool_result.success && msg.tool_result.error_message) {
