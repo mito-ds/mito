@@ -61,6 +61,7 @@ interface VerifiedSnippetPortalProps {
     container: HTMLElement;
     reportName: string;
     snippetId: string;
+    displayText?: string;
     app: JupyterFrontEnd;
 }
 
@@ -68,10 +69,11 @@ const VerifiedSnippetPortal: React.FC<VerifiedSnippetPortalProps> = ({
     container,
     reportName,
     snippetId,
+    displayText,
     app,
 }) => {
     return createPortal(
-        <VerifiedSnippetCitation reportName={reportName} snippetId={snippetId} app={app} />,
+        <VerifiedSnippetCitation reportName={reportName} snippetId={snippetId} displayText={displayText} app={app} />,
         container
     );
 };
@@ -101,6 +103,7 @@ interface VerifiedSnippetRef {
     id: string;
     reportName: string;
     snippetId: string;
+    displayText?: string;
 }
 
 const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker, app }) => {
@@ -160,8 +163,9 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         const citationRegex = /\[MITO_CITATION:([^:]+):(\d+(?:-\d+)?)\]/g;
         // Regex for cell references: [MITO_CELL_REF:cell_id]
         const cellRefRegex = /\[MITO_CELL_REF:([^\]]+)\]/g;
-        // Regex for verified snippet citations: [MITO_VERIFIED_SNIPPET:report_name:snippet_id]
-        const verifiedSnippetRegex = /\[MITO_VERIFIED_SNIPPET:([^:]+):([^\]]+)\]/g;
+        // Regex for verified snippet citations: [MITO_VERIFIED_SNIPPET:report_name:snippet_id:display_text]
+        // The display_text is optional to support messages from before it was added.
+        const verifiedSnippetRegex = /\[MITO_VERIFIED_SNIPPET:([^:\]]+):([^:\]]+)(?::([^\]]+))?\]/g;
         
         const citations: Citation[] = [];
         const cellRefs: CellRef[] = [];
@@ -200,12 +204,13 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             return `{{${id}}}`;
         });
 
-        processedMarkdown = processedMarkdown.replace(verifiedSnippetRegex, (match, reportName, snippetId) => {
+        processedMarkdown = processedMarkdown.replace(verifiedSnippetRegex, (match, reportName, snippetId, displayText) => {
             const id = `verifiedsnippet-${verifiedSnippetCounter++}`;
             verifiedSnippets.push({
                 id,
                 reportName: reportName.trim(),
                 snippetId: snippetId.trim(),
+                displayText: displayText?.trim() || undefined,
             });
             return `{{${id}}}`;
         });
@@ -333,6 +338,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                             container={span}
                             reportName={verifiedSnippet.reportName}
                             snippetId={verifiedSnippet.snippetId}
+                            displayText={verifiedSnippet.displayText}
                             app={app}
                         />
                     );

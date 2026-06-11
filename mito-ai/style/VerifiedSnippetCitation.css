@@ -3,21 +3,29 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* Mirrors .cell-reference in CellReference.css so both citation types look the same.
+   Font size/family is inherited from the surrounding message text. */
 .verified-snippet-citation {
-    color: var(--teal-700, #0d6e6e);
-    background-color: var(--teal-100, #d4f0f0);
+    color: var(--purple-600);
     text-decoration: underline;
     cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin: 0 2px;
+    font-weight: 500;
+    padding: 1px 5px;
+    border-radius: 3px;
+    vertical-align: baseline;
     white-space: nowrap;
 }
 
+.verified-snippet-citation svg {
+    width: 13px;
+    height: 13px;
+    vertical-align: -2px;
+    margin-right: 3px;
+}
+
 .verified-snippet-citation:hover {
-    background-color: var(--teal-200, #b8e6e6);
+    background-color: var(--purple-300);
+    color: var(--purple-700);
 }
 
 .verified-snippet-citation.verified-snippet-citation-missing {

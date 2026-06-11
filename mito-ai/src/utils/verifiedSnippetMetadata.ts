@@ -41,8 +41,9 @@ export const getVerifiedSnippetMetadata = (
 };
 
 // Matches the same citation format the agent uses in chat messages,
-// e.g. [MITO_VERIFIED_SNIPPET:retention-report:abc123]
-const VERIFIED_SNIPPET_CITATION_REGEX = /\[MITO_VERIFIED_SNIPPET:([^:]+):([^\]]+)\]/;
+// e.g. [MITO_VERIFIED_SNIPPET:retention-report:abc123:set-intersection approach]
+// The trailing display_text is optional to support citations from before it was added.
+const VERIFIED_SNIPPET_CITATION_REGEX = /\[MITO_VERIFIED_SNIPPET:([^:\]]+):([^:\]]+)(?::([^\]]+))?\]/;
 
 export const parseVerifiedSnippetCitation = (
     message: string,

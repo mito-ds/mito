@@ -7,17 +7,22 @@ import React, { useEffect, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getVerifiedReport } from '../../../restAPI/RestAPI';
 import { COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS } from '../../../commands';
+import VerifiedShieldIcon from '../../../icons/VerifiedShieldIcon';
 import '../../../../style/VerifiedSnippetCitation.css';
 
 export interface VerifiedSnippetCitationProps {
     reportName: string;
     snippetId: string;
+    /* Short description written by the agent, e.g. "set-intersection approach".
+       Falls back to the report name for citations created before this was added. */
+    displayText?: string;
     app: JupyterFrontEnd;
 }
 
 export const VerifiedSnippetCitation: React.FC<VerifiedSnippetCitationProps> = ({
     reportName,
     snippetId,
+    displayText,
     app,
 }): JSX.Element => {
     // Assume the report exists until proven otherwise so the citation doesn't flicker.
@@ -60,7 +65,8 @@ export const VerifiedSnippetCitation: React.FC<VerifiedSnippetCitationProps> = (
             onClick={handleClick}
             title={title}
         >
-            {reportName}
+            <VerifiedShieldIcon />
+            {displayText ?? reportName}
         </span>
     );
 };

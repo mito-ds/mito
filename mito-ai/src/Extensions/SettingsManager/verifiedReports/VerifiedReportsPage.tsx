@@ -15,6 +15,7 @@ import {
     VerifiedReportListItem,
     VerifiedSnippet,
 } from '../../../restAPI/RestAPI';
+import VerifiedShieldIcon from '../../../icons/VerifiedShieldIcon';
 import { slugifyRuleName } from '../../../utils/fileName';
 import '../../../../style/button.css';
 import '../../../../style/SettingsPage.css';
@@ -156,10 +157,22 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
         }
     };
 
+    const formatSnippetDate = (dateString: string): string =>
+        new Date(dateString).toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
+
     return (
         <div className="verified-reports-page">
-            <div className="settings-header">
-                <h2>Verified Reports</h2>
+            <div className="settings-header verified-reports-header">
+                <div className="verified-reports-header-title">
+                    <span className="verified-reports-header-icon" aria-hidden="true">
+                        <VerifiedShieldIcon />
+                    </span>
+                    <h2>Verified Reports</h2>
+                </div>
                 <button
                     type="button"
                     className="button-base button-purple"
@@ -180,6 +193,7 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
 
             <div className="verified-reports-layout">
                 <div className="verified-reports-list">
+                    <div className="verified-reports-list-header">Reports</div>
                     {isCreating && (
                         <div className="verified-reports-create-form">
                             <input
@@ -225,7 +239,9 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
                                         <div className="verified-reports-list-item-description">{report.description}</div>
                                     )}
                                     <div className="verified-reports-list-item-meta">
-                                        {report.snippetCount} snippet{report.snippetCount !== 1 ? 's' : ''}
+                                        <span className="verified-reports-snippet-badge">
+                                            {report.snippetCount} snippet{report.snippetCount !== 1 ? 's' : ''}
+                                        </span>
                                     </div>
                                 </li>
                             ))}
@@ -235,96 +251,135 @@ export const VerifiedReportsPage = ({ deepLink }: IVerifiedReportsPageProps): JS
 
                 <div className="verified-reports-detail">
                     {selectedReport ? (
-                        <>
+                        <div className="verified-reports-detail-panel">
                             <div className="verified-reports-detail-header">
-                                <h3>{selectedReport.name}</h3>
+                                <div>
+                                    <h3>{selectedReport.name}</h3>
+                                    <div className="verified-reports-detail-header-meta">
+                                        {selectedReport.snippets.length} verified snippet
+                                        {selectedReport.snippets.length !== 1 ? 's' : ''}
+                                    </div>
+                                </div>
                                 <button
                                     type="button"
-                                    className="button-base button-red"
+                                    className="verified-reports-text-btn verified-reports-text-btn--danger"
                                     onClick={() => void handleDeleteReport(selectedReport.name)}
                                 >
-                                    Delete Report
+                                    Delete report
                                 </button>
                             </div>
 
-                            <label className="verified-reports-field-label">Description</label>
-                            <textarea
-                                className="verified-reports-description-input"
-                                value={selectedReport.description}
-                                onChange={(e) => setSelectedReport({ ...selectedReport, description: e.target.value })}
-                                onBlur={() => void handleUpdateDescription()}
-                                rows={2}
-                            />
+                            <div className="verified-reports-section">
+                                <label className="verified-reports-field-label" htmlFor="verified-report-description">
+                                    Description
+                                </label>
+                                <textarea
+                                    id="verified-report-description"
+                                    className="verified-reports-description-input"
+                                    value={selectedReport.description}
+                                    onChange={(e) => setSelectedReport({ ...selectedReport, description: e.target.value })}
+                                    onBlur={() => void handleUpdateDescription()}
+                                    rows={2}
+                                    placeholder="What can the agent learn from this report?"
+                                />
+                            </div>
 
-                            <h4>Snippets</h4>
-                            {selectedReport.snippets.length === 0 ? (
-                                <p className="verified-reports-empty">
-                                    No snippets yet. Select code in a notebook and click &quot;Add Verified Snippet&quot;.
-                                </p>
-                            ) : (
-                                selectedReport.snippets.map(snippet => (
-                                    <div
-                                        key={snippet.id}
-                                        ref={(el) => { snippetRefs.current[snippet.id] = el; }}
-                                        className={`verified-snippet-card ${highlightedSnippetId === snippet.id ? 'highlighted' : ''}`}
-                                    >
-                                        <div className="verified-snippet-card-header">
-                                            <span className="verified-snippet-id" title={`Snippet ID: ${snippet.id}`}>
-                                                Added {new Date(snippet.created_at).toLocaleDateString()}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                className="button-base button-red"
-                                                onClick={() => void handleDeleteSnippet(snippet.id)}
-                                            >
-                                                Delete
-                                            </button>
+                            <div className="verified-reports-section">
+                                <div className="verified-reports-section-header">
+                                    <h4>Snippets</h4>
+                                </div>
+                                {selectedReport.snippets.length === 0 ? (
+                                    <p className="verified-reports-empty">
+                                        No snippets yet. Select code in a notebook and click &quot;Add Verified Snippet&quot;.
+                                    </p>
+                                ) : (
+                                    selectedReport.snippets.map(snippet => (
+                                        <div
+                                            key={snippet.id}
+                                            ref={(el) => { snippetRefs.current[snippet.id] = el; }}
+                                            className={`verified-snippet-card ${highlightedSnippetId === snippet.id ? 'highlighted' : ''}`}
+                                        >
+                                            <div className="verified-snippet-card-header">
+                                                <span className="verified-snippet-date" title={`Snippet ID: ${snippet.id}`}>
+                                                    Added {formatSnippetDate(snippet.created_at)}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    className="verified-reports-text-btn verified-reports-text-btn--danger"
+                                                    onClick={() => void handleDeleteSnippet(snippet.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                            <div className="verified-snippet-code-block">
+                                                <div className="verified-snippet-code-label">Code</div>
+                                                <pre className="verified-snippet-code">{snippet.code}</pre>
+                                            </div>
+                                            <div className="verified-snippet-card-fields">
+                                                <div>
+                                                    <label className="verified-reports-field-label" htmlFor={`snippet-comment-${snippet.id}`}>
+                                                        Your comment
+                                                    </label>
+                                                    <textarea
+                                                        id={`snippet-comment-${snippet.id}`}
+                                                        className="verified-reports-textarea"
+                                                        value={snippet.comment}
+                                                        onChange={(e) => {
+                                                            setSelectedReport({
+                                                                ...selectedReport,
+                                                                snippets: selectedReport.snippets.map(s =>
+                                                                    s.id === snippet.id ? { ...s, comment: e.target.value } : s
+                                                                ),
+                                                            });
+                                                        }}
+                                                        onBlur={() => {
+                                                            const current = selectedReport.snippets.find(s => s.id === snippet.id);
+                                                            if (current) {
+                                                                void handleUpdateSnippet(current);
+                                                            }
+                                                        }}
+                                                        rows={2}
+                                                        placeholder="Explain why this approach is verified"
+                                                    />
+                                                </div>
+                                                <div className="verified-reports-field--ai">
+                                                    <label className="verified-reports-field-label" htmlFor={`snippet-ai-${snippet.id}`}>
+                                                        AI-generated context
+                                                    </label>
+                                                    <textarea
+                                                        id={`snippet-ai-${snippet.id}`}
+                                                        className="verified-reports-textarea verified-reports-textarea--ai"
+                                                        value={snippet.ai_context}
+                                                        onChange={(e) => {
+                                                            setSelectedReport({
+                                                                ...selectedReport,
+                                                                snippets: selectedReport.snippets.map(s =>
+                                                                    s.id === snippet.id ? { ...s, ai_context: e.target.value } : s
+                                                                ),
+                                                            });
+                                                        }}
+                                                        onBlur={() => {
+                                                            const current = selectedReport.snippets.find(s => s.id === snippet.id);
+                                                            if (current) {
+                                                                void handleUpdateSnippet(current);
+                                                            }
+                                                        }}
+                                                        rows={3}
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
-                                        <pre className="verified-snippet-code">{snippet.code}</pre>
-                                        <label className="verified-reports-field-label">Your comment</label>
-                                        <textarea
-                                            value={snippet.comment}
-                                            onChange={(e) => {
-                                                setSelectedReport({
-                                                    ...selectedReport,
-                                                    snippets: selectedReport.snippets.map(s =>
-                                                        s.id === snippet.id ? { ...s, comment: e.target.value } : s
-                                                    ),
-                                                });
-                                            }}
-                                            onBlur={() => {
-                                                const current = selectedReport.snippets.find(s => s.id === snippet.id);
-                                                if (current) {
-                                                    void handleUpdateSnippet(current);
-                                                }
-                                            }}
-                                            rows={2}
-                                        />
-                                        <label className="verified-reports-field-label">AI-generated context</label>
-                                        <textarea
-                                            value={snippet.ai_context}
-                                            onChange={(e) => {
-                                                setSelectedReport({
-                                                    ...selectedReport,
-                                                    snippets: selectedReport.snippets.map(s =>
-                                                        s.id === snippet.id ? { ...s, ai_context: e.target.value } : s
-                                                    ),
-                                                });
-                                            }}
-                                            onBlur={() => {
-                                                const current = selectedReport.snippets.find(s => s.id === snippet.id);
-                                                if (current) {
-                                                    void handleUpdateSnippet(current);
-                                                }
-                                            }}
-                                            rows={3}
-                                        />
-                                    </div>
-                                ))
-                            )}
-                        </>
+                                    ))
+                                )}
+                            </div>
+                        </div>
                     ) : (
-                        <p className="verified-reports-empty">Select a report to view its snippets.</p>
+                        <div className="verified-reports-empty-panel">
+                            <span className="verified-reports-empty-panel-icon" aria-hidden="true">
+                                <VerifiedShieldIcon />
+                            </span>
+                            <p>Select a report to view its verified snippets.</p>
+                        </div>
                     )}
                 </div>
             </div>
