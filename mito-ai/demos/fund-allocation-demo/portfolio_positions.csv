@@ -1,0 +1,7 @@
+fund_id,fund_name,asset_class,sleeve,market_value_usd,as_of_date
+VTI,Vanguard Total Stock Market ETF,US Equity,Public Markets,92000000,2026-03-31
+VXUS,Vanguard Total International Stock ETF,Intl Equity,Public Markets,24000000,2026-03-31
+AGG,iShares Core US Aggregate Bond ETF,Fixed Income,Public Markets,50000000,2026-03-31
+VNQ,Vanguard Real Estate ETF,Real Assets,Public Markets,18000000,2026-03-31
+PE-KKR-IV,KKR Americas Fund IV,Private Equity,Alternatives,12000000,2026-03-31
+CASH,Money Market Sweep,Cash,Liquidity,4000000,2026-03-31

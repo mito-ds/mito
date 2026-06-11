@@ -1,0 +1,20 @@
+{
+  "name": "fund-allocation-report",
+  "description": "Verified patterns for comparing portfolio positions to IPS target allocation and flagging rebalance triggers.",
+  "snippets": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "code": "total_aum = positions_df['market_value_usd'].sum()\ncurrent_allocation_df = (\n    positions_df.groupby('asset_class', as_index=False)['market_value_usd']\n    .sum()\n    .assign(current_weight_pct=lambda d: d['market_value_usd'] / total_aum * 100)\n    .sort_values('current_weight_pct', ascending=False)\n)",
+      "comment": "Always roll positions up to asset-class weights before comparing to IPS targets. Use market_value_usd, not fund count.",
+      "ai_context": "Requires positions_df with columns asset_class and market_value_usd. Produces current_allocation_df with one row per asset class, including current_weight_pct as a percentage of total AUM. Run this before any IPS comparison.",
+      "created_at": "2026-06-11T00:00:00+00:00"
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "code": "allocation_vs_ips_df = current_allocation_df.merge(ips_df, on='asset_class', how='left')\nallocation_vs_ips_df['drift_from_target_pct'] = (\n    allocation_vs_ips_df['current_weight_pct'] - allocation_vs_ips_df['target_weight_pct']\n)\nallocation_vs_ips_df['outside_band'] = (\n    (allocation_vs_ips_df['drift_from_target_pct'].abs() > allocation_vs_ips_df['rebalance_band_pct'])\n    | (allocation_vs_ips_df['current_weight_pct'] < allocation_vs_ips_df['min_weight_pct'])\n    | (allocation_vs_ips_df['current_weight_pct'] > allocation_vs_ips_df['max_weight_pct'])\n)",
+      "comment": "A sleeve is outside band if drift exceeds the rebalance threshold OR weight breaches min/max — check both conditions.",
+      "ai_context": "Requires current_allocation_df (from the weight rollup snippet) and ips_df with target_weight_pct, min_weight_pct, max_weight_pct, and rebalance_band_pct. Produces allocation_vs_ips_df with drift_from_target_pct and a boolean outside_band column. Filter outside_band == True to list sleeves that need rebalancing.",
+      "created_at": "2026-06-11T00:00:00+00:00"
+    }
+  ]
+}
