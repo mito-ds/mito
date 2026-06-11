@@ -190,11 +190,19 @@ export const useAgentExecution = ({
     ): Promise<void> => {
         // Only handle commands for the current thread
         if (command.thread_id !== activeThreadIdRef.current) {
+            sendToolResult(websocketClient, command.thread_id, false, {
+                errorMessage: 'Tool request ignored: thread ID does not match active chat',
+                toolType: command.agent_response.type,
+            });
             return;
         }
 
         // If the agent has been told to stop, don't execute
         if (!shouldContinueAgentExecution.current) {
+            sendToolResult(websocketClient, command.thread_id, false, {
+                errorMessage: 'Agent stopped before tool could execute',
+                toolType: command.agent_response.type,
+            });
             return;
         }
 
