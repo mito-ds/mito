@@ -9,7 +9,11 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { Compartment, StateEffect } from '@codemirror/state';
-import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
+import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, VERIFIED_SNIPPET_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
+import { addVerifiedSnippet, getVerifiedReports, VerifiedReportListItem } from '../../restAPI/RestAPI';
+import { slugifyRuleName } from '../../utils/fileName';
+import { COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS } from '../../commands';
+import { Notification } from '@jupyterlab/apputils';
 import { commentGutterIndicator, CommentLineRange, COMMENT_INDICATOR_CLICK_EVENT, CommentIndicatorClickDetail } from './CommentGutterIndicator';
 import {
     COMMAND_MITO_AI_ADD_CODE_COMMENT,
@@ -147,6 +151,151 @@ function showCommentPopover(
     document.body.appendChild(popover);
 
     requestAnimationFrame(() => textarea.focus());
+}
+
+function showVerifiedSnippetPopover(
+    rect: DOMRect,
+    reports: VerifiedReportListItem[],
+    onSubmit: (reportName: string, comment: string, isNewReport: boolean, newDescription?: string) => void,
+): void {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'comment-popover-backdrop';
+
+    const popover = document.createElement('div');
+    popover.className = 'comment-popover verified-snippet-popover';
+
+    const popoverWidth = 360;
+    const popoverHeight = 280;
+    const gap = 4;
+    const margin = 16;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    if (rect.bottom + gap + popoverHeight > vh - margin) {
+        popover.style.bottom = `${vh - rect.top + gap}px`;
+    } else {
+        popover.style.top = `${rect.bottom + gap}px`;
+    }
+
+    const rightEdge = vw - rect.right;
+    if (rect.right - popoverWidth < margin) {
+        popover.style.left = `${Math.max(margin, rect.left)}px`;
+    } else if (rect.right > vw - margin) {
+        popover.style.right = `${margin}px`;
+    } else {
+        popover.style.right = `${rightEdge}px`;
+    }
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'comment-popover-close';
+    closeBtn.textContent = '×';
+
+    const reportLabel = document.createElement('label');
+    reportLabel.textContent = 'Verified Report';
+    reportLabel.className = 'verified-snippet-popover-label';
+
+    const reportSelect = document.createElement('select');
+    reportSelect.className = 'verified-snippet-popover-select';
+
+    const newOption = document.createElement('option');
+    newOption.value = '__new__';
+    newOption.textContent = 'Create new report...';
+    reportSelect.appendChild(newOption);
+
+    reports.forEach(report => {
+        const option = document.createElement('option');
+        option.value = report.name;
+        option.textContent = report.name;
+        reportSelect.appendChild(option);
+    });
+
+    const newReportFields = document.createElement('div');
+    newReportFields.className = 'verified-snippet-new-report-fields';
+    newReportFields.style.display = 'none';
+
+    const nameInput = document.createElement('input');
+    nameInput.placeholder = 'Report name';
+    nameInput.className = 'verified-snippet-popover-input';
+
+    const descriptionInput = document.createElement('textarea');
+    descriptionInput.placeholder = 'What can the agent learn from this report?';
+    descriptionInput.className = 'verified-snippet-popover-textarea';
+    descriptionInput.rows = 2;
+
+    newReportFields.appendChild(nameInput);
+    newReportFields.appendChild(descriptionInput);
+
+    const commentLabel = document.createElement('label');
+    commentLabel.textContent = 'Best practice comment';
+    commentLabel.className = 'verified-snippet-popover-label';
+
+    const commentTextarea = document.createElement('textarea');
+    commentTextarea.placeholder = 'Explain the best practice in this code...';
+    commentTextarea.className = 'verified-snippet-popover-textarea';
+
+    const buttonsDiv = document.createElement('div');
+    buttonsDiv.className = 'comment-popover-buttons';
+
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'comment-popover-submit';
+    submitBtn.textContent = 'Save Verified Snippet';
+    buttonsDiv.appendChild(submitBtn);
+
+    popover.appendChild(closeBtn);
+    popover.appendChild(reportLabel);
+    popover.appendChild(reportSelect);
+    popover.appendChild(newReportFields);
+    popover.appendChild(commentLabel);
+    popover.appendChild(commentTextarea);
+    popover.appendChild(buttonsDiv);
+
+    const cleanup = (): void => {
+        backdrop.remove();
+        popover.remove();
+    };
+
+    reportSelect.addEventListener('change', () => {
+        newReportFields.style.display = reportSelect.value === '__new__' ? 'block' : 'none';
+    });
+
+    const submit = (): void => {
+        const comment = commentTextarea.value.trim();
+        if (!comment) {
+            return;
+        }
+
+        const isNewReport = reportSelect.value === '__new__';
+        if (isNewReport) {
+            const reportName = slugifyRuleName(nameInput.value);
+            if (!reportName) {
+                Notification.error('Report name is required.', { autoClose: 3000 });
+                return;
+            }
+            onSubmit(reportName, comment, true, descriptionInput.value.trim());
+        } else {
+            onSubmit(reportSelect.value, comment, false);
+        }
+        cleanup();
+    };
+
+    backdrop.addEventListener('click', cleanup);
+    closeBtn.addEventListener('click', cleanup);
+    submitBtn.addEventListener('click', submit);
+    commentTextarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            submit();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cleanup();
+        }
+    });
+    popover.addEventListener('click', (e) => e.stopPropagation());
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(popover);
+
+    requestAnimationFrame(() => commentTextarea.focus());
 }
 
 /**
@@ -597,6 +746,62 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
                     value,
                     display: truncatedDisplay,
                 });
+            });
+        }) as EventListener);
+
+        document.addEventListener(VERIFIED_SNIPPET_TOOLTIP_CLICK_EVENT, ((e: CustomEvent<CommentTooltipClickDetail>) => {
+            const { rect } = e.detail;
+
+            const notebookPanel = notebookTracker.currentWidget;
+            if (!notebookPanel) {
+                return;
+            }
+
+            const activeCell = notebookPanel.content.activeCell;
+            if (!activeCell || !(activeCell instanceof CodeCell)) {
+                return;
+            }
+
+            const cmEditor = activeCell.editor as any;
+            const editorView = cmEditor?.editor;
+
+            if (!editorView) {
+                return;
+            }
+
+            const state = editorView.state;
+            const selection = state.selection.main;
+            const selectedCode = state.sliceDoc(selection.from, selection.to);
+            const cellCode = state.doc.toString();
+
+            dismissCommentTooltip(editorView);
+
+            void getVerifiedReports().then(reports => {
+                showVerifiedSnippetPopover(rect, reports, (reportName, comment, isNewReport, newDescription) => {
+                    void addVerifiedSnippet(
+                        reportName,
+                        selectedCode,
+                        comment,
+                        cellCode,
+                        isNewReport ? newDescription : undefined,
+                    ).then(snippet => {
+                        Notification.success('Verified snippet saved.', { autoClose: 4000 });
+                        void commands.execute(COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS, {
+                            reportName,
+                            snippetId: snippet.id,
+                        });
+                    }).catch(err => {
+                        Notification.error(
+                            err instanceof Error ? err.message : 'Failed to save verified snippet.',
+                            { autoClose: 5000 },
+                        );
+                    });
+                });
+            }).catch(err => {
+                Notification.error(
+                    err instanceof Error ? err.message : 'Failed to load verified reports.',
+                    { autoClose: 5000 },
+                );
             });
         }) as EventListener);
 

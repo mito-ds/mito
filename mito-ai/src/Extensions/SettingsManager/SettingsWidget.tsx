@@ -9,6 +9,7 @@ import { DatabasePage } from './database/DatabasePage';
 import { SupportPage } from './support/SupportPage';
 import { GeneralPage } from './general/GeneralPage';
 import { RulesPage } from './rules/RulesPage';
+import { VerifiedReportsPage, IVerifiedReportsDeepLink } from './verifiedReports/VerifiedReportsPage';
 import { ProfilerPage } from './profiler/ProfilerPage';
 import { SubscriptionPage } from './subscription/SubscriptionPage';
 import { MCPPage } from './mcp/MCPPage';
@@ -16,7 +17,9 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import XMarkIcon from '../../icons/XMark';
 import '../../../style/SettingsWidget.css';
 
-const TABS_CONFIG = (contextManager: IContextManager) => ({
+type TabKey = 'general' | 'subscription' | 'database' | 'mcp' | 'rules' | 'verifiedReports' | 'profiler' | 'support';
+
+const TABS_CONFIG = (contextManager: IContextManager, deepLink?: IVerifiedReportsDeepLink) => ({
     general: {
         label: 'General',
         component: GeneralPage
@@ -37,6 +40,10 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
         label: 'Rules',
         component: RulesPage
     },
+    verifiedReports: {
+        label: 'Verified Reports',
+        component: () => <VerifiedReportsPage deepLink={deepLink} />
+    },
     profiler: {
         label: 'Profiler',
         component: () => <ProfilerPage contextManager={contextManager} />
@@ -50,13 +57,14 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
 
 interface AppProps {
     contextManager: IContextManager;
-    initialTab?: keyof ReturnType<typeof TABS_CONFIG>;
+    initialTab?: TabKey;
+    deepLink?: IVerifiedReportsDeepLink;
     onClose: () => void;
 }
 
-const App = ({ contextManager, initialTab = 'general', onClose }: AppProps): JSX.Element => {
-    const [activeTab, setActiveTab] = useState<keyof ReturnType<typeof TABS_CONFIG>>(initialTab);
-    const tabsConfig = TABS_CONFIG(contextManager);
+const App = ({ contextManager, initialTab = 'general', deepLink, onClose }: AppProps): JSX.Element => {
+    const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
+    const tabsConfig = TABS_CONFIG(contextManager, deepLink);
 
     const renderContent = (): JSX.Element => {
         const TabComponent = tabsConfig[activeTab].component;
@@ -82,7 +90,7 @@ const App = ({ contextManager, initialTab = 'general', onClose }: AppProps): JSX
                                 <li
                                     key={key}
                                     className={activeTab === key ? 'active' : ''}
-                                    onClick={() => setActiveTab(key as keyof ReturnType<typeof TABS_CONFIG>)}
+                                    onClick={() => setActiveTab(key as TabKey)}
                                 >
                                     {label}
                                 </li>
@@ -100,17 +108,20 @@ const App = ({ contextManager, initialTab = 'general', onClose }: AppProps): JSX
 
 export class SettingsWidget extends ReactWidget {
     private contextManager: IContextManager;
-    private initialTab?: keyof ReturnType<typeof TABS_CONFIG>;
+    private initialTab?: TabKey;
+    private deepLink?: IVerifiedReportsDeepLink;
     private onClose: () => void;
 
     constructor(
         contextManager: IContextManager,
-        initialTab?: keyof ReturnType<typeof TABS_CONFIG>,
-        onClose?: () => void
+        initialTab?: TabKey,
+        onClose?: () => void,
+        deepLink?: IVerifiedReportsDeepLink,
     ) {
         super();
         this.contextManager = contextManager;
         this.initialTab = initialTab;
+        this.deepLink = deepLink;
         this.onClose = onClose ?? (() => undefined);
         this.addClass('jp-ReactWidget');
     }
@@ -120,6 +131,7 @@ export class SettingsWidget extends ReactWidget {
             <App
                 contextManager={this.contextManager}
                 initialTab={this.initialTab}
+                deepLink={this.deepLink}
                 onClose={this.onClose}
             />
         );

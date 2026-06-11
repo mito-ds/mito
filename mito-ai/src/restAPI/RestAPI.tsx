@@ -126,6 +126,119 @@ export const deleteRule = async(ruleName: string): Promise<void> => {
 
 /************************************
 
+VERIFIED REPORTS ENDPOINTS
+
+************************************/
+
+export interface VerifiedSnippet {
+    id: string;
+    code: string;
+    comment: string;
+    ai_context: string;
+    created_at: string;
+}
+
+export interface VerifiedReport {
+    name: string;
+    description: string;
+    snippets: VerifiedSnippet[];
+}
+
+export interface VerifiedReportListItem {
+    name: string;
+    description: string;
+    snippetCount: number;
+}
+
+export const getVerifiedReports = async (): Promise<VerifiedReportListItem[]> => {
+    const resp = await requestAPI<Array<{ name: string; description: string; snippet_count: number }>>('verified-reports');
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return (resp.data || []).map(r => ({
+        name: r.name,
+        description: r.description,
+        snippetCount: r.snippet_count,
+    }));
+};
+
+export const getVerifiedReport = async (reportName: string): Promise<VerifiedReport> => {
+    const resp = await requestAPI<VerifiedReport>(`verified-reports/${reportName}`);
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data as VerifiedReport;
+};
+
+export const setVerifiedReport = async (reportName: string, description: string): Promise<void> => {
+    const resp = await requestAPI<{ status: string }>(`verified-reports/${reportName}`, {
+        method: 'PUT',
+        body: JSON.stringify({ description }),
+    });
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+};
+
+export const deleteVerifiedReport = async (reportName: string): Promise<void> => {
+    const resp = await requestAPI<{ status: string }>(`verified-reports/${reportName}`, {
+        method: 'DELETE',
+    });
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+};
+
+export const addVerifiedSnippet = async (
+    reportName: string,
+    code: string,
+    comment: string,
+    cellCode: string,
+    description?: string,
+): Promise<VerifiedSnippet> => {
+    const body: { code: string; comment: string; cell_code: string; description?: string } = {
+        code,
+        comment,
+        cell_code: cellCode,
+    };
+    if (description !== undefined) {
+        body.description = description;
+    }
+    const resp = await requestAPI<{ snippet: VerifiedSnippet }>(`verified-reports/${reportName}/snippets`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!.snippet;
+};
+
+export const updateVerifiedSnippet = async (
+    reportName: string,
+    snippetId: string,
+    updates: { comment?: string; ai_context?: string },
+): Promise<void> => {
+    const resp = await requestAPI<{ status: string }>(`verified-reports/${reportName}/snippets/${snippetId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+    });
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+};
+
+export const deleteVerifiedSnippet = async (reportName: string, snippetId: string): Promise<void> => {
+    const resp = await requestAPI<{ status: string }>(`verified-reports/${reportName}/snippets/${snippetId}`, {
+        method: 'DELETE',
+    });
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+};
+
+/************************************
+
 DATABASE ENDPOINTS
 
 ************************************/

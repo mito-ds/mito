@@ -7,7 +7,9 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyte
 import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { SettingsWidget } from './SettingsWidget';
+import { IVerifiedReportsDeepLink } from './verifiedReports/VerifiedReportsPage';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+import { COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS } from '../../commands';
 
 const SETTINGS_WIDGET_ID = 'mito-ai-settings';
 
@@ -25,6 +27,8 @@ function getNotebookIdBeforeSettings(
 export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
 export const COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION = 'mito-ai:open-settings-subscription';
 export const COMMAND_MITO_AI_SETTINGS_DATABASE = 'mito-ai:open-settings-database';
+
+type SettingsTab = 'database' | 'mcp' | 'general' | 'subscription' | 'rules' | 'verifiedReports' | 'profiler' | 'support';
 
 /**
  * Initialization data for the mito settings extension.
@@ -58,8 +62,8 @@ function _activate(
     };
 
     // Create a widget creator function
-    const newWidget = (initialTab?: 'database' | 'mcp' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): MainAreaWidget => {
-        const content = new SettingsWidget(contextManager, initialTab, closeSettings);
+    const newWidget = (initialTab?: SettingsTab, deepLink?: IVerifiedReportsDeepLink): MainAreaWidget => {
+        const content = new SettingsWidget(contextManager, initialTab, closeSettings, deepLink);
         const widget = new MainAreaWidget({ content });
         widget.id = SETTINGS_WIDGET_ID;
         widget.title.label = 'Mito AI Settings';
@@ -75,7 +79,7 @@ function _activate(
     });
 
     // Reusable function to open settings with a specific tab
-    const openSettingsWithTab = (initialTab?: 'database' | 'mcp' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): void => {
+    const openSettingsWithTab = (initialTab?: SettingsTab, deepLink?: IVerifiedReportsDeepLink): void => {
         if (app.shell.currentWidget?.id !== SETTINGS_WIDGET_ID) {
             previousNotebookId = getNotebookIdBeforeSettings(app, notebookTracker);
         }
@@ -84,7 +88,7 @@ function _activate(
         if (widget && !widget.isDisposed) {
             widget.dispose();
         }
-        widget = newWidget(initialTab);
+        widget = newWidget(initialTab, deepLink);
 
         // Add the widget to the tracker
         if (!tracker.has(widget)) {
@@ -127,6 +131,16 @@ function _activate(
         label: 'Mito AI Settings: Database',
         execute: () => {
             openSettingsWithTab('database');
+        }
+    });
+
+    app.commands.addCommand(COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS, {
+        label: 'Mito AI Settings: Verified Reports',
+        execute: (args?: { reportName?: string; snippetId?: string }) => {
+            openSettingsWithTab('verifiedReports', {
+                reportName: args?.reportName,
+                snippetId: args?.snippetId,
+            });
         }
     });
 

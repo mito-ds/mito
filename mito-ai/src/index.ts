@@ -21,6 +21,7 @@ import ChartWizardPlugin from './Extensions/ChartWizard/ChartWizardPlugin';
 import NotebookViewModePlugin from './Extensions/NotebookViewMode/NotebookViewModePlugin';
 import DocumentTableOfContentsPlugin from './Extensions/DocumentTableOfContents/DocumentTableOfContentsPlugin';
 import CommentsPlugin from './Extensions/Comments/CommentsPlugin';
+import VerifiedIndicatorPlugin from './Extensions/VerifiedReports/VerifiedIndicatorPlugin';
 
 // This is the main entry point to the mito-ai extension. It must export all of the top level
 // extensions that we want to load.
@@ -42,5 +43,6 @@ export default [
   ChartWizardPlugin,
   NotebookViewModePlugin,
   DocumentTableOfContentsPlugin,
-  CommentsPlugin
+  CommentsPlugin,
+  VerifiedIndicatorPlugin
 ];

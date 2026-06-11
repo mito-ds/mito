@@ -40,8 +40,15 @@ export type CellUpdateNew = {
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
+export type VerifiedSnippetRef = {
+  report_name: string,
+  snippet_id: string,
+  start_line: number,
+  end_line: number,
+}
+
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad' | 'read_skill'
+  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad' | 'read_skill' | 'read_verified_report'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
@@ -53,6 +60,8 @@ export type AgentResponse = {
   scratchpad_code?: string | null | undefined
   scratchpad_summary?: string | null | undefined
   skill_name?: string | null | undefined
+  verified_report_name?: string | null | undefined
+  verified_snippet_ref?: VerifiedSnippetRef | null | undefined
 }
 
 /* 

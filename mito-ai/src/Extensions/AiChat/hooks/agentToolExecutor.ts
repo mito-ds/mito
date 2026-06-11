@@ -17,6 +17,7 @@ import { getCellOutputByIDInNotebook } from '../../../utils/cellOutput';
 import { didCellExecutionError, getAIOptimizedCellsInNotebookPanel, getActiveCellIDInNotebookPanel } from '../../../utils/notebook';
 import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
 import { AgentResponse, AIOptimizedCell } from '../../../websockets/completions/CompletionModels';
+import { setVerifiedSnippetMetadata } from '../../../utils/verifiedSnippetMetadata';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 
 export interface IAgentToolExecutionResult {
@@ -110,6 +111,10 @@ export const executeAgentTool = async ({
             const activeCellId = getActiveCellIDInNotebookPanel(notebookPanel);
             const variables = contextManager.getNotebookContext(notebookPanel.id)?.variables;
             const activeCell = notebookPanel.content.activeCell;
+
+            if (agentResponse.verified_snippet_ref && activeCell) {
+                setVerifiedSnippetMetadata(activeCell.model, agentResponse.verified_snippet_ref);
+            }
             if (activeCell && activeCell.model.type === 'code') {
                 const codeCell = activeCell as CodeCell;
                 if (didCellExecutionError(codeCell)) {
@@ -275,6 +280,8 @@ export const executeAgentTool = async ({
         }
         case 'read_skill':
             return unsupportedFrontendToolResult('read_skill');
+        case 'read_verified_report':
+            return unsupportedFrontendToolResult('read_verified_report');
         case 'finished_task':
         default:
             return unsupportedFrontendToolResult(agentResponse.type);

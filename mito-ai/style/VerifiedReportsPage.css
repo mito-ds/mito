@@ -1,0 +1,167 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.verified-reports-layout {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+}
+
+.verified-reports-list {
+    flex: 0 0 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.verified-reports-list-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.verified-reports-list-items li {
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--jp-border-color2);
+    margin-bottom: 6px;
+}
+
+.verified-reports-list-items li:hover,
+.verified-reports-list-items li.active {
+    background-color: var(--jp-layout-color2);
+}
+
+.verified-reports-list-item-name {
+    font-weight: 600;
+}
+
+.verified-reports-list-item-meta {
+    font-size: 12px;
+    color: var(--jp-ui-font-color2);
+}
+
+.verified-reports-detail {
+    flex: 1;
+    min-width: 0;
+}
+
+.verified-reports-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.verified-reports-field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+.verified-reports-description-input,
+.verified-snippet-card textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--jp-border-color2);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.verified-snippet-card {
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.verified-snippet-card.highlighted {
+    border-color: var(--teal-500, #5cc4c4);
+    box-shadow: 0 0 0 2px var(--teal-200, #b8e6e6);
+}
+
+.verified-snippet-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.verified-snippet-id {
+    font-size: 11px;
+    color: var(--jp-ui-font-color2);
+}
+
+.verified-snippet-code {
+    background-color: var(--jp-layout-color2);
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
+
+.verified-reports-empty {
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
+}
+
+.verified-reports-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 6px;
+}
+
+.verified-reports-create-form input,
+.verified-reports-create-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--jp-border-color2);
+}
+
+.verified-reports-create-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.verified-snippet-popover {
+    width: 360px;
+}
+
+.verified-snippet-popover-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    margin-top: 8px;
+}
+
+.verified-snippet-popover-select,
+.verified-snippet-popover-input,
+.verified-snippet-popover-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--jp-border-color2);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.verified-snippet-new-report-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}

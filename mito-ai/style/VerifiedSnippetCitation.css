@@ -1,0 +1,33 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.verified-snippet-citation {
+    color: var(--teal-700, #0d6e6e);
+    background-color: var(--teal-100, #d4f0f0);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 0 2px;
+    white-space: nowrap;
+}
+
+.verified-snippet-citation:hover {
+    background-color: var(--teal-200, #b8e6e6);
+}
+
+.verified-snippet-citation.verified-snippet-citation-missing {
+    color: var(--jp-ui-font-color2);
+    background-color: var(--jp-layout-color3);
+    text-decoration: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.verified-snippet-citation.verified-snippet-citation-missing:hover {
+    background-color: var(--jp-layout-color3);
+}

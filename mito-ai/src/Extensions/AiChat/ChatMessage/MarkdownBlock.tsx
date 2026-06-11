@@ -7,6 +7,8 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
 import { Citation, CitationProps, CitationLine } from './Citation';
+import { VerifiedSnippetCitation } from './VerifiedSnippetCitation';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { scrollToCell, highlightCodeCell } from '../../../utils/notebook';
 import { useCellOrder } from '../../../hooks/useCellOrder';
@@ -55,10 +57,30 @@ const CitationPortal: React.FC<CitationPortalProps> = ({ container, ...props }) 
     return createPortal(<Citation {...props} />, container);
 };
 
+interface VerifiedSnippetPortalProps {
+    container: HTMLElement;
+    reportName: string;
+    snippetId: string;
+    app: JupyterFrontEnd;
+}
+
+const VerifiedSnippetPortal: React.FC<VerifiedSnippetPortalProps> = ({
+    container,
+    reportName,
+    snippetId,
+    app,
+}) => {
+    return createPortal(
+        <VerifiedSnippetCitation reportName={reportName} snippetId={snippetId} app={app} />,
+        container
+    );
+};
+
 interface IMarkdownCodeProps {
     markdown: string;
     renderMimeRegistry: IRenderMimeRegistry;
     notebookTracker: INotebookTracker;
+    app: JupyterFrontEnd;
 }
 
 interface Citation {
@@ -75,7 +97,13 @@ interface CellRef {
     cellId: string;
 }
 
-const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker }) => {
+interface VerifiedSnippetRef {
+    id: string;
+    reportName: string;
+    snippetId: string;
+}
+
+const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker, app }) => {
     const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     
@@ -126,16 +154,21 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         processedMarkdown: string; 
         citations: Citation[];
         cellRefs: CellRef[];
+        verifiedSnippets: VerifiedSnippetRef[];
     } => {
         // Regex for citations: [MITO_CITATION:cell_id:line_number] or [MITO_CITATION:cell_id:start_line-end_line]
         const citationRegex = /\[MITO_CITATION:([^:]+):(\d+(?:-\d+)?)\]/g;
         // Regex for cell references: [MITO_CELL_REF:cell_id]
         const cellRefRegex = /\[MITO_CELL_REF:([^\]]+)\]/g;
+        // Regex for verified snippet citations: [MITO_VERIFIED_SNIPPET:report_name:snippet_id]
+        const verifiedSnippetRegex = /\[MITO_VERIFIED_SNIPPET:([^:]+):([^\]]+)\]/g;
         
         const citations: Citation[] = [];
         const cellRefs: CellRef[] = [];
+        const verifiedSnippets: VerifiedSnippetRef[] = [];
         let citationCounter = 0;
         let cellRefCounter = 0;
+        let verifiedSnippetCounter = 0;
 
         // First, replace citations with placeholders
         let processedMarkdown = text.replace(citationRegex, (match, cellId, lineStr) => {
@@ -167,7 +200,17 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             return `{{${id}}}`;
         });
 
-        return { processedMarkdown, citations, cellRefs };
+        processedMarkdown = processedMarkdown.replace(verifiedSnippetRegex, (match, reportName, snippetId) => {
+            const id = `verifiedsnippet-${verifiedSnippetCounter++}`;
+            verifiedSnippets.push({
+                id,
+                reportName: reportName.trim(),
+                snippetId: snippetId.trim(),
+            });
+            return `{{${id}}}`;
+        });
+
+        return { processedMarkdown, citations, cellRefs, verifiedSnippets };
     }, []);
 
     // Uses the Jupyter markdowm MimeRenderer to render the markdown content as normal HTML
@@ -194,15 +237,17 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     // Replace the citation and cell reference placeholders with components in the DOM
     const createPortalsFromPlaceholders = useCallback((
         citations: Citation[], 
-        cellRefs: CellRef[]
+        cellRefs: CellRef[],
+        verifiedSnippets: VerifiedSnippetRef[],
     ): React.ReactElement[] => {
-        if (!containerRef.current || (citations.length === 0 && cellRefs.length === 0)) return [];
+        if (!containerRef.current || (citations.length === 0 && cellRefs.length === 0 && verifiedSnippets.length === 0)) return [];
 
         const newPortals: React.ReactElement[] = [];
 
         // Create maps for faster lookup
         const citationMap = new Map(citations.map(citation => [`{{${citation.id}}}`, citation]));
         const cellRefMap = new Map(cellRefs.map(ref => [`{{${ref.id}}}`, ref]));
+        const verifiedSnippetMap = new Map(verifiedSnippets.map(ref => [`{{${ref.id}}}`, ref]));
 
         // Find all text nodes that contain our placeholder like {{citation-id}}).
         // Since these placeholders exist within the text content (not as separate DOM elements):
@@ -223,7 +268,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
             // Check if this node contains any placeholders
             let containsPlaceholder = false;
-            for (const placeholder of [...citationMap.keys(), ...cellRefMap.keys()]) {
+            for (const placeholder of [...citationMap.keys(), ...cellRefMap.keys(), ...verifiedSnippetMap.keys()]) {
                 if (node.nodeValue.includes(placeholder)) {
                     containsPlaceholder = true;
                     break;
@@ -233,7 +278,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             if (!containsPlaceholder) return;
 
             // Create a regex to match all placeholders (citations and cell refs)
-            const placeholderPattern = /\{\{(citation|cellref)-\d+\}\}/g;
+            const placeholderPattern = /\{\{(citation|cellref|verifiedsnippet)-\d+\}\}/g;
             const matches = [...node.nodeValue.matchAll(placeholderPattern)];
 
             if (matches.length === 0) return;
@@ -256,6 +301,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                 // Check if it's a citation or cell reference
                 const citation = citationMap.get(placeholder);
                 const cellRef = cellRefMap.get(placeholder);
+                const verifiedSnippet = verifiedSnippetMap.get(placeholder);
 
                 if (citation) {
                     // Create span for the citation
@@ -273,6 +319,21 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                             cellId={citation.data.cell_id}
                             line={citation.data.line}
                             notebookTracker={notebookTracker}
+                        />
+                    );
+                } else if (verifiedSnippet) {
+                    const span = document.createElement('span');
+                    span.classList.add('verified-snippet-citation-container');
+                    span.dataset.verifiedSnippetId = verifiedSnippet.id;
+                    fragment.appendChild(span);
+
+                    newPortals.push(
+                        <VerifiedSnippetPortal
+                            key={verifiedSnippet.id + '-' + matches.indexOf(match)}
+                            container={span}
+                            reportName={verifiedSnippet.reportName}
+                            snippetId={verifiedSnippet.snippetId}
+                            app={app}
                         />
                     );
                 } else if (cellRef) {
@@ -323,20 +384,20 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         });
 
         return newPortals;
-    }, [notebookTracker, cellOrder]);
+    }, [notebookTracker, cellOrder, app]);
 
     // Process everything in one effect, but with clear separation via helper functions
     // cellOrderKey triggers re-render when notebook loads or cells are reordered (fixes race condition on refresh)
     useEffect(() => {
         const processMarkdown = async (): Promise<void> => {
             // Step 1: Extract citations and cell references, get processed markdown
-            const { processedMarkdown, citations, cellRefs } = extractCitationsAndCellRefs(markdown);
+            const { processedMarkdown, citations, cellRefs, verifiedSnippets } = extractCitationsAndCellRefs(markdown);
 
             // Step 2: Render markdown with placeholders
             await renderMarkdownContent(processedMarkdown);
 
             // Step 3: Create and insert portals for citations and cell references
-            const portals = createPortalsFromPlaceholders(citations, cellRefs);
+            const portals = createPortalsFromPlaceholders(citations, cellRefs, verifiedSnippets);
             setCitationPortals(portals);
 
             // Step 4: Run MathJax on the chat container. The ephemeral markdown renderer from

@@ -38,3 +38,5 @@ export const COMMAND_MITO_AI_ADD_OUTPUT_COMMENT = `${MITO_AI}:add-output-comment
 export const COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS = `${MITO_AI}:update-comment-indicators`
 export const COMMAND_MITO_AI_REMOVE_CODE_COMMENT = `${MITO_AI}:remove-code-comment`
 export const COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT = `${MITO_AI}:remove-output-comment`
+
+export const COMMAND_MITO_AI_OPEN_SETTINGS_VERIFIED_REPORTS = `${MITO_AI}:open-settings-verified-reports`

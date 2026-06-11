@@ -15,6 +15,7 @@ import {
  * The detail contains the bounding rect for positioning the comment popover.
  */
 export const COMMENT_TOOLTIP_CLICK_EVENT = 'mito-ai-comment-tooltip-click';
+export const VERIFIED_SNIPPET_TOOLTIP_CLICK_EVENT = 'mito-ai-verified-snippet-tooltip-click';
 
 export interface CommentTooltipClickDetail {
     rect: DOMRect;
@@ -69,25 +70,44 @@ function makeTooltip(pos: number): Tooltip {
             const dom = document.createElement('div');
             dom.className = 'cm-comment-tooltip';
 
-            const btn = document.createElement('button');
-            btn.className = 'cm-comment-tooltip-button';
-            btn.innerHTML = `${COMMENT_SVG} <span>Add comment</span>`;
-            btn.title = 'Add a comment for the AI';
+            const buttonsRow = document.createElement('div');
+            buttonsRow.className = 'cm-comment-tooltip-buttons';
 
-            btn.addEventListener('mousedown', (e) => {
-                // Use mousedown instead of click to fire before the editor
-                // loses focus and clears the selection
+            const commentBtn = document.createElement('button');
+            commentBtn.className = 'cm-comment-tooltip-button';
+            commentBtn.innerHTML = `${COMMENT_SVG} <span>Add comment</span>`;
+            commentBtn.title = 'Add a comment for the AI';
+
+            commentBtn.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const rect = btn.getBoundingClientRect();
-                btn.dispatchEvent(new CustomEvent(COMMENT_TOOLTIP_CLICK_EVENT, {
+                const rect = commentBtn.getBoundingClientRect();
+                commentBtn.dispatchEvent(new CustomEvent(COMMENT_TOOLTIP_CLICK_EVENT, {
                     bubbles: true,
                     detail: { rect } as CommentTooltipClickDetail,
                 }));
             });
 
-            dom.appendChild(btn);
+            const verifiedBtn = document.createElement('button');
+            verifiedBtn.className = 'cm-comment-tooltip-button cm-verified-snippet-tooltip-button';
+            verifiedBtn.innerHTML = `${COMMENT_SVG} <span>Add Verified Snippet</span>`;
+            verifiedBtn.title = 'Save this code as a verified snippet';
+
+            verifiedBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const rect = verifiedBtn.getBoundingClientRect();
+                verifiedBtn.dispatchEvent(new CustomEvent(VERIFIED_SNIPPET_TOOLTIP_CLICK_EVENT, {
+                    bubbles: true,
+                    detail: { rect } as CommentTooltipClickDetail,
+                }));
+            });
+
+            buttonsRow.appendChild(commentBtn);
+            buttonsRow.appendChild(verifiedBtn);
+            dom.appendChild(buttonsRow);
             return { dom };
         },
     };
@@ -112,6 +132,17 @@ export function commentSelectionExtension(): Extension {
                 padding: '0',
                 border: 'none',
                 background: 'none',
+            },
+            '.cm-comment-tooltip-buttons': {
+                display: 'flex',
+                gap: '6px',
+            },
+            '.cm-verified-snippet-tooltip-button': {
+                backgroundColor: 'var(--teal-400, #7fd4d4)',
+                color: 'var(--teal-700, #0d6e6e)',
+            },
+            '.cm-verified-snippet-tooltip-button:hover': {
+                backgroundColor: 'var(--teal-500, #5cc4c4)',
             },
             '.cm-comment-tooltip-button': {
                 display: 'flex',

@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.verified-snippet-hover-card {
+    z-index: 10000;
+    width: 300px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-size: 13px;
+}
+
+.verified-snippet-hover-card-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--teal-700, #0d6e6e);
+}
+
+.verified-snippet-hover-card-body {
+    color: var(--jp-ui-font-color1);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.verified-snippet-hover-card-link {
+    background: none;
+    border: none;
+    color: var(--teal-700, #0d6e6e);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: 13px;
+}
+
+.verified-snippet-hover-card-link:hover {
+    color: var(--teal-500, #5cc4c4);
+}

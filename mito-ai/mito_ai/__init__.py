@@ -23,6 +23,7 @@ from mito_ai.db.urls import get_db_urls
 from mito_ai.mcp.urls import get_mcp_urls  # MCP client endpoints
 from mito_ai.settings.urls import get_settings_urls
 from mito_ai.rules.urls import get_rules_urls
+from mito_ai.verified_reports.urls import get_verified_reports_urls
 from mito_ai.auth.urls import get_auth_urls
 from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
 from mito_ai.app_manager.handlers import AppManagerHandler
@@ -137,6 +138,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_mcp_urls(base_url))  # type: ignore
     handlers.extend(get_settings_urls(base_url))  # type: ignore
     handlers.extend(get_rules_urls(base_url))  # type: ignore
+    handlers.extend(get_verified_reports_urls(base_url, provider_manager))  # type: ignore
     handlers.extend(get_log_urls(base_url, provider_manager.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
     handlers.extend(get_streamlit_preview_urls(base_url, provider_manager))  # type: ignore
