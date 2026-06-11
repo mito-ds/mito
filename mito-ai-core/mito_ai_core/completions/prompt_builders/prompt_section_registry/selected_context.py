@@ -28,6 +28,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     ]
     selected_code_comments = [context["value"] for context in additional_context if context.get("type") == "code_comment"]
     selected_output_comments = [context["value"] for context in additional_context if context.get("type") == "output_comment"]
+    selected_comment_threads = [context["value"] for context in additional_context if context.get("type") == "document_comment_thread"]
 
     # STEP 2: Create a list of strings (instructions) for each context type
     context_parts = []
@@ -135,6 +136,43 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
             context_parts.append(
                 "The user has left the following review comments on cell outputs:\n"
                 + "\n\n".join(output_comment_strs)
+            )
+
+    if len(selected_comment_threads) > 0:
+        thread_strs = []
+        for thread_json in selected_comment_threads:
+            try:
+                info = json.loads(thread_json)
+                cell_number = info.get("cellNumber", "?")
+                comment = info.get("comment", "")
+                response = info.get("response", "")
+                selected_code = info.get("selectedCode", "")
+                start_line = info.get("startLine")
+                end_line = info.get("endLine")
+
+                if info.get("type") == "code" and start_line is not None:
+                    if start_line == end_line:
+                        location = f"Cell {cell_number}, line {start_line} (0 indexed)"
+                    else:
+                        location = f"Cell {cell_number}, lines {start_line}-{end_line} (0 indexed)"
+                else:
+                    location = f"Cell {cell_number} output"
+
+                thread_str = location
+                if selected_code:
+                    thread_str += f"\n```python\n{selected_code}\n```"
+                thread_str += f"\nUser's question: {comment}"
+                if response:
+                    thread_str += f"\nMito's previous answer: {response}"
+                thread_strs.append(thread_str)
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+        if thread_strs:
+            context_parts.append(
+                "The user previously had the following comment discussions about their notebook. "
+                "The user now wants you to take action on these discussions in the notebook:\n"
+                + "\n\n".join(thread_strs)
             )
 
     if len(selected_dataframe_viewer) > 0:

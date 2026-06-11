@@ -53,7 +53,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         icon = <CodeIcon />;
     } else if (type === 'dataframe_viewer_selection') {
         icon = <CodeIcon />;
-    } else if (type === 'code_comment' || type === 'output_comment') {
+    } else if (type === 'code_comment' || type === 'output_comment' || type === 'document_comment_thread') {
         icon = <CommentIcon />;
     }
 
@@ -104,8 +104,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             } catch {
                 // Ignore JSON parse errors
             }
-        } else if (type === 'output_comment' && notebookTracker && value) {
-            // Handle output comment click - scroll to the cell
+        } else if ((type === 'output_comment' || type === 'document_comment_thread') && notebookTracker && value) {
+            // Handle output comment / thread click - scroll to the cell
             try {
                 const commentInfo = JSON.parse(value);
                 const currentWidget = notebookTracker.currentWidget;
@@ -156,6 +156,13 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
                 return info.comment || 'Comment on output';
             } catch {
                 return 'Comment on output';
+            }
+        } else if (type === 'document_comment_thread') {
+            try {
+                const info = JSON.parse(value || '{}');
+                return info.comment || 'Comment discussion';
+            } catch {
+                return 'Comment discussion';
             }
         }
         return "This context will be included in your message to help the AI understand what you're working with";

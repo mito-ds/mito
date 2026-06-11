@@ -29,6 +29,7 @@ import {
     COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
     COMMAND_MITO_AI_ADD_CODE_COMMENT,
     COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
+    COMMAND_MITO_AI_ADD_DOCUMENT_COMMENT_THREAD,
     COMMAND_MITO_AI_OPEN_CHAT,
     COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS,
     COMMAND_MITO_AI_REMOVE_CODE_COMMENT,
@@ -230,6 +231,46 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     }];
                 });
                 setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_DOCUMENT_COMMENT_THREAD, {
+            label: 'Add document comment thread to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                const newValue = args.value as string;
+                let parsed: { id?: string } | undefined;
+                try {
+                    parsed = JSON.parse(newValue);
+                } catch {
+                    parsed = undefined;
+                }
+                setAdditionalContext((prev) => {
+                    // Replace if the same thread was already added
+                    const filtered = prev.filter(item => {
+                        if (item.type !== 'document_comment_thread') { return true; }
+                        if (!parsed?.id) { return true; }
+                        try {
+                            return JSON.parse(item.value).id !== parsed.id;
+                        } catch { return true; }
+                    });
+                    return [...filtered, {
+                        type: 'document_comment_thread',
+                        value: newValue,
+                        display: args.display as string,
+                    }];
+                });
+                setInput((prev) => prev.trim() === '' ? 'Please address this comment discussion' : prev);
                 void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
                     focusChatInput: true,
                 });

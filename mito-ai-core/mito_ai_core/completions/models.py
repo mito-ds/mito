@@ -128,6 +128,7 @@ class MessageType(Enum):
     DELETE_THREAD = "delete_thread"
     UPDATE_MODEL_CONFIG = "update_model_config"
     STREAMLIT_CONVERSION = "streamlit_conversion"
+    COMMENT_INSTANT_ANSWER = "comment_instant_answer"
     STOP_AGENT = "stop_agent"
     DEPLOY_APP = "deploy_app"
     REQUEST_TOOL_EXECUTION = "request_tool_execution"
@@ -204,6 +205,19 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
+
+@dataclass(frozen=True)
+class CommentInstantAnswerMetadata():
+    """Ephemeral Q&A about a document-mode comment. Never touches chat history."""
+    promptType: Literal['comment_instant_answer']
+    commentType: Literal['code_comment', 'output_comment']
+    # JSON payload matching the chat additionalContext comment shape
+    # (cellId, cellNumber, comment, and for code comments startLine/endLine/selectedCode)
+    commentValue: str
+    variables: Optional[List[KernelVariable]] = None
+    files: Optional[List[str]] = None
+    aiOptimizedCells: Optional[List[AIOptimizedCell]] = None
+    base64EncodedCellOutput: Optional[str] = None
 
 @dataclass(frozen=True)
 class CompletionRequest:

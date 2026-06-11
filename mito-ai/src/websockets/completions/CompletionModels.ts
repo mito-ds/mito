@@ -84,6 +84,7 @@ type CompletionRequestMetadata =
   IChatMessageMetadata |
   ISmartDebugMetadata |
   ICodeExplainMetadata |
+  ICommentInstantAnswerMetadata |
   IInlineCompleterMetadata |
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
@@ -138,6 +139,17 @@ export interface ICodeExplainMetadata {
   variables?: Variable[];
   activeCellCode?: string;
   threadId: string;
+}
+
+export interface ICommentInstantAnswerMetadata {
+  promptType: 'comment_instant_answer';
+  commentType: 'code_comment' | 'output_comment';
+  // JSON payload matching the chat additionalContext comment shape
+  commentValue: string;
+  variables?: Variable[];
+  files?: File[];
+  aiOptimizedCells?: AIOptimizedCell[];
+  base64EncodedCellOutput?: string;
 }
 
 export interface IInlineCompleterMetadata {
@@ -229,6 +241,11 @@ export interface ICodeExplainCompletionRequest extends ICompletionRequest {
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
   type: 'agent:execution'
   metadata: IAgentExecutionMetadata
+}
+
+export interface ICommentInstantAnswerCompletionRequest extends ICompletionRequest {
+  type: 'comment_instant_answer'
+  metadata: ICommentInstantAnswerMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {

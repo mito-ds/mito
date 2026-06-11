@@ -33,6 +33,7 @@ from mito_ai.completions.models import (
     ChatMessageMetadata,
     SmartDebugMetadata,
     CodeExplainMetadata,
+    CommentInstantAnswerMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
     ToolResultMetadata,
@@ -47,6 +48,7 @@ from mito_ai.completions.completion_handlers.chat_completion_handler import get_
 from mito_ai.completions.completion_handlers.smart_debug_handler import get_smart_debug_completion, stream_smart_debug_completion
 from mito_ai.completions.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
 from mito_ai.completions.completion_handlers.inline_completer_handler import get_inline_completion
+from mito_ai.completions.completion_handlers.comment_instant_answer_handler import stream_comment_instant_answer
 from mito_ai.completions.agent_loop import start_agent_loop
 from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
 from mito_ai_core.utils.telemetry_utils import identify
@@ -388,6 +390,14 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     self._run_agent_execution_background(agent_execution_metadata)
                 )
                 return
+            elif type == MessageType.COMMENT_INSTANT_ANSWER:
+                comment_metadata = CommentInstantAnswerMetadata(**metadata_dict)
+                # Run in the background so the websocket keeps processing other
+                # messages (e.g. agent tool_results) while the answer streams.
+                asyncio.create_task(
+                    self._stream_comment_instant_answer_background(comment_metadata, message_id)
+                )
+                return
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history)
@@ -413,6 +423,17 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=parsed_message.get('message_id')
             )
             self.reply(reply)
+
+    async def _stream_comment_instant_answer_background(
+        self, metadata: CommentInstantAnswerMetadata, message_id: str
+    ) -> None:
+        """Stream a comment instant answer; report errors on the WebSocket."""
+        try:
+            await stream_comment_instant_answer(metadata, self._llm, message_id, self.reply)
+        except Exception as e:
+            self.log.error("Comment instant answer failed", exc_info=True)
+            error = CompletionError.from_exception(e)
+            self.reply(CompletionReply(items=[], error=error, parent_id=message_id))
 
     async def _run_agent_execution_background(
         self, metadata: AgentExecutionMetadata

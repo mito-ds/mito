@@ -120,3 +120,100 @@
     border-left: 3px solid var(--purple-500);
     cursor: pointer;
 }
+
+/* Instant response submit button - icon + label */
+.comment-popover-buttons button.comment-popover-submit-instant {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Comment Thread Popover - Google Docs style comment + response card */
+.comment-thread-popover {
+    width: 360px;
+    padding: 32px 16px 12px 16px;
+}
+
+.comment-thread-message {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.comment-thread-author {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--jp-ui-font-color1);
+}
+
+.comment-thread-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--jp-ui-font-color0);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+.comment-thread-response {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.comment-thread-response-error {
+    color: var(--jp-error-color1);
+}
+
+.comment-thread-divider {
+    border-top: 1px solid var(--jp-border-color2);
+    margin: 2px 0;
+}
+
+/* Three-dot loading indicator while waiting for the first chunk */
+.comment-thread-loading-dots {
+    display: flex;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.comment-thread-loading-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--purple-500);
+    animation: comment-thread-dot-pulse 1.2s infinite ease-in-out;
+}
+
+.comment-thread-loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.comment-thread-loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes comment-thread-dot-pulse {
+    0%, 80%, 100% {
+        opacity: 0.3;
+    }
+    40% {
+        opacity: 1;
+    }
+}
+
+.comment-popover-buttons button.comment-thread-add-to-chat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: transparent;
+    color: var(--purple-700);
+    border: 1px solid var(--purple-500);
+}
+
+.comment-popover-buttons button.comment-thread-add-to-chat:hover:not(:disabled) {
+    background-color: var(--purple-400);
+}
+
+.comment-popover-buttons button.comment-thread-add-to-chat:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

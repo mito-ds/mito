@@ -18,11 +18,28 @@ import { commentGutterIndicator, CommentLineRange, COMMENT_INDICATOR_CLICK_EVENT
 import {
     COMMAND_MITO_AI_ADD_CODE_COMMENT,
     COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
+    COMMAND_MITO_AI_ADD_DOCUMENT_COMMENT_THREAD,
     COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS,
     COMMAND_MITO_AI_REMOVE_CODE_COMMENT,
     COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT,
 } from '../../commands';
 import { getCellNumberById } from '../../utils/cellReferences';
+import { UUID } from '@lumino/coreutils';
+import { ICellModel } from '@jupyterlab/cells';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+import { getAIOptimizedCellsInNotebookPanel } from '../../utils/notebook';
+import { getCellOutputByIDInNotebook } from '../../utils/cellOutput';
+import {
+    addDocumentCommentThread,
+    getDocumentCommentThreads,
+    IDocumentCommentThread,
+    normalizeInterruptedThreads,
+    removeDocumentCommentThread,
+    updateDocumentCommentThread,
+} from '../../utils/documentCommentMetadata';
+import { CommentInstantAnswerService } from './commentInstantAnswerService';
+import { ICommentThreadPopoverHandle, showCommentThreadPopover } from './commentThreadPopover';
+import type { ICommentInstantAnswerMetadata } from '../../websockets/completions/CompletionModels';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CommentIcon from '../../icons/CommentIcon';
 import {
@@ -46,6 +63,139 @@ const commentGutterCompartments = new Map<string, { compartment: Compartment; vi
 // Track active comments so indicator clicks can find the matching comment
 let activeComments: Array<{ type: string; value: string }> = [];
 
+// Instant answer plumbing, initialized on plugin activation. Module-level so
+// the exported output button mounter can reach it without a signature change.
+let instantAnswerService: CommentInstantAnswerService | null = null;
+let pluginContextManager: IContextManager | null = null;
+
+// Open thread popovers by thread id, so streaming callbacks can update a
+// card even if the user closed and reopened it mid-stream.
+const activeThreadPopovers = new Map<string, ICommentThreadPopoverHandle>();
+
+const LIGHTNING_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h7l-1 8 11-13h-8l1-7z" fill="currentColor"/></svg>`;
+
+function isNotebookInDocumentMode(notebookPanel: NotebookPanel): boolean {
+    return notebookPanel.content.node.classList.contains(MITO_NOTEBOOK_DOCUMENT_MODE_CLASS);
+}
+
+function refreshCommentIndicators(app: JupyterFrontEnd, notebookTracker: INotebookTracker): void {
+    updateCommentIndicators(activeComments, notebookTracker, app);
+}
+
+function buildCommentValueJSON(thread: IDocumentCommentThread): string {
+    // Matches the chat additionalContext comment payloads so the backend
+    // prompt formatting is shared between chat comments and instant answers.
+    if (thread.type === 'code') {
+        return JSON.stringify({
+            cellId: thread.cellId,
+            cellNumber: thread.cellNumber,
+            startLine: thread.startLine,
+            endLine: thread.endLine,
+            selectedCode: thread.selectedCode,
+            comment: thread.comment,
+        });
+    }
+    return JSON.stringify({
+        cellId: thread.cellId,
+        cellNumber: thread.cellNumber,
+        comment: thread.comment,
+    });
+}
+
+function addThreadToChat(app: JupyterFrontEnd, thread: IDocumentCommentThread): void {
+    const truncatedDisplay = thread.comment.length > 30
+        ? thread.comment.substring(0, 30) + '...'
+        : thread.comment;
+    void app.commands.execute(COMMAND_MITO_AI_ADD_DOCUMENT_COMMENT_THREAD, {
+        value: JSON.stringify(thread),
+        display: truncatedDisplay,
+    });
+}
+
+/**
+ * Open the Google Docs-style thread card for a persisted comment thread.
+ */
+function openThreadCard(
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker,
+    cellModel: ICellModel,
+    thread: IDocumentCommentThread,
+    rect: DOMRect,
+): void {
+    const handle = showCommentThreadPopover({
+        rect,
+        thread,
+        onAddToChat: () => addThreadToChat(app, thread),
+        onResolve: () => {
+            removeDocumentCommentThread(cellModel, thread.id);
+            activeThreadPopovers.delete(thread.id);
+            refreshCommentIndicators(app, notebookTracker);
+        },
+    });
+    activeThreadPopovers.set(thread.id, handle);
+}
+
+/**
+ * Request the streamed AI answer for a thread and persist the result back to
+ * the cell metadata. The thread card (if open) is updated live.
+ */
+async function requestInstantAnswerForThread(
+    notebookPanel: NotebookPanel,
+    cellModel: ICellModel,
+    thread: IDocumentCommentThread,
+): Promise<void> {
+    if (!instantAnswerService) {
+        return;
+    }
+
+    let base64EncodedCellOutput: string | undefined;
+    if (thread.type === 'output') {
+        base64EncodedCellOutput = await getCellOutputByIDInNotebook(notebookPanel, thread.cellId);
+    }
+
+    const context = pluginContextManager?.getNotebookContext(notebookPanel.id);
+    const metadata: ICommentInstantAnswerMetadata = {
+        promptType: 'comment_instant_answer',
+        commentType: thread.type === 'code' ? 'code_comment' : 'output_comment',
+        commentValue: buildCommentValueJSON(thread),
+        variables: context?.variables,
+        files: context?.files,
+        aiOptimizedCells: getAIOptimizedCellsInNotebookPanel(notebookPanel),
+        base64EncodedCellOutput,
+    };
+
+    await instantAnswerService.requestInstantAnswer(metadata, {
+        onChunk: (accumulated: string) => {
+            activeThreadPopovers.get(thread.id)?.updateResponse(accumulated, 'streaming');
+        },
+        onDone: (full: string) => {
+            updateDocumentCommentThread(cellModel, thread.id, { response: full, responseStatus: 'done' });
+            activeThreadPopovers.get(thread.id)?.updateResponse(full, 'done');
+        },
+        onError: (message: string) => {
+            updateDocumentCommentThread(cellModel, thread.id, { responseStatus: 'error', responseError: message });
+            activeThreadPopovers.get(thread.id)?.updateResponse('', 'error', message);
+        },
+    });
+}
+
+/**
+ * Persist a new thread, open its card, and kick off the instant answer.
+ */
+function startInstantAnswerThread(
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
+    cellModel: ICellModel,
+    thread: IDocumentCommentThread,
+    rect: DOMRect,
+): void {
+    addDocumentCommentThread(cellModel, thread);
+    refreshCommentIndicators(app, notebookTracker);
+    openThreadCard(app, notebookTracker, cellModel, thread, rect);
+    void requestInstantAnswerForThread(notebookPanel, cellModel, thread);
+}
+
 /**
  * Shows a DOM-based popover to get the user's comment.
  */
@@ -54,6 +204,7 @@ function showCommentPopover(
     onSubmit: (comment: string) => void,
     initialValue?: string,
     onDelete?: () => void,
+    submitVariant: 'addToChat' | 'instant' = 'addToChat',
 ): void {
     const isEditing = !!initialValue;
 
@@ -113,7 +264,14 @@ function showCommentPopover(
 
     const submitBtn = document.createElement('button');
     submitBtn.className = 'comment-popover-submit';
-    submitBtn.textContent = isEditing ? 'Update' : 'Add to AI Chat';
+    if (isEditing) {
+        submitBtn.textContent = 'Update';
+    } else if (submitVariant === 'instant') {
+        submitBtn.innerHTML = `${LIGHTNING_SVG}<span>Instant response</span>`;
+        submitBtn.classList.add('comment-popover-submit-instant');
+    } else {
+        submitBtn.textContent = 'Add to AI Chat';
+    }
     buttonsDiv.appendChild(submitBtn);
 
     popover.appendChild(closeBtn);
@@ -392,10 +550,29 @@ export function mountOutputCommentButtonOnHost(
         const cellNumber = getCellNumberById(cellId, notebookPanel) || 0;
         const commentSlot = host.querySelector('.mito-output-action-slot-comment') as HTMLElement | null;
         const btnRect = (commentSlot ?? host).getBoundingClientRect();
+        const documentMode = isNotebookInDocumentMode(notebookPanel);
 
         showCommentPopover(
             btnRect,
             (comment: string) => {
+                if (documentMode) {
+                    const cell = notebookPanel.content.widgets.find(w => w.model.id === cellId);
+                    if (!cell) {
+                        return;
+                    }
+                    const thread: IDocumentCommentThread = {
+                        id: UUID.uuid4(),
+                        type: 'output',
+                        cellId,
+                        cellNumber,
+                        comment,
+                        response: '',
+                        responseStatus: 'loading',
+                    };
+                    startInstantAnswerThread(app, notebookTracker, notebookPanel, cell.model, thread, btnRect);
+                    return;
+                }
+
                 const truncatedDisplay = comment.length > 30
                     ? comment.substring(0, 30) + '...'
                     : comment;
@@ -410,7 +587,10 @@ export function mountOutputCommentButtonOnHost(
                     value,
                     display: truncatedDisplay,
                 });
-            }
+            },
+            undefined,
+            undefined,
+            documentMode ? 'instant' : 'addToChat'
         );
     };
 
@@ -592,6 +772,24 @@ function updateCommentIndicators(
         }
     }
 
+    // Merge persisted document comment threads from cell metadata so their
+    // indicators render alongside chat-context comments
+    const outputThreadsByCell = new Map<string, IDocumentCommentThread>();
+    for (const cell of notebookPanel.content.widgets) {
+        for (const thread of getDocumentCommentThreads(cell.model)) {
+            if (thread.type === 'code' && thread.startLine !== undefined && thread.endLine !== undefined) {
+                const ranges = codeCommentsByCell.get(cell.model.id) || [];
+                ranges.push({ startLine: thread.startLine, endLine: thread.endLine });
+                codeCommentsByCell.set(cell.model.id, sortRangesByStartLine(ranges));
+            } else if (thread.type === 'output') {
+                outputCommentCellIds.add(cell.model.id);
+                if (!outputThreadsByCell.has(cell.model.id)) {
+                    outputThreadsByCell.set(cell.model.id, thread);
+                }
+            }
+        }
+    }
+
     // Apply/remove gutter indicators for each cell
     for (const cell of notebookPanel.content.widgets) {
         const cellId = cell.model.id;
@@ -646,12 +844,14 @@ function updateCommentIndicators(
             if (outputCommentCellIds.has(cellId)) {
                 outputCommentHost.classList.add('comment-indicator-active');
 
-                // Add click handler to edit the comment
+                const metadataThread = outputThreadsByCell.get(cellId);
+
+                // Add click handler to open the thread card / edit the comment
                 const matchingComment = comments.find(c => {
                     if (c.type !== 'output_comment') { return false; }
                     try { return JSON.parse(c.value).cellId === cellId; } catch { return false; }
                 });
-                if (matchingComment) {
+                if (metadataThread || matchingComment) {
                     const handler = (e: Event): void => {
                         // Only handle clicks on the border area (left 3px)
                         const mouseEvent = e as MouseEvent;
@@ -659,9 +859,19 @@ function updateCommentIndicators(
                         if (mouseEvent.clientX > wrapperRect.left + 10) {
                             return;
                         }
+                        const rect = new DOMRect(wrapperRect.left, mouseEvent.clientY - 10, 0, 20);
+
+                        // Persisted instant-answer threads open the thread card
+                        if (metadataThread) {
+                            openThreadCard(app, notebookTracker, cell.model, metadataThread, rect);
+                            return;
+                        }
+                        if (!matchingComment) {
+                            return;
+                        }
+
                         const info = JSON.parse(matchingComment.value);
                         const cellNumber = info.cellNumber;
-                        const rect = new DOMRect(wrapperRect.left, mouseEvent.clientY - 10, 0, 20);
                         showCommentPopover(rect, (comment: string) => {
                             const truncatedDisplay = comment.length > 30
                                 ? comment.substring(0, 30) + '...'
@@ -693,9 +903,14 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito_ai:comments',
     description: 'Adds comment tooltip on code selection and comment button on output hover',
     autoStart: true,
-    requires: [INotebookTracker],
-    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
+    requires: [INotebookTracker, IContextManager],
+    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker, contextManager: IContextManager) => {
         const { commands } = app;
+
+        // Initialize instant answer plumbing (module-level so the exported
+        // output button mounter can reach it)
+        instantAnswerService = new CommentInstantAnswerService(app.serviceManager.serverSettings);
+        pluginContextManager = contextManager;
 
         // ---- Code Comments: Listen for selection tooltip clicks ----
         document.addEventListener(COMMENT_TOOLTIP_CLICK_EVENT, ((e: CustomEvent<CommentTooltipClickDetail>) => {
@@ -730,8 +945,27 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
 
             dismissCommentTooltip(editorView);
 
-            // This callback runs when the user clicks "Add" in the popover
+            const documentMode = isNotebookInDocumentMode(notebookPanel);
+
+            // This callback runs when the user submits the popover
             showCommentPopover(rect, (comment: string) => {
+                if (documentMode) {
+                    const thread: IDocumentCommentThread = {
+                        id: UUID.uuid4(),
+                        type: 'code',
+                        cellId,
+                        cellNumber,
+                        startLine,
+                        endLine,
+                        selectedCode,
+                        comment,
+                        response: '',
+                        responseStatus: 'loading',
+                    };
+                    startInstantAnswerThread(app, notebookTracker, notebookPanel, activeCell.model, thread, rect);
+                    return;
+                }
+
                 const truncatedDisplay = comment.length > 30
                     ? comment.substring(0, 30) + '...'
                     : comment;
@@ -749,7 +983,7 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
                     value,
                     display: truncatedDisplay,
                 });
-            });
+            }, undefined, undefined, documentMode ? 'instant' : 'addToChat');
         }) as EventListener);
 
         document.addEventListener(VERIFIED_SNIPPET_TOOLTIP_CLICK_EVENT, ((e: CustomEvent<CommentTooltipClickDetail>) => {
@@ -832,6 +1066,13 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
             notebookPanel.revealed.then(() => {
                 applySelectionExtensionToAllCells(notebookPanel);
 
+                // Load persisted comment threads: mark threads whose responses
+                // were interrupted by a reload, then render their indicators.
+                for (const cell of notebookPanel.content.widgets) {
+                    normalizeInterruptedThreads(cell.model);
+                }
+                refreshCommentIndicators(app, notebookTracker);
+
                 const notebook = notebookPanel.content;
                 notebook.model?.cells.changed.connect(() => {
                     setTimeout(() => applySelectionExtensionToAllCells(notebookPanel), 100);
@@ -883,6 +1124,30 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
 
             const cellId = activeCell.model.id;
 
+            // Get the rect of the gutter element at the clicked line for popover positioning
+            const cmEditor = activeCell.editor as any;
+            const editorView = cmEditor?.editor;
+            if (!editorView) {
+                return;
+            }
+
+            const lineInfo = editorView.state.doc.line(lineNumber + 1);
+            const coords = editorView.coordsAtPos(lineInfo.from);
+            const rect = new DOMRect(coords?.left || 0, coords?.top || 0, 0, coords ? coords.bottom - coords.top : 20);
+
+            // Persisted instant-answer threads open the thread card
+            const metadataThread = getDocumentCommentThreads(activeCell.model).find(thread =>
+                thread.type === 'code'
+                && thread.startLine !== undefined
+                && thread.endLine !== undefined
+                && lineNumber >= thread.startLine
+                && lineNumber <= thread.endLine
+            );
+            if (metadataThread) {
+                openThreadCard(app, notebookTracker, activeCell.model, metadataThread, rect);
+                return;
+            }
+
             // Find the matching comment for this cell and line
             const matchingComment = activeComments.find(c => {
                 if (c.type !== 'code_comment') {
@@ -902,17 +1167,6 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
 
             const info = JSON.parse(matchingComment.value);
             const cellNumber = getCellNumberById(cellId, notebookPanel) || 0;
-
-            // Get the rect of the gutter element at the clicked line for popover positioning
-            const cmEditor = activeCell.editor as any;
-            const editorView = cmEditor?.editor;
-            if (!editorView) {
-                return;
-            }
-
-            const lineInfo = editorView.state.doc.line(lineNumber + 1);
-            const coords = editorView.coordsAtPos(lineInfo.from);
-            const rect = new DOMRect(coords?.left || 0, coords?.top || 0, 0, coords ? coords.bottom - coords.top : 20);
 
             showCommentPopover(rect, (comment: string) => {
                 const truncatedDisplay = comment.length > 30
