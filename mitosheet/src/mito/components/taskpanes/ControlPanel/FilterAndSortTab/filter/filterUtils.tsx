@@ -92,7 +92,7 @@ export function getExclusiveFilterData(columnDtype: string, value: string | numb
             // The DatetimeFilterType accepts either numbers or strings as the value, but notably,
             // If the value is set through the Values Tab, then it will be in the format yyyy/mm/dd hh:mm:ss.
             // This input field only supports the format yyyy/mm/dd, so we discard the time component if it exists
-            value: (value as string).split(' ')[0] 
+            value: ((value as string).split(' ')[0] ?? '') 
         }
     } else {
         // We include a default return, to stop filters on columns
@@ -272,7 +272,7 @@ const addToFilterOptions = (prevFilterOptions: JSX.Element[], newOptions: Record
             <DropdownItem
                 key={filterCondition}
                 id={filterCondition}
-                title={displayFilterCondition[name]}
+                title={displayFilterCondition[name] ?? filterCondition}
             />
         )
     });

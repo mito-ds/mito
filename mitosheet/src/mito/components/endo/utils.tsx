@@ -105,17 +105,18 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
 } => {
 
     
-    const columnID: string | undefined = sheetData?.data[columnIndex]?.columnID;
-    const columnHeader = sheetData?.data[columnIndex]?.columnHeader;
+    const columnData = sheetData?.data[columnIndex];
+    const columnID: string | undefined = columnData?.columnID;
+    const columnHeader = columnData?.columnHeader;
     const indexLabel = columnID !== undefined ? sheetData?.index[rowIndex] : undefined;
-    const columnDtype = columnID !== undefined ? sheetData?.data[columnIndex].columnDtype : undefined;
-    const columnFormulaAndLocation = columnID !== undefined ? sheetData !== undefined ? sheetData?.columnFormulasMap[columnID] : [] : [];
+    const columnDtype = columnData?.columnDtype;
+    const columnFormulaAndLocation = columnID !== undefined ? sheetData?.columnFormulasMap[columnID] : undefined;
     let columnFormula: string | undefined;
     let columnFormulaLocation: 'entire_column' | 'specific_index_labels' | undefined;
 
     // To find the column formula, we go through and find the LAST formula that was written that is
     // applied to this specific index label. Entire column formulas apply to the everything, duh
-    if (columnFormulaAndLocation.length !== 0) {
+    if (columnFormulaAndLocation !== undefined && columnFormulaAndLocation.length !== 0) {
         columnFormulaAndLocation.forEach(cfal => {
             if (cfal.location.type === 'entire_column') {
                 columnFormula = getFormulaStringFromFrontendFormula(cfal, indexLabel, sheetData);
@@ -128,7 +129,7 @@ export const getCellDataFromCellIndexes = (sheetData: SheetData | undefined, row
     }
 
     const columnFilters = columnID !== undefined ? sheetData?.columnFiltersMap[columnID] : undefined;
-    const cellValue = columnID !== undefined ? sheetData?.data[columnIndex].columnData[rowIndex] : undefined;
+    const cellValue = columnData?.columnData[rowIndex];
     const columnFormat = columnID !== undefined ? sheetData?.dfFormat.columns[columnID] : undefined;
     const headerBackgroundColor = columnID !== undefined ? sheetData?.dfFormat.headers.backgroundColor : undefined;
     const headerTextColor = columnID !== undefined ? sheetData?.dfFormat.headers.color : undefined;

@@ -74,15 +74,18 @@ const PivotTableValueAggregationCard = (props: {
                     }}
                     searchable
                 >
-                    {Object.keys(props.columnIDsMap).map(columnID => {
+                    {Object.keys(props.columnIDsMap).flatMap(columnID => {
                         const columnHeader = props.columnIDsMap[columnID];
-                        return (
+                        if (columnHeader === undefined) {
+                            return [];
+                        }
+                        return [(
                             <DropdownItem
                                 key={columnID}
                                 id={columnID}
                                 title={getDisplayColumnHeader(columnHeader)}
                             />
-                        )
+                        )]
                     })}
                 </Select>
             </Col>

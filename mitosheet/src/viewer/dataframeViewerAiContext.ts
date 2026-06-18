@@ -41,13 +41,21 @@ export function buildDataframeViewerSelectionContext(
     const { minRow, maxRow, minCol, maxCol } = bounds;
     const headers: string[] = [];
     for (let c = minCol; c <= maxCol; c++) {
-        headers.push(columnHeaderLabel(columns[c]));
+        const column = columns[c];
+        if (column === undefined) {
+            headers.push("");
+            continue;
+        }
+        headers.push(columnHeaderLabel(column));
     }
     const lines: string[] = [];
     lines.push("| " + headers.join(" | ") + " |");
     lines.push("| " + headers.map(() => "---").join(" | ") + " |");
     for (let r = minRow; r <= maxRow; r++) {
         const row = sortedRows[r];
+        if (row === undefined) {
+            continue;
+        }
         const cells: string[] = [];
         for (let c = minCol; c <= maxCol; c++) {
             const raw = row[c];

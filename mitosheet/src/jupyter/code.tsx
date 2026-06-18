@@ -55,15 +55,35 @@ export function getLastNonEmptyLine(codeText: string): string | undefined {
 
 export const getArgsFromMitosheetCallCode = (codeText: string): string[] => {
     const codeTextCleaned = removeWhitespaceInPythonCode(codeText);
-    let nameString = codeTextCleaned.split('sheet(')[1].split(')')[0];
+    const sheetCallContents = codeTextCleaned.split('sheet(')[1];
+    if (sheetCallContents === undefined) {
+        console.warn('Tried to parse mitosheet call arguments from code without a sheet() call.');
+        return [];
+    }
+
+    let nameString = sheetCallContents.split(')')[0];
+    if (nameString === undefined) {
+        console.warn('Tried to parse mitosheet call arguments from malformed sheet() code.');
+        return [];
+    }
 
     // If there is a (new) analysis name parameter passed, we ignore it
     if (nameString.includes('analysis_to_replay')) {
-        nameString = nameString.split('analysis_to_replay')[0].trim();
+        const analysisToReplayPrefix = nameString.split('analysis_to_replay')[0];
+        if (analysisToReplayPrefix === undefined) {
+            console.warn('Unable to trim the analysis_to_replay argument from a mitosheet call.');
+            return [];
+        }
+        nameString = analysisToReplayPrefix.trim();
     }
 
     if (nameString.includes('sheet_functions')) {
-        nameString = nameString.split('sheet_functions')[0].trim();
+        const sheetFunctionsPrefix = nameString.split('sheet_functions')[0];
+        if (sheetFunctionsPrefix === undefined) {
+            console.warn('Unable to trim the sheet_functions argument from a mitosheet call.');
+            return [];
+        }
+        nameString = sheetFunctionsPrefix.trim();
     }
 
     // Get the args and trim them up

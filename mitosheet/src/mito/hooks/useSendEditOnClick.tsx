@@ -113,7 +113,7 @@ function useSendEditOnClick<ParamType, ResultType>(
         // we create a new step id
         let newStepID = getRandomId();
         if (options?.overwiteStepIfClickedMultipleTimes && stepIDData.stepIDs.length > 0) {
-            newStepID = stepIDData.stepIDs[stepIDData.stepIDs.length - 1];
+            newStepID = stepIDData.stepIDs[stepIDData.stepIDs.length - 1] ?? newStepID;
         }
 
         const possibleError = await mitoAPI._edit<ParamType>(editEvent, finalParams, newStepID);
@@ -222,7 +222,7 @@ function useSendEditOnClick<ParamType, ResultType>(
     let result: ResultType | undefined = undefined;
     // If the params were applied, and the last step is actually this type of step.
     // then we might have a result to apply to the user
-    if (paramsApplied && analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1].step_type === stepType) {
+    if (paramsApplied && analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1]?.step_type === stepType) {
         result = analysisData.lastResult as ResultType
     }
 

@@ -51,6 +51,10 @@ export const getDisplayedDropdownType = (
 
     const fullFormula = getFullFormula(editorState, sheetDataArray, sheetIndex);
     const sheetData = sheetDataArray[editorState.sheetIndex];
+    if (sheetData === undefined) {
+        console.warn(`No sheet data was available for editor sheet index ${editorState.sheetIndex}.`);
+        return undefined;
+    }
     const endsInReference = getFormulaEndsInReference(fullFormula, sheetData);
 
 

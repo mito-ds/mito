@@ -190,8 +190,13 @@ export function getMostLikelyMitosheetCallingCell(tracker: INotebookTracker, ana
 }
 
 export const getMostLikelyCellIndexByExeuctionNumber = (cellIndexes: number[], activeCellIndex: number): number => {
+    const lastCellIndex = cellIndexes[cellIndexes.length - 1];
+    if (lastCellIndex === undefined) {
+        console.warn('No matching cell indexes were found for the requested execution count.');
+        return activeCellIndex;
+    }
 
-    let cellIndex = cellIndexes[cellIndexes.length - 1];
+    let cellIndex = lastCellIndex;
 
     // If there are multiple cells with the same execution count, we 
     // apply a heuristic to determine which one is most likely the one

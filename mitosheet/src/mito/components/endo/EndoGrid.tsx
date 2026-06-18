@@ -217,7 +217,7 @@ function EndoGrid(props: {
         setGridState(gridState => {
             return {
                 ...gridState,
-                selections: reconciliateSelections(gridState.sheetIndex, sheetIndex, gridState.selections, gridState.columnIDsArray[gridState.sheetIndex], sheetData),
+                selections: reconciliateSelections(gridState.sheetIndex, sheetIndex, gridState.selections, gridState.columnIDsArray[gridState.sheetIndex] ?? [], sheetData),
                 widthDataArray: reconciliateWidthDataArray(gridState.widthDataArray, gridState.columnIDsArray, sheetDataArray),
                 columnIDsArray: getColumnIDsArrayFromSheetDataArray(sheetDataArray),
                 sheetIndex: sheetIndex,
@@ -352,8 +352,9 @@ function EndoGrid(props: {
 
                 // If the user is holding down the shift key, we want to extend the selection
                 // rather than starting from scratch with a new selection
-                let startingColumnIndex = props.editorState?.pendingSelections?.selections[0].startingColumnIndex ?? columnIndex;
-                let endingColumnIndex = props.editorState?.pendingSelections?.selections[0].endingColumnIndex ?? columnIndex;
+                const pendingSelection = props.editorState?.pendingSelections?.selections[0];
+                let startingColumnIndex = pendingSelection?.startingColumnIndex ?? columnIndex;
+                let endingColumnIndex = pendingSelection?.endingColumnIndex ?? columnIndex;
                 if (e.shiftKey && startingColumnIndex > columnIndex) {
                     startingColumnIndex = columnIndex;
                 } else if (e.shiftKey && endingColumnIndex < columnIndex) {
@@ -506,7 +507,11 @@ function EndoGrid(props: {
                 if (e.shiftKey) {
                     // If the shift key is down, we extend the current selection
                     const selectionsCopy = [...gridState.selections]
-                    selectionsCopy[selectionsCopy.length - 1] = getNewSelectionAfterMouseUp(selectionsCopy[selectionsCopy.length - 1], rowIndex, columnIndex)
+                    const lastSelection = selectionsCopy[selectionsCopy.length - 1];
+                    if (lastSelection === undefined) {
+                        return;
+                    }
+                    selectionsCopy[selectionsCopy.length - 1] = getNewSelectionAfterMouseUp(lastSelection, rowIndex, columnIndex)
                     setGridState((gridState) => {
                         return {
                             ...gridState,
@@ -577,7 +582,11 @@ function EndoGrid(props: {
             return;
         }
 
-        const newLastSelection = getNewSelectionAfterMouseUp(gridState.selections[gridState.selections.length - 1], rowIndex, columnIndex);
+        const lastSelection = gridState.selections[gridState.selections.length - 1];
+        if (lastSelection === undefined) {
+            return;
+        }
+        const newLastSelection = getNewSelectionAfterMouseUp(lastSelection, rowIndex, columnIndex);
         const newSelections = [...gridState.selections]
         newSelections[newSelections.length - 1] = newLastSelection
 
@@ -606,7 +615,7 @@ function EndoGrid(props: {
         }
 
         // We only update the selection if has changed, so we don't rerender unnecessarily
-        if (!equalSelections(newLastSelection, gridState.selections[gridState.selections.length - 1])) {
+        if (!equalSelections(newLastSelection, lastSelection)) {
             setGridState((gridState) => {
                 return {
                     ...gridState,
@@ -623,9 +632,13 @@ function EndoGrid(props: {
             const updateSelectionOnMouseDrag = (e: MouseEvent) => {
 
                 const {rowIndex, columnIndex} = getIndexesFromMouseEvent(e);
-                
+                 
                 setGridState((gridState) => {
-                    const newLastSelection = getNewSelectionAfterMouseUp(gridState.selections[gridState.selections.length - 1], rowIndex, columnIndex);
+                    const lastSelection = gridState.selections[gridState.selections.length - 1];
+                    if (lastSelection === undefined) {
+                        return gridState;
+                    }
+                    const newLastSelection = getNewSelectionAfterMouseUp(lastSelection, rowIndex, columnIndex);
                     const newSelections = [...gridState.selections]
                     newSelections[newSelections.length - 1] = newLastSelection
                     return {
@@ -638,7 +651,8 @@ function EndoGrid(props: {
 
             // We don't allow the drag and drop selections if you're starting from a column 
             // header, because the headers themselves are draggable and droppable
-            if (gridState.selections[gridState.selections.length - 1].startingRowIndex === -1) {
+            const lastSelection = gridState.selections[gridState.selections.length - 1];
+            if (lastSelection?.startingRowIndex === -1) {
                 return;
             }
 
@@ -730,6 +744,9 @@ function EndoGrid(props: {
                 // If we press any key that is not a navigation key, then we open the editor
                 setGridState((gridState) => {
                     const lastSelection = gridState.selections[gridState.selections.length - 1]
+                    if (lastSelection === undefined) {
+                        return gridState;
+                    }
 
                     const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(sheetData, undefined, lastSelection.startingRowIndex, lastSelection.startingColumnIndex, props.analysisData.defaultApplyFormulaToColumn, e);
                     
@@ -766,7 +783,11 @@ function EndoGrid(props: {
 
                 // Update the selection
                 setGridState((gridState) => {
-                    const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, sheetData);
+                    const lastSelection = gridState.selections[gridState.selections.length - 1];
+                    if (lastSelection === undefined) {
+                        return gridState;
+                    }
+                    const newSelection = getNewSelectionAfterKeyPress(lastSelection, e, sheetData);
                     ensureCellVisible(
                         containerRef.current, scrollAndRenderedContainerRef.current,
                         currentSheetView, gridState,
@@ -792,7 +813,7 @@ function EndoGrid(props: {
         <>
             <FormulaBar
                 sheetDataArray={sheetDataArray}
-                selection={gridState.selections[gridState.selections.length - 1]}
+                selection={gridState.selections[gridState.selections.length - 1] ?? {startingRowIndex: -1, endingRowIndex: -1, startingColumnIndex: -1, endingColumnIndex: -1, sheetIndex}}
                 sheetIndex={props.sheetIndex}
                 editorState={editorState}
                 setEditorState={props.setEditorState}
@@ -930,7 +951,7 @@ function EndoGrid(props: {
                     </div>
                 )}
             </div>
-            {uiState.currOpenSearch.isOpen &&
+            {uiState.currOpenSearch.isOpen && sheetData !== undefined &&
                 <SearchBar
                     uiState={uiState}
                     setUIState={setUIState}

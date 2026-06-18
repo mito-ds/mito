@@ -282,7 +282,11 @@ const LoadingIndicator = (props: {loading: [string, string | undefined, string][
                 setCurrentLoadingMessage(undefined);
             } else {
                 setCurrentLoadingMessage(prevLoadingMessage => {
-                    const topMessageID = messagesToDisplay[0][1];
+                    const topMessage = messagesToDisplay[0];
+                    if (topMessage === undefined) {
+                        return prevLoadingMessage;
+                    }
+                    const topMessageID = topMessage[1];
                     if (prevLoadingMessage === undefined || topMessageID !== prevLoadingMessage[1]) {
                         return [Date.now(), topMessageID];
                     }

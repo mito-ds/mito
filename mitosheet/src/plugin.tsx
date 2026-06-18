@@ -520,7 +520,7 @@ function activateMitosheetExtension(
                 args: {},
                 selector: '.mito-container',
                 // TODO: if there are multiple keys or the shortcut doesn't use the "accel" key, this won't work.
-                keys: ['Accel '+keyCombo.keys[0].toUpperCase()]
+                keys: ['Accel '+(keyCombo.keys[0] ?? '').toUpperCase()]
             });
         }
     }

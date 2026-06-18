@@ -42,6 +42,7 @@ const GridData = (props: {
     const oddRowBackgroundColor = sheetData?.dfFormat?.rows?.odd?.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
     const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || ROW_TEXT_COLOR_DEFAULT;
     const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ROW_TEXT_COLOR_DEFAULT;
+    const columnIDs = sheetData !== undefined ? (getColumnIDsArrayFromSheetDataArray([sheetData])[0] ?? []) : [];
 
     const exitAnim = props.uiState.gridRowExitAnimation;
     const colEnterAnim = props.uiState.gridColumnEnterAnimation;
@@ -51,7 +52,6 @@ const GridData = (props: {
         <>
             {sheetData && sheetData.numRows > 0 && Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
                 const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
-                const columnIDs = getColumnIDsArrayFromSheetDataArray([sheetData])[0]
 
                 const isRowExiting =
                     exitAnim !== undefined &&
@@ -83,6 +83,9 @@ const GridData = (props: {
                                 colExitAnim.columnIndices.includes(columnIndex);
 
                             const columnID = columnIDs[columnIndex]
+                            if (columnID === undefined) {
+                                return null;
+                            }
                             const isGhostColumn = columnID?.startsWith('__suggested__');
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
                             const index = props.sheetData?.index[rowIndex] !== undefined ? props.sheetData?.index[rowIndex] : 0;
@@ -125,7 +128,7 @@ const GridData = (props: {
                                 'mito-grid-cell-suggested': isGhostColumn,
                             });
 
-                            const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];
+                            const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex]?.widthArray[columnIndex] ?? 0;
 
                             // Format the cell
                             const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)

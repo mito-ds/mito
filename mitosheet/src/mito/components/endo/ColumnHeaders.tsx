@@ -162,10 +162,15 @@ const ColumnHeaders = (props: {
                         } else if (operation === 'reorder') {
                             // First, we find the column that we were moving
                             const startingColumnIndex = dragColumnIndex;
+                            const startingColumn = props.sheetData.data[startingColumnIndex];
+                            if (startingColumn === undefined) {
+                                console.warn(`No starting column was available for index ${startingColumnIndex}.`);
+                                return;
+                            }
 
                             // Then, we find the column that we moved it to
                             const {columnIndex} = getIndexesFromXAndY(clientX, clientY)
-                            const columnIDToReorder = props.sheetData.data[startingColumnIndex].columnID;
+                            const columnIDToReorder = startingColumn.columnID;
 
                             if (dragColumnIndex === columnIndex) {
                                 return;

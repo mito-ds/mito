@@ -330,7 +330,8 @@ export const getKeyboardShortcutString = (action: ActionEnum) => {
     const metaKey = getOperatingSystem() === 'mac' ? '⌘' : 'Meta';
 
     // If a key is a single character, make it uppercase. Otherwise, leave it as is.
-    const key = keyCombo.keys[0].length === 1 ? keyCombo.keys[0].toUpperCase() : keyCombo.keys[0];
+    const firstKey = keyCombo.keys[0] ?? '';
+    const key = firstKey.length === 1 ? firstKey.toUpperCase() : firstKey;
 
     // Create a string describing the keyboard shortcut.
     const keyComboString = `${keyCombo.ctrlKey ? 'Ctrl+' : ''}${keyCombo.shiftKey ? 'Shift+' : ''}${keyCombo.altKey ? 'Alt+' : ''}${keyCombo.metaKey ? `${metaKey}+` : ''}${key}`

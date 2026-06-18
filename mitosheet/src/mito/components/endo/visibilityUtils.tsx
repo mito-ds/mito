@@ -44,15 +44,16 @@ export const scrollColumnIntoView = (containerDiv: HTMLDivElement | null, scroll
 
     if (scrollAndRenderedContainerDiv === null) return;
     let scrollLeft = scrollAndRenderedContainerDiv.scrollLeft;
+    const currentWidthData = gridState.widthDataArray[gridState.sheetIndex];
 
     const columnVisible = columnIsVisible(containerDiv, columnIndex);
     if (!columnVisible) {
         const newCellIsLeft = columnIndex <= currentSheetView.startingColumnIndex;
         if (newCellIsLeft) {
-            scrollLeft = gridState.widthDataArray[gridState.sheetIndex]?.widthSumArray[columnIndex - 1] || 0;
+            scrollLeft = currentWidthData?.widthSumArray[columnIndex - 1] ?? 0;
         } else {
             // Put it at the start, move it to the end, then move it back one
-            scrollLeft = gridState.widthDataArray[gridState.sheetIndex]?.widthSumArray[columnIndex] - (scrollAndRenderedContainerDiv.clientWidth) || 0;
+            scrollLeft = (currentWidthData?.widthSumArray[columnIndex] ?? 0) - scrollAndRenderedContainerDiv.clientWidth;
         }
     }
 

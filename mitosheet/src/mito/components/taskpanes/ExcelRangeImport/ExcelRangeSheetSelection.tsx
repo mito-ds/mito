@@ -45,7 +45,7 @@ function ExcelRangeSheetSelection(props: ExcelRangeSheetSelectionProps): JSX.Ele
                                 const newParams = {...params};
                                 newParams.sheet.type = newType as 'sheet name' | 'sheet index';
                                 if (newType === 'sheet name') {
-                                    newParams.sheet.value = props.sheet_names[0];
+                                    newParams.sheet.value = props.sheet_names[0] ?? '';
                                 } else {
                                     newParams.sheet.value = 0;
                                 }

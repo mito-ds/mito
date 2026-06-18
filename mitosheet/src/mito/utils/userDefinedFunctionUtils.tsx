@@ -11,7 +11,7 @@ export const getInitialParamNameToParamValueMap = (
 ): Record<string, string> => {
 
     let previousSheetData: SheetData | undefined = undefined;
-    return Object.fromEntries(Object.entries(paramNameToType).map(([paramName, paramType]) => {
+    const entries = Object.entries(paramNameToType).map<[string, string]>(([paramName, paramType]) => {
 
 
         if (paramType == 'DataFrame') {
@@ -22,11 +22,11 @@ export const getInitialParamNameToParamValueMap = (
             }
         } else if (paramType === 'ColumnHeader') {
             const firstColumnID = Object.keys(previousSheetData?.columnIDsMap || {'': ''})[0]
-            return [paramName, firstColumnID]
+            return [paramName, firstColumnID ?? '']
         }
 
         return [paramName, '']})
-    )
+    return Object.fromEntries(entries)
 }
 
 export const getParamTypeDisplay = (
@@ -59,10 +59,13 @@ export const getDisplayNameOfPythonVariable = (pythonVariableName: string) => {
 
 
     return words.map(word => {
+        if (word === undefined) {
+            return '';
+        }
         if (word.length <= 1) {
             return word;
         }
         
-        return word[0].toUpperCase() + word.substring(1)
+        return word.charAt(0).toUpperCase() + word.substring(1)
     }).join(' ');
 }

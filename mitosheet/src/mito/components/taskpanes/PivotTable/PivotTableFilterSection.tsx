@@ -101,6 +101,9 @@ const PivotTableFilterSection = (props: {
                                     onChange={(newColumnId) => {
                                         props.setParams((prevParams) => {
                                             const newFilters = [...prevParams.pivotFilters];
+                                            if (newFilters[index] === undefined) {
+                                                return prevParams;
+                                            }
                                             newFilters[index]['column_id'] = newColumnId;
                                             return {
                                                 ...prevParams,
@@ -129,6 +132,9 @@ const PivotTableFilterSection = (props: {
                                     setFilter={(newFilter) => {
                                         props.setParams((prevParams) => {
                                             const newFilters = [...prevParams.pivotFilters];
+                                            if (newFilters[index] === undefined) {
+                                                return prevParams;
+                                            }
                                             newFilters[index]['filter'] = newFilter;
                                             return {
                                                 ...prevParams,

@@ -64,6 +64,13 @@ function GraphSetupTab(
 
     const graphSheetIndex = props.graphParams.graphCreation.sheet_index;
     const graphPreprocessingParams = props.graphParams.graphPreprocessing;
+    const columnIDsMap = props.sheetDataArray[graphSheetIndex]?.columnIDsMap || {};
+    const facetColumnHeader = props.graphParams.graphCreation.facet_col_column_id !== undefined
+        ? columnIDsMap[props.graphParams.graphCreation.facet_col_column_id]
+        : undefined;
+    const facetRowColumnHeader = props.graphParams.graphCreation.facet_row_column_id !== undefined
+        ? columnIDsMap[props.graphParams.graphCreation.facet_row_column_id]
+        : undefined;
 
 
     /* 
@@ -139,8 +146,6 @@ function GraphSetupTab(
         ? `${props.graphParams.graphCreation.graph_type} does not support further breaking down data using color.`
         : 'Use an additional column to further breakdown the data by color.';
 
-    const columnIDsMap = props.sheetDataArray[graphSheetIndex]?.columnIDsMap || {};
-
     return (  
         <Fragment>
             <div className='graph-sidebar-toolbar-content'>
@@ -202,7 +207,7 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.color ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.color]) : 'None'}
+                                value={props.graphParams.graphCreation.color ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.color] ?? '') : 'None'}
                                 disabled={GRAPHS_THAT_DONT_SUPPORT_COLOR.includes(props.graphParams.graphCreation.graph_type)}
                                 width='small'
                                 searchable
@@ -244,7 +249,7 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.facet_col_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_col_column_id]) : 'None'}
+                                value={facetColumnHeader !== undefined ? getDisplayColumnHeader(facetColumnHeader) : 'None'}
                                 width='small'
                                 searchable
                             >
@@ -255,9 +260,12 @@ function GraphSetupTab(
                                         updateGraphParam({graphCreation: {facet_col_column_id: undefined}})
                                     }}
                                 />].concat(
-                                    (Object.keys(columnIDsMap) || []).map(columnID => {
+                                    (Object.keys(columnIDsMap) || []).flatMap(columnID => {
                                         const columnHeader = columnIDsMap[columnID];
-                                        return (
+                                        if (columnHeader === undefined) {
+                                            return [];
+                                        }
+                                        return [(
                                             <DropdownItem
                                                 key={columnID}
                                                 title={getDisplayColumnHeader(columnHeader)}
@@ -265,7 +273,7 @@ function GraphSetupTab(
                                                     updateGraphParam({graphCreation: {facet_col_column_id: columnID}})
                                                 }}
                                             />
-                                        )
+                                        )]
                                     })
                                 )}
                             </Select>
@@ -285,7 +293,7 @@ function GraphSetupTab(
                         </Col>
                         <Col>
                             <Select 
-                                value={props.graphParams.graphCreation.facet_row_column_id ? getDisplayColumnHeader(columnIDsMap[props.graphParams.graphCreation.facet_row_column_id]) : 'None'}
+                                value={facetRowColumnHeader !== undefined ? getDisplayColumnHeader(facetRowColumnHeader) : 'None'}
                                 width='small'
                                 searchable
                             >
@@ -296,9 +304,12 @@ function GraphSetupTab(
                                         updateGraphParam({graphCreation: {facet_row_column_id: undefined}})
                                     }}
                                 />].concat(
-                                    (Object.keys(columnIDsMap) || []).map(columnID => {
+                                    (Object.keys(columnIDsMap) || []).flatMap(columnID => {
                                         const columnHeader = columnIDsMap[columnID];
-                                        return (
+                                        if (columnHeader === undefined) {
+                                            return [];
+                                        }
+                                        return [(
                                             <DropdownItem
                                                 key={columnID}
                                                 title={getDisplayColumnHeader(columnHeader)}
@@ -306,7 +317,7 @@ function GraphSetupTab(
                                                     updateGraphParam({graphCreation: {facet_row_column_id: columnID}})
                                                 }}
                                             />
-                                        )
+                                        )]
                                     })
                                 )}
                             </Select>

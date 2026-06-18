@@ -107,7 +107,7 @@ export const valuesRecordToArray = (valuesRecord: Record<string, AggregationType
     const valuesArray: [string, AggregationType][] = [];
 
     Object.keys(valuesRecord).forEach(columnHeader => {
-        valuesRecord[columnHeader].forEach(aggregationType => {
+        valuesRecord[columnHeader]?.forEach(aggregationType => {
             valuesArray.push([columnHeader, aggregationType])
         })
     })
@@ -123,7 +123,11 @@ export const valuesArrayToRecord = (valuesArray: [string, AggregationType][]): R
     const valuesRecord: Record<string, AggregationType[]> = {};
 
     for (let i = 0; i < valuesArray.length; i++) {
-        const [columnHeader, aggregationType] = valuesArray[i];
+        const valueEntry = valuesArray[i];
+        if (valueEntry === undefined) {
+            continue;
+        }
+        const [columnHeader, aggregationType] = valueEntry;
         if (valuesRecord[columnHeader] === undefined) {
             valuesRecord[columnHeader] = [];
         }

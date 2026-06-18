@@ -72,7 +72,9 @@ const PivotTableKeySelection = (props: {
                 onChange={(columnID) => {
                     props.setParams(oldPivotParams => {
                         const newColumnIDsWithTransforms = [...columnIdsWithTransforms];
-                        
+                        if (newColumnIDsWithTransforms[keyIndex] === undefined) {
+                            return oldPivotParams;
+                        }
                         newColumnIDsWithTransforms[keyIndex].column_id = columnID;
                 
                         return {
@@ -113,7 +115,9 @@ const PivotTableKeySelection = (props: {
                                 onChange={(newTransformation: string) => {
                                     props.setParams(oldPivotParams => {
                                         const newColumnIDsWithTransforms = [...columnIdsWithTransforms];
-                                        
+                                        if (newColumnIDsWithTransforms[keyIndex] === undefined) {
+                                            return oldPivotParams;
+                                        }
                                         newColumnIDsWithTransforms[keyIndex].transformation = newTransformation as PivotColumnTransformation;
                                 
                                         return {

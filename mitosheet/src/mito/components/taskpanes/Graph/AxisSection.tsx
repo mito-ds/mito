@@ -87,9 +87,12 @@ const AxisSection = (props: {
                         disabled={disabledDueToMaxSeriesReachedBool}
                         searchable
                     >
-                        {selectableColumnIDs.map(columnID => {
+                        {selectableColumnIDs.flatMap(columnID => {
                             const columnHeader = props.columnIDsMap[columnID];
-                            return (
+                            if (columnHeader === undefined) {
+                                return [];
+                            }
+                            return [(
                                 <DropdownItem
                                     key={columnID}
                                     title={getDisplayColumnHeader(columnHeader)}
@@ -101,7 +104,7 @@ const AxisSection = (props: {
                                         )
                                     }}
                                 />
-                            )
+                            )]
                         })}
                     </DropdownButton>
                 </Col>

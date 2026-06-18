@@ -208,7 +208,7 @@ const CodeOptionsParameters = (props: CodeOptionsParametersProps): JSX.Element =
                                         finalNewParamName = newParamName;
                                     }
 
-                                    newCodeOptions.function_params[finalNewParamName] = newCodeOptions.function_params[paramName];
+                                    newCodeOptions.function_params[finalNewParamName] = newCodeOptions.function_params[paramName] ?? '';
                                     delete newCodeOptions.function_params[paramName];
                                     props.setCodeOptions(newCodeOptions);
 

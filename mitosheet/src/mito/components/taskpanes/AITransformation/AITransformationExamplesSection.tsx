@@ -39,35 +39,35 @@ const getExample = (userInput: string, setUserInput: React.Dispatch<React.SetSta
 
 
 const getFirstColumnInSheet = (sheetDataArray: SheetData[], selectedSheetIndex: number): ColumnHeader | undefined => {
-    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex].data[0]?.columnHeader;
+    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex]?.data[0]?.columnHeader;
 }
 
 const getDateColumnThatIsString = (sheetDataArray: SheetData[], selectedSheetIndex: number): ColumnHeader | undefined => {
-    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex].data.find((column) => {
+    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex]?.data.find((column) => {
         return isStringDtype(column.columnDtype) && getDisplayColumnHeader(column.columnHeader).toLowerCase().includes('date');
     })?.columnHeader;
 }
 
 const getNumberColumnThatIsString = (sheetDataArray: SheetData[], selectedSheetIndex: number): ColumnHeader | undefined => {
-    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex].data.find((column) => {
+    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex]?.data.find((column) => {
         return isStringDtype(column.columnDtype) && getDisplayColumnHeader(column.columnHeader).toLowerCase().includes('number');
     })?.columnHeader;
 }
 
 const getFirstColumnThatIsString = (sheetDataArray: SheetData[], selectedSheetIndex: number): ColumnHeader | undefined => {
-    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex].data.find((column) => {
+    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex]?.data.find((column) => {
         return isStringDtype(column.columnDtype);
     })?.columnHeader;
 }
 
 const getFirstColumnThatIsNumber = (sheetDataArray: SheetData[], selectedSheetIndex: number): ColumnHeader | undefined => {
-    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex].data.find((column) => {
+    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex]?.data.find((column) => {
         return isNumberDtype(column.columnDtype);
     })?.columnHeader;
 }
 
 const getFirstColumnThatIsDate = (sheetDataArray: SheetData[], selectedSheetIndex: number): ColumnHeader | undefined => {
-    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex].data.find((column) => {
+    return sheetDataArray.length === 0 ? undefined : sheetDataArray[selectedSheetIndex]?.data.find((column) => {
         return isDatetimeDtype(column.columnDtype)
     })?.columnHeader;
 }

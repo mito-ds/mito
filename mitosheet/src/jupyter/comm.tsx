@@ -201,9 +201,13 @@ export async function getCommSend(kernelID: string, commTargetID: string): Promi
                     clearInterval(interval);
 
                     const response = unconsumedResponses[index];
+                    if (response === undefined) {
+                        console.warn(`Response index ${index} was unavailable for message ${id}.`);
+                        return;
+                    }
                     unconsumedResponses.splice(index, 1);
 
-                    if (response['event'] == 'error') {
+                    if (response.event == 'error') {
                         return resolve({
                             error: response.error,
                             errorShort: response.errorShort,
@@ -218,7 +222,7 @@ export async function getCommSend(kernelID: string, commTargetID: string): Promi
                         sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : undefined,
                         analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : undefined,
                         userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : undefined,
-                        result: response['data'] as ResultType
+                        result: response.data as ResultType
                     });
                 }
             }, RETRY_DELAY);

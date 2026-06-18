@@ -390,7 +390,10 @@ const SnowflakeImportTaskpane = (props: SnowflakeImportTaskpaneProps): JSX.Eleme
                             height={'medium'}
                             onToggleAll={(newSelectedIndexes) => {
                                 setParamsWithoutRefreshOptionsAndDefaults(prevParams => {
-                                    const newColumns = newSelectedIndexes.map(index => availableSnowflakeOptionsAndDefaults.config_options.columns[index]);
+                                    const newColumns = newSelectedIndexes.flatMap(index => {
+                                        const column = availableSnowflakeOptionsAndDefaults.config_options.columns[index];
+                                        return column === undefined ? [] : [column];
+                                    });
                                     return updateObjectWithPartialObject(prevParams, {query_params: {columns: newColumns}});
                                 });
                             }}

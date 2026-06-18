@@ -342,9 +342,10 @@ export const getColumnHeadersInSelection = (selection: MitoSelection, sheetData:
 
     const columnHeaders: (ColumnHeader)[] = [];
     for (let i = min; i < max + 1; i++) {
-        if (sheetData.data[i] === undefined) continue;
+        const column = sheetData.data[i];
+        if (column === undefined) continue;
 
-        columnHeaders.push(sheetData.data[i].columnHeader)
+        columnHeaders.push(column.columnHeader)
     }
 
     // We make sure to return them in the order of the selection
@@ -369,8 +370,9 @@ export const getIndexLabelsInSelection = (selection: MitoSelection, sheetData: S
 
     const indexLabels: (IndexLabel)[] = []; // the type is wacky, but it's finme
     for (let i = min; i < max + 1; i++) {
-        if (sheetData.index[i] === undefined) continue;
-        indexLabels.push(sheetData.index[i])
+        const indexLabel = sheetData.index[i];
+        if (indexLabel === undefined) continue;
+        indexLabels.push(indexLabel)
     }
 
     return indexLabels;
@@ -647,6 +649,9 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
         let numDeletedInSelection = 0;
         for (let i = 0; i < oldDeletedIndexes.length; i++) {
             const deletedIndex = oldDeletedIndexes[i];
+            if (deletedIndex === undefined) {
+                continue;
+            }
             if (deletedIndex <= lowerColumnIndex) {
                 numDeletedBeforeSelection += 1
             } else if (deletedIndex > lowerColumnIndex && deletedIndex <= higherColumnIndex) {
@@ -699,6 +704,9 @@ export const reconciliateSingleSelection = (oldSheetIndex: number, newSheetIndex
         let numAddedInSelection = 0;
         for (let i = 0; i < oldAddedIndexes.length; i++) {
             const addedIndex = oldAddedIndexes[i];
+            if (addedIndex === undefined) {
+                continue;
+            }
             if (addedIndex <= lowerColumnIndex) {
                 numAddedBeforeSelection += 1
             } else if (addedIndex > lowerColumnIndex && addedIndex <= higherColumnIndex) {
@@ -805,7 +813,10 @@ export const getSelectedColumnIDsWithEntireSelectedColumn = (selections: MitoSel
 
     return columnIndexes
         .filter(colIdx => sheetData.data.length > colIdx)
-        .map(colIdx => sheetData.data[colIdx]?.columnID)
+        .flatMap(colIdx => {
+            const columnID = sheetData.data[colIdx]?.columnID;
+            return columnID === undefined ? [] : [columnID];
+        })
 }
 
 
@@ -815,7 +826,10 @@ export const getSelectedRowLabelsInSingleSelection = (selection: MitoSelection, 
 
     const rowIndexes = [];
     for (let i = min; i <= max; i++) {
-        rowIndexes.push(sheetData.index[i]);
+        const rowLabel = sheetData.index[i];
+        if (rowLabel !== undefined) {
+            rowIndexes.push(rowLabel);
+        }
     }
 
     return rowIndexes;

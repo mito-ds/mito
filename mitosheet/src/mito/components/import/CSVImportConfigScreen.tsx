@@ -281,7 +281,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                     <Col>
                         <Input
                             width='medium'
-                            value={currentDelimiter}
+                            value={currentDelimiter ?? ''}
                             onChange={(e) => {
                                 const newDelimiter = e.target.value;
                                 props.setParams(prevParams => {
@@ -318,7 +318,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                         <Select 
                             searchable
                             width='medium' 
-                            value={currentEncoding} 
+                            value={currentEncoding ?? ''} 
                             onChange={(newEncoding) => {
                                 props.setParams(prevParams => {
                                     return {
@@ -342,7 +342,7 @@ function CSVImportConfigScreen(props: CSVImportConfigScreenProps): JSX.Element {
                     <Col>
                         <Select 
                             width='small' 
-                            value={decimalCharToTitle[currentDecimal]} 
+                            value={currentDecimal !== undefined ? decimalCharToTitle[currentDecimal] : ''} 
                             onChange={(newDecimalSeparator) => {
                                 props.setParams(prevParams => {
                                     return {

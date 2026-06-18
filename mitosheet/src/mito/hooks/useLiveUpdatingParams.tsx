@@ -131,8 +131,10 @@ function useLiveUpdatingParams<FrontendParamType, BackendParamType>(
         } else {
             // Otherwise, we get the last step and set the params to that
             const lastStep = steps[steps.length - 1];
-            const newBackendParams = lastStep.params as BackendParamType;
-            _setParams(converters.getFrontendFromBackend(newBackendParams, sheetDataArray));
+            if (lastStep !== undefined) {
+                const newBackendParams = lastStep.params as BackendParamType;
+                _setParams(converters.getFrontendFromBackend(newBackendParams, sheetDataArray));
+            }
         }
 
         // If we undo or redo, we know we are going to a valid configuration, in which

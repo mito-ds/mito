@@ -155,7 +155,14 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                 }
             }
 
-            const mostRecentResults = previousParamsAndResults[previousParamsAndResults.length - 1].results;
+            const mostRecentResult = previousParamsAndResults[previousParamsAndResults.length - 1];
+            if (mostRecentResult === undefined) {
+                return {
+                    ...prevUIState,
+                    dataRecon: undefined
+                }
+            }
+            const mostRecentResults = mostRecentResult.results;
             
             const newDataRecon =  {
                 created_dataframe_names: mostRecentResults.created_dataframe_names,
@@ -189,7 +196,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                     if (prevTaskpaneState.type === 'loading completion') {
                         return {
                             ...prevTaskpaneState, 
-                            loadingMessage: getRandomHint()}
+                            loadingMessage: getRandomHint() ?? ''}
                     }
                     return prevTaskpaneState;
                 });
@@ -208,7 +215,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
             return;
         }
 
-        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: getRandomHint()})
+        setTaskpaneState({type: 'loading completion', userInput: userInput, loadingMessage: getRandomHint() ?? ''})
         setUserInput('')
 
         const selections = getSelectionForCompletion(props.uiState, props.gridState, props.sheetDataArray);
@@ -341,7 +348,7 @@ const AITransformationTaskpane = (props: AITransformationTaskpaneProps): JSX.Ele
                         </>
                     }
                     {/** To avoid double displaying messages, special check if it's result already */}
-                    {taskpaneState.type === 'executing code' && (previousParamsAndResults.length === 0 || (previousParamsAndResults[previousParamsAndResults.length - 1].params.user_input !== taskpaneState.userInput)) &&
+                    {taskpaneState.type === 'executing code' && (previousParamsAndResults.length === 0 || (previousParamsAndResults[previousParamsAndResults.length - 1]?.params.user_input !== taskpaneState.userInput)) &&
                         <>
                             <Row
                                 justify="start" align="center"

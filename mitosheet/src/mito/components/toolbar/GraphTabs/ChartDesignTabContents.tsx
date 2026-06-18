@@ -45,11 +45,11 @@ export const ChartDesignTabContents = (
     // for this graph.
     const stepSummaryList = props.analysisData.stepSummaryList;
     const currGraphStep = stepSummaryList[stepSummaryList.length - 1];
-    const params = currGraphStep.params as GraphParamsBackend | undefined;
+    const params = currGraphStep?.params as GraphParamsBackend | undefined;
 
     // When edits happen, just call the API directly w/ the graph id and the step id
     const updateGraphParam = (update: RecursivePartial<GraphParamsBackend>): void => {
-        if (params === undefined) {
+        if (params === undefined || currGraphStep === undefined) {
             return;
         }
         void props.mitoAPI.editGraph(
@@ -159,4 +159,3 @@ export const ChartDesignTabContents = (
         </ToolbarButton>
     </div>);
 }
-

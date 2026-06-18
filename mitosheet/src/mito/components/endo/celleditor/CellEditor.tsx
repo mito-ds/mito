@@ -110,7 +110,12 @@ const CellEditor = (props: {
             // If there is a pendingSelections, then we set the selection to be 
             // at the _end_ of them!
             if (props.editorState.pendingSelections !== undefined) {
-                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, props.sheetDataArray[props.sheetIndex], props.editorState.sheetIndex).length;
+                const selectedSheetData = props.sheetDataArray[props.sheetIndex];
+                if (selectedSheetData === undefined) {
+                    console.warn(`No sheet data was available for selected sheet index ${props.sheetIndex}.`);
+                    return;
+                }
+                const index = props.editorState.pendingSelections.inputSelectionStart + getSelectionFormulaString(props.editorState.pendingSelections.selections, selectedSheetData, props.editorState.sheetIndex).length;
                 cellEditorInputRef.current?.setSelectionRange(
                     index, index
                 )
@@ -149,7 +154,7 @@ const CellEditor = (props: {
         setTextAreaHeight(newHeight)
     }, [], props.mitoContainerRef, '#cell-editor-input')
 
-    if (columnID === undefined || columnHeader === undefined) {
+    if (sheetData === undefined || columnID === undefined || columnHeader === undefined) {
         return <></>;
     }
 
@@ -204,11 +209,22 @@ const CellEditor = (props: {
         let isColumnHeaderSuggestion = true;
         if (suggestionIndex < displayedDropdownType.suggestedColumnHeaders.length) {
             suggestionReplacementLength = displayedDropdownType.suggestedColumnHeadersReplacementLength
-            suggestion = displayedDropdownType.suggestedColumnHeaders[suggestionIndex][0];
+            const selectedColumnHeaderSuggestion = displayedDropdownType.suggestedColumnHeaders[suggestionIndex];
+            if (selectedColumnHeaderSuggestion === undefined) {
+                console.warn(`No column header suggestion was available at index ${suggestionIndex}.`);
+                return;
+            }
+            suggestion = selectedColumnHeaderSuggestion[0];
         } else {
             suggestionReplacementLength = displayedDropdownType.suggestedFunctionsReplacementLength
             // We add a open parentheses onto the formula suggestion
-            suggestion = displayedDropdownType.suggestedFunctions[suggestionIndex - displayedDropdownType.suggestedColumnHeaders.length][0] + '(';
+            const functionSuggestionIndex = suggestionIndex - displayedDropdownType.suggestedColumnHeaders.length;
+            const selectedFunctionSuggestion = displayedDropdownType.suggestedFunctions[functionSuggestionIndex];
+            if (selectedFunctionSuggestion === undefined) {
+                console.warn(`No function suggestion was available at index ${functionSuggestionIndex}.`);
+                return;
+            }
+            suggestion = selectedFunctionSuggestion[0] + '(';
             isColumnHeaderSuggestion = false;
         }
 
@@ -315,7 +331,12 @@ const CellEditor = (props: {
                 // arrow keys are not scrolling in the formula
 
                 props.setGridState((gridState) => {
-                    const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, sheetData);
+                    const currentSelection = gridState.selections[gridState.selections.length - 1];
+                    if (currentSelection === undefined) {
+                        console.warn('No active selection was available while navigating in the cell editor.');
+                        return gridState;
+                    }
+                    const newSelection = getNewSelectionAfterKeyPress(currentSelection, e, sheetData);
 
                     // If there is already some suggested column headers, we do not change this selection, 
                     // as we want any future expanded selection of column headers to overwrite the same 
@@ -500,8 +521,17 @@ const CellEditor = (props: {
         }
 
         const editorSheetData = props.sheetDataArray[props.editorState.sheetIndex];
-        const columnID = editorSheetData.data[props.editorState.columnIndex].columnID;
-        const columnHeader = editorSheetData.data[props.editorState.columnIndex].columnHeader;
+        if (editorSheetData === undefined) {
+            console.warn(`No sheet data was available for editor sheet index ${props.editorState.sheetIndex}.`);
+            return;
+        }
+        const editorColumnData = editorSheetData.data[props.editorState.columnIndex];
+        if (editorColumnData === undefined) {
+            console.warn(`No column data was available for column index ${props.editorState.columnIndex}.`);
+            return;
+        }
+        const columnID = editorColumnData.columnID;
+        const columnHeader = editorColumnData.columnHeader;
         const formula = getFullFormula(props.editorState, props.sheetDataArray, props.sheetIndex);
         const formulaLabel = editorSheetData.index[props.editorState.rowIndex];
 
@@ -516,6 +546,11 @@ const CellEditor = (props: {
             const finalColumnHeader = getColumnHeaderParts(columnHeader).finalColumnHeader;
             submitRenameColumnHeader(columnHeader, finalColumnHeader, columnID, props.sheetIndex, props.editorState, props.setUIState, props.mitoAPI)
         } else {
+            if (formulaLabel === undefined) {
+                console.warn(`No index label was available for row index ${props.editorState.rowIndex}.`);
+                setLoading(false);
+                return;
+            }
             // Otherwise, update the formula for the column (or specific index)
             const index_labels_formula_is_applied_to: FormulaLocation = props.editorState.editingMode === 'specific_index_labels' && indexLabel != undefined 
                 ? {'type': 'specific_index_labels', 'index_labels': [indexLabel]}

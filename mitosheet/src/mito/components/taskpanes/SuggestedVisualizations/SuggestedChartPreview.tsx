@@ -121,11 +121,12 @@ const toNumberArray = (values: (string | number | boolean)[]): number[] => {
 };
 
 const minMax = (values: number[]): { min: number; max: number } => {
-    if (values.length === 0) {
+    const firstValue = values[0];
+    if (firstValue === undefined) {
         return { min: 0, max: 1 };
     }
-    let min = values[0];
-    let max = values[0];
+    let min = firstValue;
+    let max = firstValue;
     for (const v of values) {
         min = Math.min(min, v);
         max = Math.max(max, v);
@@ -144,11 +145,16 @@ const quantile = (values: number[], q: number): number => {
     const pos = (sorted.length - 1) * q;
     const low = Math.floor(pos);
     const high = Math.ceil(pos);
+    const lowValue = sorted[low];
+    const highValue = sorted[high];
+    if (lowValue === undefined || highValue === undefined) {
+        return 0;
+    }
     if (low === high) {
-        return sorted[low];
+        return lowValue;
     }
     const ratio = pos - low;
-    return sorted[low] * (1 - ratio) + sorted[high] * ratio;
+    return lowValue * (1 - ratio) + highValue * ratio;
 };
 
 const sampleEvenly = (values: number[], limit: number): number[] => {
@@ -158,7 +164,10 @@ const sampleEvenly = (values: number[], limit: number): number[] => {
     const sampled: number[] = [];
     for (let i = 0; i < limit; i++) {
         const idx = Math.floor((i / (limit - 1)) * (values.length - 1));
-        sampled.push(values[idx]);
+        const value = values[idx];
+        if (value !== undefined) {
+            sampled.push(value);
+        }
     }
     return sampled;
 };
@@ -183,8 +192,11 @@ const samplePairsByXBins = (xs: number[], ys: number[], limit: number): { xs: nu
 
     const bucketIndices: number[][] = new Array(bins).fill(undefined).map(() => []);
     for (let i = 0; i < n; i++) {
-        const idx = Math.min(bins - 1, Math.floor((xs[i] - xr.min) / binWidth));
-        bucketIndices[idx].push(i);
+        const xValue = xs[i];
+        const bucket = bucketIndices[Math.min(bins - 1, Math.floor(((xValue ?? xr.min) - xr.min) / binWidth))];
+        if (xValue !== undefined && bucket !== undefined) {
+            bucket.push(i);
+        }
     }
 
     const perBin = Math.max(1, Math.floor(limit / bins));
@@ -201,7 +213,10 @@ const samplePairsByXBins = (xs: number[], ys: number[], limit: number): { xs: nu
         // Evenly sample within each x-bin for better shape retention.
         for (let j = 0; j < perBin; j++) {
             const idx = Math.floor((j / Math.max(1, perBin - 1)) * (bucket.length - 1));
-            chosen.push(bucket[idx]);
+            const bucketIndex = bucket[idx];
+            if (bucketIndex !== undefined) {
+                chosen.push(bucketIndex);
+            }
         }
     }
 
@@ -227,8 +242,14 @@ const samplePairsByXBins = (xs: number[], ys: number[], limit: number): { xs: nu
     }
 
     return {
-        xs: deduped.map(i => xs[i]),
-        ys: deduped.map(i => ys[i]),
+        xs: deduped.flatMap(i => {
+            const value = xs[i];
+            return value === undefined ? [] : [value];
+        }),
+        ys: deduped.flatMap(i => {
+            const value = ys[i];
+            return value === undefined ? [] : [value];
+        }),
     };
 };
 
@@ -249,6 +270,9 @@ const SuggestedChartPreview = (props: {
         }
         const limited = cols.map(c => sampleEvenly(toNumberArray(c.columnData), PREVIEW_INPUT_LIMIT));
         const first = limited[0];
+        if (first === undefined) {
+            return undefined;
+        }
         const second = limited[1];
         const firstNumeric = sampleEvenly(first, PREVIEW_POINT_LIMIT_DEFAULT);
         const secondNumeric = second ? sampleEvenly(second, PREVIEW_POINT_LIMIT_DEFAULT) : undefined;
@@ -277,9 +301,15 @@ const SuggestedChartPreview = (props: {
                 label: formatTick(v),
                 anchor: 'middle',
             }));
-            const circles = ys.map((y, i) => (
-                <circle key={i} cx={scaleXValue(xs[i], xr.min, xr.max)} cy={scaleYValue(y, yr.min, yr.max)} r="2.4" fill={PURPLE} opacity="0.82" />
-            ));
+            const circles = ys.flatMap((y, i) => {
+                const x = xs[i];
+                if (x === undefined) {
+                    return [];
+                }
+                return [(
+                    <circle key={i} cx={scaleXValue(x, xr.min, xr.max)} cy={scaleYValue(y, yr.min, yr.max)} r="2.4" fill={PURPLE} opacity="0.82" />
+                )];
+            });
             return (
                 <>
                     {axisEl(yr, xTicks)}
@@ -361,10 +391,10 @@ const SuggestedChartPreview = (props: {
                 n === 0
                     ? []
                     : n === 1
-                      ? [{ x: scaleXIndex(0, 1), label: formatTick(sorted[0]), anchor: 'middle' }]
+                      ? [{ x: scaleXIndex(0, 1), label: formatTick(sorted[0] ?? 0), anchor: 'middle' }]
                       : [
-                            { x: scaleXIndex(0, n), label: formatTick(sorted[0]), anchor: 'start' },
-                            { x: scaleXIndex(n - 1, n), label: formatTick(sorted[n - 1]), anchor: 'end' },
+                            { x: scaleXIndex(0, n), label: formatTick(sorted[0] ?? 0), anchor: 'start' },
+                            { x: scaleXIndex(n - 1, n), label: formatTick(sorted[n - 1] ?? 0), anchor: 'end' },
                         ];
             const pts = sorted.map((v, i) => ({
                 x: scaleXIndex(i, sorted.length),
@@ -388,8 +418,10 @@ const SuggestedChartPreview = (props: {
                 anchor: 'middle',
             }));
             const marks = firstNumeric.map((x, i) => (
-                <circle key={i} cx={scaleXValue(x, xr.min, xr.max)} cy={scaleYValue(secondNumeric[i], yr.min, yr.max)} r="3.2" fill={PURPLE} opacity="0.22" />
-            ));
+                secondNumeric[i] === undefined
+                    ? null
+                    : <circle key={i} cx={scaleXValue(x, xr.min, xr.max)} cy={scaleYValue(secondNumeric[i] ?? 0, yr.min, yr.max)} r="3.2" fill={PURPLE} opacity="0.22" />
+            )).filter((mark): mark is JSX.Element => mark !== null);
             return (
                 <>
                     {axisEl(yr, xTicks)}
@@ -412,7 +444,7 @@ const SuggestedChartPreview = (props: {
                     catCol.columnData.length - 1,
                     Math.round((i / Math.max(1, n - 1)) * (catCol.columnData.length - 1)),
                 );
-                label = truncateLabel(String(catCol.columnData[dataIdx]), 8);
+                label = truncateLabel(String(catCol.columnData[dataIdx] ?? ''), 8);
             } else {
                 label = String(i + 1);
             }

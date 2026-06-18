@@ -354,8 +354,8 @@ const GraphSidebar = (props: {
                         const currOpenTaskpane = props.uiState.currOpenTaskpane;
                         const stepSummaryList = props.analysisData.stepSummaryList;
                         const currGraphStep = stepSummaryList[stepSummaryList.length - 1];
-                        const params = currGraphStep.params as GraphParamsBackend | undefined;
-                        if (currOpenTaskpane.type !== TaskpaneType.GRAPH || params === undefined) {
+                        const params = currGraphStep?.params as GraphParamsBackend | undefined;
+                        if (currOpenTaskpane.type !== TaskpaneType.GRAPH || params === undefined || currGraphStep === undefined) {
                             return;
                         }
                         void props.mitoAPI.editGraph(

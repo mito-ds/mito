@@ -57,6 +57,9 @@ export const getSelectionFloatStyle = (
 
     const selLeft = minC === 0 ? 0 : wd.widthSumArray[minC - 1];
     const selRight = wd.widthSumArray[maxC];
+    if (selLeft === undefined || selRight === undefined) {
+        return undefined;
+    }
     const selTop = minR * ROW_HEIGHT_PX;
     const selBottom = (maxR + 1) * ROW_HEIGHT_PX;
 

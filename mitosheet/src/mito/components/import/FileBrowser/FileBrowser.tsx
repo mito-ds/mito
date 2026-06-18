@@ -218,7 +218,9 @@ function FileBrowser(props: FileBrowserProps): JSX.Element {
             
                                     void openExcelImport();
                                 } else {
-                                    void props.importCSVFile(selectedFile);
+                                    if (selectedFile !== undefined) {
+                                        void props.importCSVFile(selectedFile);
+                                    }
                                 }
                             }}
                             disabled={importButtonStatus.disabled}

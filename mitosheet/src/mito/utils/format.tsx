@@ -130,7 +130,8 @@ export const getColumnAppliedFormat = (
     columnIDs: ColumnID[]
 ) => {
     const numberColumnColumnIDs = getNumberColumnIDs(sheetData, columnIDs);
-    const appliedFormatting = sheetData?.dfFormat.columns[numberColumnColumnIDs[0]];
+    const firstNumberColumnID = numberColumnColumnIDs[0];
+    const appliedFormatting = firstNumberColumnID !== undefined ? sheetData?.dfFormat.columns[firstNumberColumnID] : undefined;
     return getFormatTitle(appliedFormatting);
 }
 
@@ -147,7 +148,8 @@ export const getColumnFormatDropdownItems = (
 ): JSX.Element[] => {
 
     const numberColumnColumnIDs = getNumberColumnIDs(sheetData, columnIDs);
-    const appliedFormatting = sheetData?.dfFormat.columns[numberColumnColumnIDs[0]];
+    const firstNumberColumnID = numberColumnColumnIDs[0];
+    const appliedFormatting = firstNumberColumnID !== undefined ? sheetData?.dfFormat.columns[firstNumberColumnID] : undefined;
 
     const onClick = (columnFormat: ColumnFormatType | undefined): void => {
         // Close any open editing taskpanes

@@ -160,9 +160,11 @@ export const getActions = (
     // Define variables that we use in many actions
     const sheetIndex = gridState.sheetIndex;
     const sheetData = sheetDataArray[sheetIndex];
+    const activeSelection = gridState.selections[gridState.selections.length - 1];
+    const firstSelection = gridState.selections[0];
     const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
-    const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
-    const startingColumnIndex = gridState.selections[gridState.selections.length - 1].startingColumnIndex;
+    const startingRowIndex = activeSelection?.startingRowIndex ?? -1;
+    const startingColumnIndex = activeSelection?.startingColumnIndex ?? -1;
     const {columnID, cellValue, columnDtype } = getCellDataFromCellIndexes(sheetData, startingRowIndex, startingColumnIndex);
     const {startingColumnFormula, arrowKeysScrollInFormula} = getStartingFormula(sheetData, undefined, startingRowIndex, startingColumnIndex, analysisData.defaultApplyFormulaToColumn);
     const startingColumnID = columnID;
@@ -204,6 +206,9 @@ export const getActions = (
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
                 const selection = gridState.selections[gridState.selections.length - 1];
+                if (selection === undefined) {
+                    return;
+                }
                 const newColumnHeaderIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex) + 1;
 
                 await mitoAPI.editAddColumn(
@@ -253,6 +258,9 @@ export const getActions = (
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the left of the first selected column
                 const selection = gridState.selections[gridState.selections.length - 1];
+                if (selection === undefined) {
+                    return;
+                }
                 const newColumnHeaderIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
 
                 await mitoAPI.editAddColumn(
@@ -335,7 +343,7 @@ export const getActions = (
                 void mitoAPI.log('click_catch_up')
                 void mitoAPI.updateCheckoutStepByIndex(-1); // TODO: Check that -1 works! And below
             },
-            isDisabled: () => {return analysisData.currStepIdx === lastStepSummary.step_idx ? 'You are on the most recent step, so there is nothing to catch up on.' : undefined},
+            isDisabled: () => {return lastStepSummary !== undefined && analysisData.currStepIdx === lastStepSummary.step_idx ? 'You are on the most recent step, so there is nothing to catch up on.' : undefined},
             searchTerms: ['fast forward', 'catch up'],
             tooltip: "Go to the current state of the analysis."
         },
@@ -572,7 +580,14 @@ export const getActions = (
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (firstSelection === undefined) {
+                    return;
+                }
+                if (sheetData === undefined) {
+                    console.warn(`Unable to delete rows: missing sheet data for sheet index ${sheetIndex}.`);
+                    return;
+                }
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(firstSelection, sheetData);
                 if (rowsToDelete.length > 0) {
                     const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
                     scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
@@ -585,7 +600,13 @@ export const getActions = (
                     return 'There are no rows to delete. Import data.';
                 }
 
-                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
+                if (firstSelection === undefined) {
+                    return 'There are no rows to delete. Import data.';
+                }
+                if (sheetData === undefined) {
+                    return 'There are no rows to delete. Import data.';
+                }
+                const rowsToDelete = getSelectedRowLabelsInSingleSelection(firstSelection, sheetData);
                 if (rowsToDelete.length > 0) {
                     return defaultActionDisabledMessage;
                 } else {
@@ -944,9 +965,10 @@ export const getActions = (
                 if (!doesAnySheetExist(sheetDataArray)) {
                     return 'There are no columns to filter in the selected sheet. Import data.'
                 }
-                if (gridState.selections.length === 1 &&
-                    gridState.selections[0].startingRowIndex === gridState.selections[0].endingRowIndex &&
-                    gridState.selections[0].startingColumnIndex === gridState.selections[0].endingColumnIndex) {
+                if (firstSelection !== undefined &&
+                    gridState.selections.length === 1 &&
+                    firstSelection.startingRowIndex === firstSelection.endingRowIndex &&
+                    firstSelection.startingColumnIndex === firstSelection.endingColumnIndex) {
                     return defaultActionDisabledMessage;
                 } else {
                     return 'This action can only be applied to a single cell.'
@@ -1272,8 +1294,11 @@ export const getActions = (
 
                 const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
                 const columnIDs = columnIndexesSelected
-                    .filter(colIdx => sheetData.data.length > colIdx)
-                    .map(colIdx => sheetData.data[colIdx]?.columnID)
+                    .filter(colIdx => sheetData !== undefined && sheetData.data.length > colIdx)
+                    .flatMap(colIdx => {
+                        const columnID = sheetData?.data[colIdx]?.columnID;
+                        return columnID === undefined ? [] : [columnID];
+                    })
                 
                 void mitoAPI.editChangeColumnDtype(sheetIndex, columnIDs, ColumnDtypes.DATETIME, getRandomId())
             },
@@ -1607,6 +1632,10 @@ export const getActions = (
             longTitle: 'Decrease decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
+                if (sheetData === undefined) {
+                    console.warn(`Unable to decrease precision: missing sheet data for sheet index ${sheetIndex}.`);
+                    return;
+                }
 
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
                 const newDfFormat: DataframeFormat = window.structuredClone(dfFormat);
@@ -1635,6 +1664,10 @@ export const getActions = (
             longTitle: 'Increase decimal places displayed',
             actionFunction: async () => {  
                 closeOpenEditingPopups();
+                if (sheetData === undefined) {
+                    console.warn(`Unable to increase precision: missing sheet data for sheet index ${sheetIndex}.`);
+                    return;
+                }
 
                 const selectedNumberSeriesColumnIDs = getSelectedNumberSeriesColumnIDs(gridState.selections, sheetData);
                 const newDfFormat: DataframeFormat = window.structuredClone(dfFormat);
@@ -1665,7 +1698,10 @@ export const getActions = (
             actionFunction: async () => {
                 const rowsToPromote = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToPromote.length > 0) {
-                    void mitoAPI.editPromoteRowToHeader(sheetIndex, rowsToPromote[0]);
+                    const rowToPromote = rowsToPromote[0];
+                    if (rowToPromote !== undefined) {
+                        void mitoAPI.editPromoteRowToHeader(sheetIndex, rowToPromote);
+                    }
                 }
             },
             isDisabled: () => {
@@ -1833,8 +1869,11 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                const minColumnIndex = Math.min(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
-                const maxColumnIndex = Math.max(gridState.selections[0].startingColumnIndex, gridState.selections[0].endingColumnIndex);
+                if (firstSelection === undefined || sheetData === undefined) {
+                    return;
+                }
+                const minColumnIndex = Math.min(firstSelection.startingColumnIndex, firstSelection.endingColumnIndex);
+                const maxColumnIndex = Math.max(firstSelection.startingColumnIndex, firstSelection.endingColumnIndex);
                 const newStartingColumnIndex = Math.max(minColumnIndex, 0);
                 const newEndingColumnIndex = Math.min(maxColumnIndex, sheetData.numColumns - 1);
 
@@ -1867,8 +1906,11 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                const minRowIndex = Math.min(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
-                const maxRowIndex = Math.max(gridState.selections[0].startingRowIndex, gridState.selections[0].endingRowIndex);
+                if (firstSelection === undefined || sheetData === undefined) {
+                    return;
+                }
+                const minRowIndex = Math.min(firstSelection.startingRowIndex, firstSelection.endingRowIndex);
+                const maxRowIndex = Math.max(firstSelection.startingRowIndex, firstSelection.endingRowIndex);
 
                 const newStartingRowIndex = Math.max(minRowIndex, 0);
                 const newEndingRowIndex = Math.min(maxRowIndex, sheetData.numRows - 1);
@@ -1901,6 +1943,10 @@ export const getActions = (
 
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups();
+                if (sheetData === undefined) {
+                    console.warn(`Unable to select all cells: missing sheet data for sheet index ${sheetIndex}.`);
+                    return;
+                }
 
                 // Select all columns
                 setGridState(prevGridState => {
@@ -2030,6 +2076,9 @@ export const getActions = (
                 if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     columnIndex = uiState.currOpenDropdown.columnIndex;
                 }
+                if (sheetData === undefined) {
+                    return;
+                }
                 const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
                 void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.ASCENDING)
             },
@@ -2056,6 +2105,9 @@ export const getActions = (
                 let columnIndex = startingColumnIndex;
                 if (typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'context-menu') {
                     columnIndex = uiState.currOpenDropdown.columnIndex;
+                }
+                if (sheetData === undefined) {
+                    return;
                 }
                 const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
                 void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.DESCENDING)
@@ -2187,17 +2239,25 @@ export const getActions = (
                             }
                         });
                     } else {
+                        const nextGraph = analysisData.graphDataArray[graphIndex + 1];
+                        if (nextGraph === undefined) {
+                            return;
+                        }
                         void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
                             type: 'existing_graph',
-                            graphID: analysisData.graphDataArray[graphIndex + 1].graph_id
+                            graphID: nextGraph.graph_id
                         })
                         return;
                     }
                 } else {
                     if (selectedSheetIndex === sheetDataArray.length - 1 && analysisData.graphDataArray.length > 0) {
+                        const firstGraph = analysisData.graphDataArray[0];
+                        if (firstGraph === undefined) {
+                            return;
+                        }
                         void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
                             type: 'existing_graph',
-                            graphID: analysisData.graphDataArray[0].graph_id
+                            graphID: firstGraph.graph_id
                         })
                         return;
                     } else {
@@ -2237,17 +2297,25 @@ export const getActions = (
                             }
                         });
                     } else {
+                        const previousGraph = analysisData.graphDataArray[graphIndex - 1];
+                        if (previousGraph === undefined) {
+                            return;
+                        }
                         void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
                             type: 'existing_graph',
-                            graphID: analysisData.graphDataArray[graphIndex - 1].graph_id
+                            graphID: previousGraph.graph_id
                         })
                         return;
                     }
                 } else {
                     if (selectedSheetIndex === 0 && analysisData.graphDataArray.length > 0) {
+                        const lastGraph = analysisData.graphDataArray[analysisData.graphDataArray.length - 1];
+                        if (lastGraph === undefined) {
+                            return;
+                        }
                         void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
                             type: 'existing_graph',
-                            graphID: analysisData.graphDataArray[analysisData.graphDataArray.length - 1].graph_id
+                            graphID: lastGraph.graph_id
                         })
                         return;
                     } else {
@@ -2869,7 +2937,10 @@ export const getSearchTermToActionEnumMapping = (actions: Record<ActionEnum, Bui
             if (!(searchTerm in searchTermToActionMapping)) {
                 searchTermToActionMapping[searchTerm] = []
             }
-            searchTermToActionMapping[searchTerm].push(action.staticType)
+            const matchingActions = searchTermToActionMapping[searchTerm];
+            if (matchingActions !== undefined) {
+                matchingActions.push(action.staticType)
+            }
         })
     })
     return searchTermToActionMapping

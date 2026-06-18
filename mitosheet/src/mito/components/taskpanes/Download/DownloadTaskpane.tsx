@@ -214,8 +214,8 @@ const DownloadTaskpane = (props: DownloadTaskpaneProps): JSX.Element => {
                             <DropdownItem 
                                 title='excel'
                                 subtext={
-                                    numRows > 1_048_576 
-                                        ? `An Excel file holds at most 1,048,576 rows, but there are ${numRows} rows in this dataframe. We'll export the first 1,048,576 rows, but this may take several minutes.`
+                                    (numRows ?? 0) > 1_048_576 
+                                        ? `An Excel file holds at most 1,048,576 rows, but there are ${numRows ?? 0} rows in this dataframe. We'll export the first 1,048,576 rows, but this may take several minutes.`
                                         : `Due to Python limitations, Excel export can be slower than CSV export.`
                                 }
                             />

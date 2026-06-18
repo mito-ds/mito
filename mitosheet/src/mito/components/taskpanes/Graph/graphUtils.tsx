@@ -63,14 +63,19 @@ const getAxisColumnIDs = (sheetData: SheetData, graphType?: GraphType, selectedC
         }
     }
     if (graphType === GraphType.SCATTER) {
+        const firstSelectedColumnId = selectedColumnIds[0];
         return {
-            x_axis_column_ids: [selectedColumnIds[0]],
+            x_axis_column_ids: firstSelectedColumnId === undefined ? [] : [firstSelectedColumnId],
             y_axis_column_ids: selectedColumnIds.slice(1)
         }
     } else {
-        if (!isNumberDtype(sheetData.columnDtypeMap[selectedColumnIds[0]])) {
+        const firstSelectedColumnId = selectedColumnIds[0];
+        const firstSelectedColumnDtype = firstSelectedColumnId !== undefined
+            ? sheetData.columnDtypeMap[firstSelectedColumnId]
+            : undefined;
+        if (firstSelectedColumnId !== undefined && firstSelectedColumnDtype !== undefined && !isNumberDtype(firstSelectedColumnDtype)) {
             return {
-                x_axis_column_ids: [selectedColumnIds[0]],
+                x_axis_column_ids: [firstSelectedColumnId],
                 y_axis_column_ids: selectedColumnIds.slice(1)
             }
         } else {
@@ -99,7 +104,11 @@ export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIS
         })
     }
 
-    const existingParams = await getParamsForExistingGraph(mitoAPI, remainingGraphIDs[0]);
+    const firstRemainingGraphID = remainingGraphIDs[0];
+    if (firstRemainingGraphID === undefined) {
+        return;
+    }
+    const existingParams = await getParamsForExistingGraph(mitoAPI, firstRemainingGraphID);
     if (existingParams === undefined) {
         return;
     }
@@ -112,7 +121,7 @@ export const deleteGraphs = async (graphIDs: GraphID[], mitoAPI: MitoAPI, setUIS
                 graphSidebarOpen: false,
                 openGraph: {
                     type: 'existing_graph',
-                    graphID: remainingGraphIDs[0],
+                graphID: firstRemainingGraphID,
                     existingParams: existingParams
                 }
             }
@@ -178,7 +187,74 @@ export const getDefaultGraphParams = (
     const newGraphType = openGraph.graphType;
     const selectedColumnIDs = openGraph.selectedColumnIds;
     
-    const axis_column_ids = getAxisColumnIDs(sheetDataArray[selectedSheetIndex], newGraphType, selectedColumnIDs);
+    const selectedSheetData = sheetDataArray[selectedSheetIndex];
+    if (selectedSheetData === undefined) {
+        console.warn(`Unable to create default graph params: missing sheet data for sheet index ${selectedSheetIndex}.`);
+        return {
+            graphID: openGraph.graphID,
+            graphPreprocessing: {
+                safety_filter_turned_on_by_user: true
+            },
+            graphCreation: {
+                graph_type: newGraphType,
+                sheet_index: selectedSheetIndex,
+                color: undefined,
+                facet_col_column_id: undefined,
+                facet_row_column_id: undefined,
+                facet_col_wrap: undefined,
+                facet_col_spacing: undefined,
+                facet_row_spacing: undefined,
+                x_axis_column_ids: [],
+                y_axis_column_ids: [],
+                points: GRAPHS_THAT_HAVE_POINTS.includes(newGraphType) ? 'outliers' : undefined,
+                line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(newGraphType) ? 'linear' : undefined,
+                nbins: undefined,
+                histnorm: undefined,
+                histfunc: GRAPHS_THAT_HAVE_HISTFUNC.includes(newGraphType) ? 'count' : undefined
+            },
+            graphStyling: {
+                title: {
+                    title: undefined,
+                    visible: true,
+                    title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT
+                },
+                xaxis: {
+                    title: undefined,
+                    visible: true,
+                    title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+                    type: undefined,
+                    showgrid: true,
+                    gridwidth: undefined,
+                    rangeslider: {
+                        visible: true,
+                    },
+                },
+                yaxis: {
+                    title: undefined,
+                    visible: true,
+                    title_font_color: DO_NOT_CHANGE_TITLE_FONT_COLOR_DEFAULT,
+                    type: undefined,
+                    showgrid: true,
+                    gridwidth: undefined,
+                },
+                showlegend: true,
+                legend: {
+                    title: {
+                        text: undefined
+                    },
+                    orientation: 'v',
+                    x: undefined, 
+                    y: undefined,
+                },
+                paper_bgcolor: DO_NOT_CHANGE_PAPER_BGCOLOR_DEFAULT,
+                plot_bgcolor: DO_NOT_CHANGE_PLOT_BGCOLOR_DEFAULT,
+                barmode: GRAPHS_THAT_HAVE_BARMODE.includes(newGraphType) ? 'group' : undefined,
+                barnorm: undefined,
+            },
+            graphRendering: graphRenderingParams
+        };
+    }
+    const axis_column_ids = getAxisColumnIDs(selectedSheetData, newGraphType, selectedColumnIDs);
     
     return {
         graphID: openGraph.graphID,
@@ -269,12 +345,15 @@ export const getColorDropdownItems = (
         />
     )]
     
-    const columnDropdownItems = Object.keys(columnIDsMap || {}).map(columnID => {
+    const columnDropdownItems = Object.keys(columnIDsMap || {}).flatMap(columnID => {
         const columnHeader = columnIDsMap[columnID];
+        if (columnHeader === undefined) {
+            return [];
+        }
 
         // Plotly doesn't support setting the color as a date series, so we disable date series dropdown items
-        const disabled = isDatetimeDtype(columnDtypesMap[columnID])
-        return (
+        const disabled = isDatetimeDtype(columnDtypesMap[columnID] ?? '')
+        return [(
             <DropdownItem
                 key={columnID}
                 title={getDisplayColumnHeader(columnHeader)}
@@ -284,7 +363,7 @@ export const getColorDropdownItems = (
                 hideSubtext
                 displaySubtextOnHover
             />
-        )
+        )]
     })
 
     return NoneOption.concat(columnDropdownItems)
@@ -519,7 +598,11 @@ export const getGraphElementObjects = (graphOutput: GraphOutput) => {
     if (graphOutput === undefined) {
         return;
     }
-    const div: any = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])
+    const graphId = graphOutput.graphHTML.split('id="')[1]?.split('"')[0];
+    if (graphId === undefined) {
+        return;
+    }
+    const div: any = document.getElementById(graphId)
     if (div === null) {
         return;
     }
@@ -548,7 +631,8 @@ export const getGraphElementInfoFromHTMLElement = (graphElement: Element, elemen
         }
     }
 
-    const graphOutputTop = document.getElementById(graphOutput.graphHTML.split('id="')[1].split('"')[0])?.getBoundingClientRect().top ?? 0;
+    const graphId = graphOutput.graphHTML.split('id="')[1]?.split('"')[0];
+    const graphOutputTop = graphId !== undefined ? document.getElementById(graphId)?.getBoundingClientRect().top ?? 0 : 0;
     const mitoDivClientRect = mitoContainer?.getBoundingClientRect();
     const mitoDivLeft = mitoDivClientRect?.left ?? 0;
     const mitoDivTop = mitoDivClientRect?.top ?? 0;
