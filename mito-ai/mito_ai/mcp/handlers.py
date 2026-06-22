@@ -9,7 +9,7 @@ from typing import Any, Dict
 import tornado
 from jupyter_server.base.handlers import APIHandler
 
-from mito_ai.mcp.mcp_client import list_server_tools
+from mito_ai.mcp.mcp_client import list_server_tools, mcp_connection_manager
 from mito_ai.mcp.utils import (
     delete_server,
     load_servers,
@@ -58,7 +58,7 @@ class MCPServersHandler(APIHandler):
 
         ids = list(servers.keys())
         results = await asyncio.gather(
-            *(list_server_tools(servers[sid]) for sid in ids),
+            *(list_server_tools(servers[sid], server_id=sid, use_cache=False) for sid in ids),
             return_exceptions=True,
         )
 
@@ -132,7 +132,7 @@ class MCPServersHandler(APIHandler):
         )
 
     @tornado.web.authenticated
-    def delete(self, *args: Any, **kwargs: Any) -> None:
+    async def delete(self, *args: Any, **kwargs: Any) -> None:
         """Delete an MCP server by id."""
         server_id = kwargs.get("uuid")
         if not server_id:
@@ -141,4 +141,5 @@ class MCPServersHandler(APIHandler):
             return
 
         delete_server(server_id)
+        await mcp_connection_manager.invalidate(server_id)
         self.finish(json.dumps({"status": "success"}))

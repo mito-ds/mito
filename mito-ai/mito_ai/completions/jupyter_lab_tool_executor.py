@@ -275,7 +275,7 @@ class JupyterLabToolExecutor:
                 error_message=str(e),
             )
 
-        result = await call_server_tool(server_config, tool_name, arguments)
+        result = await call_server_tool(server_config, tool_name, arguments, server_id=mcp_server_id)
         if result.get("success"):
             return ToolResult(
                 success=True,

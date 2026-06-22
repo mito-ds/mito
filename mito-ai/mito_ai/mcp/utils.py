@@ -62,7 +62,7 @@ async def get_available_mcp_tools() -> List[Dict[str, Any]]:
         return []
 
     results = await asyncio.gather(
-        *(list_server_tools(servers[sid]) for sid in ids),
+        *(list_server_tools(servers[sid], server_id=sid) for sid in ids),
         return_exceptions=True,
     )
 
