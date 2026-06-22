@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 import json
 from contextlib import AsyncExitStack
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
@@ -81,8 +81,19 @@ class MCPConnectionManager:
         self._sessions: Dict[str, ClientSession] = {}
         self._stacks: Dict[str, AsyncExitStack] = {}
         self._configs: Dict[str, Dict[str, Any]] = {}
+        self._tool_cache: Dict[str, List[Dict[str, Any]]] = {}
         self._locks: Dict[str, asyncio.Lock] = {}
         self._global_lock = asyncio.Lock()
+
+    def get_tool_cache(self, server_id: str) -> Optional[List[Dict[str, Any]]]:
+        return self._tool_cache.get(server_id)
+
+    def set_tool_cache(self, server_id: str, tools: List[Dict[str, Any]]) -> None:
+        self._tool_cache[server_id] = tools
+
+    def invalidate_tool_cache(self, server_id: str) -> None:
+        """Clear a server's cached tool list without dropping its connection."""
+        self._tool_cache.pop(server_id, None)
 
     async def _get_lock(self, server_id: str) -> asyncio.Lock:
         async with self._global_lock:
@@ -120,6 +131,7 @@ class MCPConnectionManager:
         stack = self._stacks.pop(server_id, None)
         self._sessions.pop(server_id, None)
         self._configs.pop(server_id, None)
+        self._tool_cache.pop(server_id, None)
         if stack:
             try:
                 await stack.aclose()
@@ -234,12 +246,18 @@ async def list_server_tools(
     validating a new server config before it has been assigned an id.
     """
     if server_id is not None:
+        cached = mcp_connection_manager.get_tool_cache(server_id)
+        if cached is not None:
+            return {"success": True, "tools": cached}
         try:
             session = await mcp_connection_manager.get_session(server_id, config)
-            return await asyncio.wait_for(
+            result = await asyncio.wait_for(
                 _list_tools_from_session(session),
                 timeout=LIST_TOOLS_TIMEOUT_SECONDS,
             )
+            if result.get("success"):
+                mcp_connection_manager.set_tool_cache(server_id, result["tools"])
+            return result
         except asyncio.TimeoutError:
             await mcp_connection_manager.invalidate(server_id)
             return {
