@@ -85,7 +85,11 @@ class MCPConnectionManager:
         self._locks: Dict[str, asyncio.Lock] = {}
         self._global_lock = asyncio.Lock()
 
-    def get_tool_cache(self, server_id: str) -> Optional[List[Dict[str, Any]]]:
+    def get_tool_cache(self, server_id: str, config: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+        """Return cached tools only if the session was opened with the same config."""
+        if self._configs.get(server_id) != config:
+            self._tool_cache.pop(server_id, None)
+            return None
         return self._tool_cache.get(server_id)
 
     def set_tool_cache(self, server_id: str, tools: List[Dict[str, Any]]) -> None:
@@ -239,16 +243,19 @@ async def _call_tool_short_lived(
 async def list_server_tools(
     config: Dict[str, Any],
     server_id: Optional[str] = None,
+    use_cache: bool = True,
 ) -> Dict[str, Any]:
     """List tools for an MCP server.
 
     Pass ``server_id`` to reuse a persistent connection. Omit it when
     validating a new server config before it has been assigned an id.
+    Pass ``use_cache=False`` when a live result is required (e.g. health checks).
     """
     if server_id is not None:
-        cached = mcp_connection_manager.get_tool_cache(server_id)
-        if cached is not None:
-            return {"success": True, "tools": cached}
+        if use_cache:
+            cached = mcp_connection_manager.get_tool_cache(server_id, config)
+            if cached is not None:
+                return {"success": True, "tools": cached}
         try:
             session = await mcp_connection_manager.get_session(server_id, config)
             result = await asyncio.wait_for(

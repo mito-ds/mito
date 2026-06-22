@@ -58,7 +58,7 @@ class MCPServersHandler(APIHandler):
 
         ids = list(servers.keys())
         results = await asyncio.gather(
-            *(list_server_tools(servers[sid], server_id=sid) for sid in ids),
+            *(list_server_tools(servers[sid], server_id=sid, use_cache=False) for sid in ids),
             return_exceptions=True,
         )
 
