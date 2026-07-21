@@ -273,6 +273,8 @@ export const executeAgentTool = async ({
                 output: 'Updated Streamlit app preview',
             };
         }
+        case 'read_skill':
+            return unsupportedFrontendToolResult('read_skill');
         case 'finished_task':
         default:
             return unsupportedFrontendToolResult(agentResponse.type);

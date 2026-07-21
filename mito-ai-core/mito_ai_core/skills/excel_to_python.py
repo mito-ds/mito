@@ -1,12 +1,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-"""
-Excel-to-Python conversion rules used when converting Excel spreadsheets
-into Jupyter notebooks (e.g. in agent execution prompts).
-"""
+from mito_ai_core.skills.types import Skill
 
-EXCEL_TO_PYTHON_RULES = """
+CONTENT = """
+# Excel to Python Conversion
+
 If you've been asked to convert, translate, or replicate the logic of an Excel file into Python, then you should follow these rules.
 
 **Purpose of converting to Python:** The main reason to convert an Excel model to Python is so the user can easily try different input values and run different scenarios. The user should be able to change a few parameters at the top of the notebook, re-run the notebook, and see new results — without hunting through the code. Your output must support this workflow.
@@ -122,3 +121,19 @@ Once every todo item is checked off, rerun the entire notebook from top to botto
 - **Use the notebook well.** Markdown cells are your thinking tool. Use them to explain your understanding before writing code. This helps you catch mistakes in understanding before they become mistakes in code.
 - **Be precise with the todo list.** Check off items only after their asserts pass. The todo list is your progress tracker — it should always reflect the true state of your work.
 """
+
+
+class ExcelToPythonSkill(Skill):
+    name = "excel-to-python"
+
+    @property
+    def description(self) -> str:
+        return (
+            "Convert Excel workbook formulas and logic into an interactive, scenario-ready "
+            "Jupyter notebook validated against the source file. Use when the user asks to "
+            "convert, translate, replicate, or port an Excel model to Python, rebuild a "
+            "spreadsheet in a notebook, or run what-if scenarios from an .xlsx file."
+        )
+
+    def get_content(self) -> str:
+        return CONTENT

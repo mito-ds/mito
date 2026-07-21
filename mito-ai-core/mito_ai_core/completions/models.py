@@ -63,6 +63,7 @@ class AgentResponse(BaseModel):
         'ask_user_question', 
         'scratchpad',
         'mcp_tool_call',
+        'read_skill',
     ]
     message: str
     cell_update: Optional[CellUpdate]
@@ -75,6 +76,7 @@ class AgentResponse(BaseModel):
     scratchpad_code: Optional[str]
     scratchpad_summary: Optional[str]
     mcp_tool_call: Optional[MCPToolCall]
+    skill_name: Optional[str]
     
     
 @dataclass(frozen=True)

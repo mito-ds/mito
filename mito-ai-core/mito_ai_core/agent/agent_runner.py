@@ -60,6 +60,7 @@ class AgentRunner:
             "create_streamlit_app",
             "edit_streamlit_app",
             "mcp_tool_call",
+            "read_skill",
         }
     )
 
@@ -226,6 +227,7 @@ class AgentRunner:
                 scratchpad_code=None,
                 scratchpad_summary=None,
                 mcp_tool_call=None,
+                skill_name=None,
             )
         return AgentRunResult(
             final_response=last_response,
@@ -362,6 +364,19 @@ class AgentRunner:
                 response.mcp_tool_call.mcp_server_id,
                 response.mcp_tool_call.tool_name,
                 loaded,
+                response.message,
+            )
+
+        if rtype == "read_skill":
+            if response.skill_name is None or not response.skill_name.strip():
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message="Agent returned read_skill but skill_name is null or empty.",
+                )
+            return await self._tool_executor.read_skill(
+                ctx,
+                response.skill_name.strip(),
                 response.message,
             )
 

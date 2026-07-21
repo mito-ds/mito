@@ -1,0 +1,49 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mcp-tool-call-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px 10px 12px;
+    border-top: 1px solid var(--jp-cell-editor-border-color);
+    background-color: var(--jp-layout-color1);
+}
+
+.mcp-tool-call-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mcp-tool-call-section-label {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--jp-ui-font-color2);
+}
+
+.mcp-tool-call-block {
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color1);
+    font-family: var(--jp-code-font-family);
+    font-size: var(--jp-code-font-size);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.mcp-tool-call-error {
+    color: var(--jp-error-color1, #d32f2f);
+}
+
+.mcp-tool-call-pending {
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
+}

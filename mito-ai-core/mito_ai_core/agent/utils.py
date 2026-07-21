@@ -27,6 +27,7 @@ _OPTIONAL_RESPONSE_FIELDS = (
     "scratchpad_code",
     "scratchpad_summary",
     "mcp_tool_call",
+    "skill_name",
 )
 
 
@@ -147,6 +148,13 @@ def create_display_optimized_tool_result_message(
 
     if tool_result.tool_name == "scratchpad" and tool_result.success and tool_result.output:
         content = tool_result.output
+    elif tool_result.tool_name == "mcp_tool_call":
+        # Persist the MCP response text (or error) so the UI can rehydrate the
+        # tool-call card with its server response on reload.
+        if tool_result.success and tool_result.output:
+            content = tool_result.output
+        elif not tool_result.success and tool_result.error_message:
+            content = tool_result.error_message
     elif (
         tool_result.tool_name == "run_all_cells"
         and not tool_result.success

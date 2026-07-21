@@ -66,6 +66,31 @@ export const processChatHistoryForErrorGrouping = (
             }
         }
 
+        // Mirror the scratchpad rehydration for MCP tool calls: the next user
+        // message after an mcp_tool_call assistant message is the server response
+        // text we persisted, and we consume it so MCPToolCallToolUI can render it.
+        if (
+            displayOptimizedChatItem.agentResponse?.type === 'mcp_tool_call' &&
+            !displayOptimizedChatItem.mcpToolResult &&
+            !displayOptimizedChatItem.mcpToolError
+        ) {
+            const nextIndex = getNextDefinedIndex(i);
+            const nextItem = displayOptimizedChatHistory[nextIndex];
+            const nextItemMessageContent = nextItem ? getContentStringFromMessage(nextItem.message)?.trim() : '';
+
+            if (
+                nextItem &&
+                nextItem.message.role === 'user' &&
+                nextItemMessageContent
+            ) {
+                displayOptimizedChatItem = {
+                    ...displayOptimizedChatItem,
+                    mcpToolResult: nextItemMessageContent
+                };
+                i = nextIndex;
+            }
+        }
+
         const messageContent = getContentStringFromMessage(displayOptimizedChatItem.message);
         const previousIndex = getPreviousDefinedIndex(i);
         const previousItem = previousIndex >= 0 ? displayOptimizedChatHistory[previousIndex] : undefined;
