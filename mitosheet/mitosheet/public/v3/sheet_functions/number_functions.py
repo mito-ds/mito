@@ -515,7 +515,8 @@ def ROUND(arg: NumberRestrictedInputType, decimals: Optional[IntRestrictedInputT
 
         context = decimal.getcontext()
         context.rounding = decimal.ROUND_HALF_UP
-        number = decimal.Decimal(x)
+        # Use the float's shortest repr, so 1.005 rounds as 1.005 and not as 1.00499999...
+        number = decimal.Decimal(str(x)) if isinstance(x, float) else decimal.Decimal(x)
         rounded_number = round(number, decimals)
         return type(x)(rounded_number)
 
