@@ -34,6 +34,10 @@ ROUND_VALID_TESTS = [
     ([pd.Series([.11, 1.1]), None], pd.Series([0.0, 1.0])),
     ([pd.Series([.11, 1.1, None]), None], pd.Series([0.0, 1.0, None])),
     ([pd.Series([0, 0.49, 0.5 ,0.51 ,1.5 ,2.5 ,3.5 ,-0.49 ,-0.5 ,-0.51 ,-1.5 ,-2.5 ,-3.5]), 0], pd.Series([0.0, 0.0, 1.0, 1.0, 2.0, 3.0, 4.0, 0.0, -1.0, -1.0, -2.0, -3.0, -4.0])),
+    # Halves that floats store slightly below the written value still round up, like Excel
+    ([1.005, 2], 1.01),
+    ([2.675, 2], 2.68),
+    ([pd.Series([1.005, 0.285, -2.675]), 2], pd.Series([1.01, 0.29, -2.68])),
 ]
 
 @pytest.mark.parametrize("_argv, expected", ROUND_VALID_TESTS)
