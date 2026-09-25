@@ -44,12 +44,15 @@ CLEAN_VALID_TESTS: Any = [
     (['ABC\xDEA'], 'ABCA'),
     (['ABC\xDF\xDF\nA\xDFB\x90C'], 'ABCABC'),
     (['A'], 'A'),
+    (['~/data ~5'], '~/data ~5'),
+    (['ABC\x7f'], 'ABC'),
     ([1.0], '1.0'),
     ([True], 'True'),
     ([True], 'True'),
 
     # Constants and series
     ([pd.Series(['ABC', '123', np.nan])], pd.Series(['ABC', '123', ''])),
+    ([pd.Series(['a~b', 'ABC\n', np.nan])], pd.Series(['a~b', 'ABC', ''])),
     ([pd.Series([1.0, None, None])], pd.Series(['1.0', '', ''])),
     ([pd.Series([np.nan, np.nan, np.nan])], pd.Series(['', '', ''])),
     ([pd.Series([10000, 10.0, True, datetime(1997, 12, 22), timedelta(days=1), np.nan])], pd.Series(['10000', '10.0', 'True', '1997-12-22 00:00:00', '1 day, 0:00:00', ''])),

@@ -43,7 +43,7 @@ def CLEAN(arg: StringRestrictedInputType) -> StringFunctionReturnType:
         ]
     }
     """
-    clean_helper: Callable[[str], str] = lambda x:''.join([i if 32 <= ord(i) < 126 else "" for i in x])
+    clean_helper: Callable[[str], str] = lambda x:''.join([i if 32 <= ord(i) < 127 else "" for i in x])
 
     if isinstance(arg, str):
         return clean_helper(arg)
